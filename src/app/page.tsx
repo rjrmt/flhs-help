@@ -3,7 +3,6 @@ import { useState } from 'react';
 import SiteHeader from '@/components/SiteHeader';
 import Spotlight from '@/components/Spotlight';
 import { AppTile } from '@/components/AppTile';
-import { QuickActions } from '@/components/QuickActions';
 import { Clock, DoorOpen, MapPin, TriangleAlert, Star, Folder, Wrench, Laptop2, Building2 } from 'lucide-react';
 
 export default function Home() {
@@ -33,10 +32,6 @@ export default function Home() {
           <div className="absolute bottom-1/3 right-0 w-1 h-24 bg-gradient-to-t from-blue-500/20 via-blue-300/10 to-transparent hidden xl:block"></div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-8 relative z-10">
-          <QuickActions />
-        </div>
 
         {/* Quick Stats Dashboard */}
         <div className="mb-8 sm:mb-12 relative z-10">

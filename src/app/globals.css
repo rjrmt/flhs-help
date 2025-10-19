@@ -192,6 +192,31 @@
   display: none;
 }
 
+/* Focus ring helper */
+.focus-ring {
+  @apply focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900;
+}
+
+/* Safe area utilities */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-inset-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Prevent layout shifts */
+.prevent-layout-shift {
+  contain: layout;
+}
+
+/* Ensure proper overflow handling */
+.overflow-safe {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 /* Premium gradient backgrounds */
 .gradient-bg-primary {
   background: linear-gradient(135deg, 
