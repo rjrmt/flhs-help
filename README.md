@@ -149,10 +149,10 @@ npm run lint     # Run ESLint
 
 ## 👨‍💻 Developer
 
-**Developed by:** [Your Name]  
+**Developed by: RJ Ramautar 
 **Institution:** Fort Lauderdale High School  
 **Project Type:** Master Project - Intellectual Property  
-**Development Period:** [Start Date] - Present  
+**Development Period:** 10/2025 - Present  
 
 ## 📄 License
 
