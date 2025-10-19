@@ -22,8 +22,8 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
   }, [onOpenSearch]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/20 dark:border-white/10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg">
-      <div className="container flex h-12 items-center justify-between px-4 mx-auto max-w-7xl">
+    <header className="sticky top-0 z-50 w-full border-b border-white/20 dark:border-white/10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg pt-[env(safe-area-inset-top)]">
+      <div className="container flex h-12 py-2 items-center justify-between px-4 mx-auto max-w-7xl">
         
         {/* Left: Logo & Brand */}
         <div className="flex items-center space-x-4">
@@ -60,13 +60,13 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
             variant="ghost" 
             size="sm"
             onClick={onOpenSearch}
-            className="md:hidden"
+            className="md:hidden min-h-[44px] min-w-[44px]"
           >
             <Search className="h-4 w-4" />
           </Button>
 
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
+          <Button variant="ghost" size="sm" className="relative min-h-[44px] min-w-[44px]">
             <Bell className="h-4 w-4" />
             {notifications > 0 && (
               <Badge 
@@ -83,6 +83,7 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
             variant="ghost" 
             size="sm"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="min-h-[44px] min-w-[44px]"
           >
             {theme === 'dark' ? (
               <Sun className="h-4 w-4" />
@@ -105,13 +106,16 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
                   />
                 </SignedIn>
                 <SignedOut>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hidden sm:inline-flex">
                     <SignInButton mode="modal" />
+                  </Button>
+                  <Button variant="outline" size="sm" className="sm:hidden rounded-full px-3 py-1.5 text-[12.5px]">
+                    Sign in
                   </Button>
                 </SignedOut>
               </>
             ) : (
-              <Button variant="outline" size="sm" className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100">
+              <Button variant="outline" size="sm" className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100 rounded-full px-3 py-1.5 text-[12.5px]">
                 Demo Mode
               </Button>
             )}

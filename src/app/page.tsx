@@ -3,6 +3,7 @@ import { useState } from 'react';
 import SiteHeader from '@/components/SiteHeader';
 import Spotlight from '@/components/Spotlight';
 import { AppTile } from '@/components/AppTile';
+import { QuickActions } from '@/components/QuickActions';
 import { Clock, DoorOpen, MapPin, TriangleAlert, Star, Folder, Wrench, Laptop2, Building2 } from 'lucide-react';
 
 export default function Home() {
@@ -32,33 +33,38 @@ export default function Home() {
           <div className="absolute bottom-1/3 right-0 w-1 h-24 bg-gradient-to-t from-blue-500/20 via-blue-300/10 to-transparent hidden xl:block"></div>
         </div>
 
+        {/* Quick Actions */}
+        <div className="mb-8 relative z-10">
+          <QuickActions />
+        </div>
+
         {/* Quick Stats Dashboard */}
         <div className="mb-12 relative z-10">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-blue-300 dark:via-blue-400 dark:to-blue-500">Dashboard</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-            <div className="text-center p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-2 px-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:max-w-2xl sm:mx-auto sm:overflow-visible sm:mx-0 sm:px-0">
+            <div className="text-center px-4 py-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50 flex-shrink-0 w-[140px] sm:w-auto">
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full">Today</span>
               </div>
-              <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-2 pulse-glow">24</div>
+              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-2 pulse-glow">24</div>
               <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">Active Students</div>
               <div className="text-xs text-slate-500 dark:text-slate-400">Current class size</div>
             </div>
-            <div className="text-center p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
+            <div className="text-center px-4 py-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50 flex-shrink-0 w-[140px] sm:w-auto">
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded-full">Today</span>
               </div>
-              <div className="text-3xl font-bold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent mb-2 pulse-glow" style={{animationDelay: '1s'}}>3</div>
+              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent mb-2 pulse-glow" style={{animationDelay: '1s'}}>3</div>
               <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">Today&apos;s Tasks</div>
               <div className="text-xs text-slate-500 dark:text-slate-400">Immediate actions</div>
             </div>
-            <div className="text-center p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-amber-200/50 dark:border-amber-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
+            <div className="text-center px-4 py-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-amber-200/50 dark:border-amber-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50 flex-shrink-0 w-[140px] sm:w-auto">
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1 rounded-full">Week</span>
               </div>
-              <div className="text-3xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-2 pulse-glow" style={{animationDelay: '2s'}}>12</div>
+              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-2 pulse-glow" style={{animationDelay: '2s'}}>12</div>
               <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pending Items</div>
               <div className="text-xs text-slate-500 dark:text-slate-400">Requires attention</div>
             </div>
@@ -72,7 +78,7 @@ export default function Home() {
             <p className="text-sm text-slate-600 dark:text-slate-300">Essential classroom management tools</p>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 max-w-4xl mx-auto">
             <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
             <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
             <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
