@@ -13,7 +13,7 @@ export default function Home() {
       <SiteHeader onOpenSearch={() => setOpen(true)} />
       <Spotlight open={open} setOpen={setOpen} />
 
-      <main className="container mx-auto px-6 py-6 max-w-5xl relative">
+      <main className="container mx-auto px-4 py-4 sm:px-6 sm:py-6 max-w-5xl relative">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-blue-900/20 to-blue-700/20 rounded-full blur-xl floating-element"></div>
@@ -39,46 +39,37 @@ export default function Home() {
         </div>
 
         {/* Quick Stats Dashboard */}
-        <div className="mb-12 relative z-10">
-          <div className="text-center mb-6">
+        <div className="mb-8 sm:mb-12 relative z-10">
+          <div className="text-center mb-4 sm:mb-6">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-blue-300 dark:via-blue-400 dark:to-blue-500">Dashboard</h2>
           </div>
-          <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-2 px-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:max-w-2xl sm:mx-auto sm:overflow-visible sm:mx-0 sm:px-0">
-            <div className="text-center px-4 py-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50 flex-shrink-0 w-[140px] sm:w-auto">
-              <div className="inline-flex items-center gap-2 mb-2">
-                <span className="text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full">Today</span>
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-2 pulse-glow">24</div>
-              <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">Active Students</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Current class size</div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 sm:max-w-2xl sm:mx-auto">
+            <div className="text-center px-2 py-3 sm:p-4 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
+              <div className="text-lg sm:text-3xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-1 sm:mb-2 pulse-glow">24</div>
+              <div className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight">Students</div>
+              <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Current class</div>
             </div>
-            <div className="text-center px-4 py-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50 flex-shrink-0 w-[140px] sm:w-auto">
-              <div className="inline-flex items-center gap-2 mb-2">
-                <span className="text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded-full">Today</span>
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent mb-2 pulse-glow" style={{animationDelay: '1s'}}>3</div>
-              <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">Today&apos;s Tasks</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Immediate actions</div>
+            <div className="text-center px-2 py-3 sm:p-4 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
+              <div className="text-lg sm:text-3xl font-bold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent mb-1 sm:mb-2 pulse-glow" style={{animationDelay: '1s'}}>3</div>
+              <div className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight">Tasks</div>
+              <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Today</div>
             </div>
-            <div className="text-center px-4 py-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-amber-200/50 dark:border-amber-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50 flex-shrink-0 w-[140px] sm:w-auto">
-              <div className="inline-flex items-center gap-2 mb-2">
-                <span className="text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1 rounded-full">Week</span>
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-2 pulse-glow" style={{animationDelay: '2s'}}>12</div>
-              <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pending Items</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Requires attention</div>
+            <div className="text-center px-2 py-3 sm:p-4 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-amber-200/50 dark:border-amber-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
+              <div className="text-lg sm:text-3xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-1 sm:mb-2 pulse-glow" style={{animationDelay: '2s'}}>12</div>
+              <div className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight">Pending</div>
+              <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:block">This week</div>
             </div>
           </div>
         </div>
 
         {/* Faculty Tools */}
         <div className="relative z-10">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-blue-300 dark:via-blue-400 dark:to-blue-500 mb-2">Faculty Tools</h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">Essential classroom management tools</p>
           </div>
           
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 max-w-4xl mx-auto">
             <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
             <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
             <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
