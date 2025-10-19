@@ -69,21 +69,13 @@ export default function Home() {
             <p className="text-sm text-slate-600 dark:text-slate-300">Essential classroom management tools</p>
           </div>
           
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 max-w-4xl mx-auto">
             <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
             <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
             <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
-            
-            {/* Subtle divider */}
-            <div className="col-span-2 sm:col-span-3 lg:col-span-3 h-px bg-gradient-to-r from-transparent via-slate-200/50 dark:via-slate-700/50 to-transparent my-2"></div>
-            
             <AppTile href="/detentions" Icon={TriangleAlert} label="Detentions" hint="Track attendance" />
             <AppTile href="/points" Icon={Star} label="Positive Points" hint="Reward behavior" />
             <AppTile href="/history" Icon={Folder} label="Student History" hint="View records" />
-            
-            {/* Subtle divider */}
-            <div className="col-span-2 sm:col-span-3 lg:col-span-3 h-px bg-gradient-to-r from-transparent via-slate-200/50 dark:via-slate-700/50 to-transparent my-2"></div>
-            
             <AppTile href="/it" Icon={Wrench} label="IT Help" hint="Report issues" />
             <AppTile href="/lost-device" Icon={Laptop2} label="Lost Device" hint="Flag devices" />
             <AppTile href="/rooms" Icon={Building2} label="Room Finder" hint="Find resources" />

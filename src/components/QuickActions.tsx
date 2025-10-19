@@ -7,21 +7,21 @@ export function QuickActions() {
       <Button 
         variant="outline" 
         size="sm" 
-        className="rounded-full px-3 py-1.5 text-[12.5px] bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-white/20 dark:border-white/10 hover:bg-white/90 dark:hover:bg-slate-700/90 flex-shrink-0"
+        className="rounded-full px-3 py-1.5 text-[12px] bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-white/30 dark:border-white/20 hover:bg-white/95 dark:hover:bg-slate-700/95 flex-shrink-0 shadow-sm hover:shadow-md transition-all duration-200"
       >
         Open Kiosk
       </Button>
       <Button 
         variant="outline" 
         size="sm" 
-        className="rounded-full px-3 py-1.5 text-[12.5px] bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-white/20 dark:border-white/10 hover:bg-white/90 dark:hover:bg-slate-700/90 flex-shrink-0"
+        className="rounded-full px-3 py-1.5 text-[12px] bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-white/30 dark:border-white/20 hover:bg-white/95 dark:hover:bg-slate-700/95 flex-shrink-0 shadow-sm hover:shadow-md transition-all duration-200"
       >
         Verify Pass
       </Button>
       <Button 
         variant="outline" 
         size="sm" 
-        className="rounded-full px-3 py-1.5 text-[12.5px] bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-white/20 dark:border-white/10 hover:bg-white/90 dark:hover:bg-slate-700/90 flex-shrink-0"
+        className="rounded-full px-3 py-1.5 text-[12px] bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-white/30 dark:border-white/20 hover:bg-white/95 dark:hover:bg-slate-700/95 flex-shrink-0 shadow-sm hover:shadow-md transition-all duration-200"
       >
         Emergency Alert
       </Button>
