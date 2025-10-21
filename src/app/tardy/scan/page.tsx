@@ -25,7 +25,7 @@ export default function ScanModePage() {
 
   // Initialize audio context for beep sound
   useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     return () => {
       if (audioContextRef.current) {
         audioContextRef.current.close();
@@ -34,6 +34,7 @@ export default function ScanModePage() {
   }, []);
 
   // Play beep sound when ID is scanned
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const playBeep = () => {
     if (!audioContextRef.current) return;
     
@@ -135,7 +136,7 @@ export default function ScanModePage() {
       const videoTrack = streamRef.current.getVideoTracks()[0];
       if (videoTrack && 'applyConstraints' in videoTrack) {
         await videoTrack.applyConstraints({
-          advanced: [{ torch: !isTorchOn } as any]
+          advanced: [{ torch: !isTorchOn } as MediaTrackConstraints]
         });
         setIsTorchOn(!isTorchOn);
       }

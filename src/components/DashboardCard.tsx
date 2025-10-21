@@ -24,7 +24,6 @@ export function DashboardCard({
   title,
   value,
   subtitle,
-  footer,
   trend,
   variant = 'info',
   className,

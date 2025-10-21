@@ -245,7 +245,7 @@ export default function TardyLogPage() {
               </div>
               
               <div className="space-y-2">
-                {recentTardies.slice(0, 3).map((student, index) => (
+                {recentTardies.slice(0, 3).map((student) => (
                   <div key={student.id} className="bg-white/5 p-2 rounded border border-white/10">
                     <div className="flex items-center justify-between">
                       <div>
