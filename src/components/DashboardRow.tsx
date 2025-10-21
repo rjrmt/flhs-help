@@ -8,16 +8,8 @@ import * as React from 'react';
  */
 export function DashboardRow({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      {/* Mobile: single column, full width, uniform spacing */}
-      <div className="md:hidden grid grid-cols-1 gap-4">
-        {children}
-      </div>
-
-      {/* Desktop/tablet: single grid row */}
-      <div className="hidden md:grid md:auto-cols-fr md:grid-flow-col md:gap-4">
-        {children}
-      </div>
+    <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4 xl:gap-6 w-full">
+      {children}
     </div>
   );
 }

@@ -14,7 +14,7 @@ export default function Home() {
       <SiteHeader onOpenSearch={() => setOpen(true)} />
       <Spotlight open={open} setOpen={setOpen} />
 
-      <main className="container mx-auto px-4 py-4 sm:px-6 sm:py-6 max-w-5xl relative">
+      <main className="w-full px-4 py-4 sm:px-6 sm:py-6 lg:px-8 xl:px-12 relative">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-blue-900/20 to-blue-700/20 rounded-full blur-xl floating-element"></div>
@@ -40,7 +40,7 @@ export default function Home() {
           <div className="text-center mb-4 sm:mb-6">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-blue-300 dark:via-blue-400 dark:to-blue-500">Dashboard</h2>
           </div>
-          <div className="mx-auto w-full max-w-[1024px]">
+          <div className="w-full">
             <DashboardRow>
               <DashboardCard
                 title="Positive Points"
@@ -74,23 +74,21 @@ export default function Home() {
             <p className="text-sm text-slate-600 dark:text-slate-300">Quick access</p>
           </div>
 
-          {/* Desktop: horizontal tool row */}
-          <div className="hidden lg:flex gap-3 overflow-x-auto no-scrollbar px-1 py-1 max-w-5xl mx-auto">
-            <div className="flex gap-3">
-              <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
-              <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
-              <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
-              <AppTile href="/detentions" Icon={TriangleAlert} label="Detentions" hint="Track attendance" />
-              <AppTile href="/points" Icon={Star} label="Positive Points" hint="Reward behavior" />
-              <AppTile href="/history" Icon={Folder} label="Student History" hint="View records" />
-              <AppTile href="/it" Icon={Wrench} label="IT Help" hint="Report issues" />
-              <AppTile href="/lost-device" Icon={Laptop2} label="Lost Device" hint="Flag devices" />
-              <AppTile href="/rooms" Icon={Building2} label="Room Finder" hint="Find resources" />
-            </div>
+          {/* Mobile: 3x3 Grid Layout */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:hidden w-full">
+            <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
+            <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
+            <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
+            <AppTile href="/detentions" Icon={TriangleAlert} label="Detentions" hint="Track attendance" />
+            <AppTile href="/points" Icon={Star} label="Positive Points" hint="Reward behavior" />
+            <AppTile href="/history" Icon={Folder} label="Student History" hint="View records" />
+            <AppTile href="/it" Icon={Wrench} label="IT Help" hint="Report issues" />
+            <AppTile href="/lost-device" Icon={Laptop2} label="Lost Device" hint="Flag devices" />
+            <AppTile href="/rooms" Icon={Building2} label="Room Finder" hint="Find resources" />
           </div>
 
-          {/* Mobile/tablet: compact grid with tighter spacing */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:hidden max-w-4xl mx-auto">
+          {/* Desktop: 1x9 Horizontal Row */}
+          <div className="hidden lg:grid lg:grid-cols-9 gap-2 xl:gap-3 w-full">
             <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
             <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
             <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
