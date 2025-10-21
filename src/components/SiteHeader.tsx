@@ -22,7 +22,7 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
   }, [onOpenSearch]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/20 dark:border-white/10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg pt-[env(safe-area-inset-top)]">
+    <header className="sticky top-0 z-50 w-full border-b border-black/5 dark:border-white/10 glass-header shadow-lg pt-[env(safe-area-inset-top)]">
       <div className="container flex h-12 py-2 items-center justify-between px-4 mx-auto max-w-7xl">
         
         {/* Left: Logo & Brand */}
@@ -54,7 +54,7 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 text-slate-900 dark:text-slate-100">
           {/* Mobile Search Button */}
           <Button 
             variant="ghost" 

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import SiteHeader from '@/components/SiteHeader';
 import Spotlight from '@/components/Spotlight';
 import { AppTile } from '@/components/AppTile';
+import DashboardCard from '@/components/DashboardCard';
+import DashboardRow from '@/components/DashboardRow';
 import { Clock, DoorOpen, MapPin, TriangleAlert, Star, Folder, Wrench, Laptop2, Building2 } from 'lucide-react';
 
 export default function Home() {
@@ -33,38 +35,62 @@ export default function Home() {
         </div>
 
 
-        {/* Quick Stats Dashboard */}
+        {/* Dashboard */}
         <div className="mb-8 sm:mb-12 relative z-10">
           <div className="text-center mb-4 sm:mb-6">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-blue-300 dark:via-blue-400 dark:to-blue-500">Dashboard</h2>
           </div>
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 sm:max-w-2xl sm:mx-auto">
-            <div className="text-center px-2 py-3 sm:p-4 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
-              <div className="text-lg sm:text-3xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-1 sm:mb-2 pulse-glow">24</div>
-              <div className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight">Students</div>
-              <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Current class</div>
-            </div>
-            <div className="text-center px-2 py-3 sm:p-4 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
-              <div className="text-lg sm:text-3xl font-bold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent mb-1 sm:mb-2 pulse-glow" style={{animationDelay: '1s'}}>3</div>
-              <div className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight">Tasks</div>
-              <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Today</div>
-            </div>
-            <div className="text-center px-2 py-3 sm:p-4 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-amber-200/50 dark:border-amber-700/50 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-[transform,shadow,filter] duration-200 ease-out shadow-lg hover:shadow-xl hover:-translate-y-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400/50">
-              <div className="text-lg sm:text-3xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-1 sm:mb-2 pulse-glow" style={{animationDelay: '2s'}}>12</div>
-              <div className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight">Pending</div>
-              <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:block">This week</div>
-            </div>
+          <div className="mx-auto w-full max-w-[1024px]">
+            <DashboardRow>
+              <DashboardCard
+                title="Positive Points"
+                value={18}
+                subtitle="PBIS Points Today"
+                variant="behavior"
+                className="w-full"
+              />
+              <DashboardCard
+                title="Tardies Today"
+                value={7}
+                subtitle="Logged since 7:00 AM"
+                variant="warning"
+                className="w-full"
+              />
+              <DashboardCard
+                title="Passes in Use"
+                value={3}
+                subtitle="Students out right now"
+                variant="info"
+                className="w-full"
+              />
+            </DashboardRow>
           </div>
         </div>
 
         {/* Faculty Tools */}
         <div className="relative z-10">
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-blue-300 dark:via-blue-400 dark:to-blue-500 mb-2">Faculty Tools</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">Essential classroom management tools</p>
+          <div className="text-center mb-3 sm:mb-4">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-blue-300 dark:via-blue-400 dark:to-blue-500 mb-1">Faculty Tools</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300">Quick access</p>
           </div>
-          
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 max-w-4xl mx-auto">
+
+          {/* Desktop: horizontal tool row */}
+          <div className="hidden lg:flex gap-3 overflow-x-auto no-scrollbar px-1 py-1 max-w-5xl mx-auto">
+            <div className="flex gap-3">
+              <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
+              <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
+              <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
+              <AppTile href="/detentions" Icon={TriangleAlert} label="Detentions" hint="Track attendance" />
+              <AppTile href="/points" Icon={Star} label="Positive Points" hint="Reward behavior" />
+              <AppTile href="/history" Icon={Folder} label="Student History" hint="View records" />
+              <AppTile href="/it" Icon={Wrench} label="IT Help" hint="Report issues" />
+              <AppTile href="/lost-device" Icon={Laptop2} label="Lost Device" hint="Flag devices" />
+              <AppTile href="/rooms" Icon={Building2} label="Room Finder" hint="Find resources" />
+            </div>
+          </div>
+
+          {/* Mobile/tablet: compact grid with tighter spacing */}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:hidden max-w-4xl mx-auto">
             <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
             <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
             <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
