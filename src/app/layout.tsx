@@ -10,7 +10,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <ClerkProvider publishableKey={clerkPubKey}>
         <html lang="en" suppressHydrationWarning>
           <body className="min-h-screen bg-background text-foreground antialiased" suppressHydrationWarning>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem suppressHydrationWarning>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               {children}
             </ThemeProvider>
           </body>
@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground antialiased" suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
         </ThemeProvider>
       </body>

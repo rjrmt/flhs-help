@@ -141,14 +141,6 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
     }
   }, [showScanner, selectedDeviceId, startScanning]);
 
-  const switchCamera = () => {
-    if (devices.length > 1) {
-      const currentIndex = devices.findIndex(d => d.deviceId === selectedDeviceId);
-      const nextIndex = (currentIndex + 1) % devices.length;
-      setSelectedDeviceId(devices[nextIndex].deviceId);
-    }
-  };
-
   const handleScannerSuccess = (scannedId: string) => {
     setStudentId(scannedId);
     setShowScanner(false);
@@ -156,6 +148,14 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
     setTimeout(() => {
       handleVerify();
     }, 100);
+  };
+
+  const switchCamera = () => {
+    if (devices.length > 1) {
+      const currentIndex = devices.findIndex(d => d.deviceId === selectedDeviceId);
+      const nextIndex = (currentIndex + 1) % devices.length;
+      setSelectedDeviceId(devices[nextIndex].deviceId);
+    }
   };
 
   const handleVerify = async () => {
