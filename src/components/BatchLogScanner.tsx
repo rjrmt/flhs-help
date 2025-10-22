@@ -107,7 +107,7 @@ export function BatchLogScanner({ onLogTardy, dailyLogs, onExitBatch }: BatchLog
               handleScannerSuccess(text);
             }
           }
-          if (error && !(error as any).name?.includes('NotFoundException')) {
+          if (error && !(error as Error).name?.includes('NotFoundException')) {
             console.warn('Scan error:', error);
           }
         }

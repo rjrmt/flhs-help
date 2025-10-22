@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { ArrowLeft, CheckCircle, XCircle, Clock, AlertTriangle, FileText, User, MoreHorizontal, ScanLine, X, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, ScanLine, X, RotateCcw } from 'lucide-react';
 import { BrowserMultiFormatReader } from '@zxing/library';
 
 // Types
@@ -33,7 +32,6 @@ interface LiveScanCardProps {
 type ScanState = 'idle' | 'scanning' | 'identified' | 'success' | 'error';
 
 export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveScanCardProps) {
-  const router = useRouter();
   const [state, setState] = useState<ScanState>('idle');
   const [studentId, setStudentId] = useState('');
   const [student, setStudent] = useState<Student | null>(null);
@@ -119,7 +117,7 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
               handleScannerSuccess(text);
             }
           }
-          if (error && !(error as any).name?.includes('NotFoundException')) {
+          if (error && !(error as Error).name?.includes('NotFoundException')) {
             console.warn('Scan error:', error);
           }
         }
@@ -234,13 +232,6 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
     }
   }, [studentId, state]);
 
-  const isTardyOverOneHour = (lastTardy: string) => {
-    if (!lastTardy) return false;
-    const tardyTime = new Date(lastTardy);
-    const currentTime = new Date();
-    const diffInHours = (currentTime.getTime() - tardyTime.getTime()) / (1000 * 60 * 60);
-    return diffInHours > 1;
-  };
 
   const excuseReasons = [
     { id: 'medical', label: 'Medical Appointment' },

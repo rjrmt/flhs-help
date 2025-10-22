@@ -1,7 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Target, Layers, ClipboardList } from 'lucide-react';
 
 interface DashboardHeaderProps {
