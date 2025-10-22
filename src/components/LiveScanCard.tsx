@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { ArrowLeft, CheckCircle, XCircle, Clock, AlertTriangle, FileText, User, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Clock, AlertTriangle, FileText, User, MoreHorizontal, ScanLine, X, RotateCcw } from 'lucide-react';
+import { BrowserMultiFormatReader } from '@zxing/library';
 
 // Types
 interface Student {
@@ -31,6 +33,7 @@ interface LiveScanCardProps {
 type ScanState = 'idle' | 'scanning' | 'identified' | 'success' | 'error';
 
 export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveScanCardProps) {
+  const router = useRouter();
   const [state, setState] = useState<ScanState>('idle');
   const [studentId, setStudentId] = useState('');
   const [student, setStudent] = useState<Student | null>(null);
@@ -39,8 +42,13 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
   const [showUndo, setShowUndo] = useState(false);
   const [lastLog, setLastLog] = useState<{ logId: string; timestamp: string; ttsNumber: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
 
   // Auto-focus and refocus input
   useEffect(() => {
@@ -61,6 +69,95 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
     if (value.length <= 10) {
       setStudentId(value);
     }
+  };
+
+  // Initialize scanner
+  useEffect(() => {
+    if (!readerRef.current) {
+      readerRef.current = new BrowserMultiFormatReader();
+    }
+    
+    return () => {
+      if (readerRef.current) {
+        readerRef.current.reset();
+      }
+    };
+  }, []);
+
+  // Get available cameras
+  const getCameras = useCallback(async () => {
+    try {
+      const videoInputDevices = await readerRef.current?.listVideoInputDevices();
+      if (videoInputDevices && videoInputDevices.length > 0) {
+        setDevices(videoInputDevices);
+        // Prefer back camera if available
+        const backCamera = videoInputDevices.find(device => 
+          device.label.toLowerCase().includes('back') || 
+          device.label.toLowerCase().includes('rear') ||
+          device.label.toLowerCase().includes('environment')
+        );
+        setSelectedDeviceId(backCamera?.deviceId || videoInputDevices[0].deviceId);
+      }
+    } catch (err) {
+      console.error('Error getting cameras:', err);
+    }
+  }, []);
+
+  // Start scanning
+  const startScanning = useCallback(async () => {
+    if (!readerRef.current || !selectedDeviceId || !videoRef.current) return;
+
+    try {
+      await readerRef.current.decodeFromVideoDevice(
+        selectedDeviceId,
+        videoRef.current,
+        (result, error) => {
+          if (result) {
+            const text = result.getText();
+            // Only process if it looks like a student ID (10 digits)
+            if (/^\d{10}$/.test(text)) {
+              handleScannerSuccess(text);
+            }
+          }
+          if (error && !(error as any).name?.includes('NotFoundException')) {
+            console.warn('Scan error:', error);
+          }
+        }
+      );
+    } catch (err) {
+      console.error('Error starting scan:', err);
+    }
+  }, [selectedDeviceId]);
+
+  // Initialize when scanner opens
+  useEffect(() => {
+    if (showScanner) {
+      getCameras();
+    }
+  }, [showScanner, getCameras]);
+
+  // Start scanning when we have device
+  useEffect(() => {
+    if (showScanner && selectedDeviceId) {
+      startScanning();
+    }
+  }, [showScanner, selectedDeviceId, startScanning]);
+
+  const switchCamera = () => {
+    if (devices.length > 1) {
+      const currentIndex = devices.findIndex(d => d.deviceId === selectedDeviceId);
+      const nextIndex = (currentIndex + 1) % devices.length;
+      setSelectedDeviceId(devices[nextIndex].deviceId);
+    }
+  };
+
+  const handleScannerSuccess = (scannedId: string) => {
+    setStudentId(scannedId);
+    setShowScanner(false);
+    // Auto-verify the scanned ID
+    setTimeout(() => {
+      handleVerify();
+    }, 100);
   };
 
   const handleVerify = async () => {
@@ -153,68 +250,86 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <main className="max-w-md mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-white hover:bg-white/10 p-2"
-            onClick={() => window.history.back()}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold text-white">Tardy Log</h1>
-          <div className="ml-auto">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 p-2">
-                  <MoreHorizontal className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="bg-slate-900 border-slate-700">
-                <SheetHeader>
-                  <SheetTitle className="text-white">More Options</SheetTitle>
-                </SheetHeader>
-                <div className="grid gap-3 mt-6">
-                  <Button variant="outline" className="justify-start h-12 text-left">
-                    <Clock className="h-4 w-4 mr-3" />
-                    24-Hour Log
-                  </Button>
-                  <Button variant="outline" className="justify-start h-12 text-left">
-                    <FileText className="h-4 w-4 mr-3" />
-                    Reports
-                  </Button>
-                  <Button variant="outline" className="justify-start h-12 text-left">
-                    <User className="h-4 w-4 mr-3" />
-                    Admin
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
+    <div className="space-y-6">
 
-        {/* Live Scan Card */}
-        <Card className="mb-6 bg-white/5 backdrop-blur-sm border border-white/20">
-          <div className="p-6">
-            {/* Input Section */}
-            {(state === 'idle' || state === 'scanning' || state === 'error') && (
-              <div className="space-y-4">
-                <Input
-                  ref={inputRef}
-                  value={studentId}
-                  onChange={handleInputChange}
-                  placeholder="Enter student ID..."
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  className={`bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:ring-blue-400/20 h-14 text-lg text-center ${
-                    state === 'error' ? 'border-red-400 focus:border-red-400' : 'focus:border-blue-400'
-                  }`}
-                  onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
-                  disabled={isLoading}
-                />
+      {/* Live Scan Card */}
+      <Card className="bg-white/5 backdrop-blur-sm border border-white/20">
+        <div className="p-6">
+          {/* Input Section */}
+          {(state === 'idle' || state === 'scanning' || state === 'error') && (
+            <div className="space-y-4">
+              {!showScanner ? (
+                <div className="relative">
+                  <Input
+                    ref={inputRef}
+                    value={studentId}
+                    onChange={handleInputChange}
+                    placeholder="Scan ID or Type..."
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    className={`bg-white/10 border-white/30 text-white placeholder:text-slate-400 focus:ring-blue-400/20 h-16 text-xl text-center font-mono ${
+                      state === 'error' ? 'border-red-400 focus:border-red-400' : 'focus:border-blue-400'
+                    }`}
+                    onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
+                    disabled={isLoading}
+                  />
+                  
+                  {/* Barcode Scanner Button */}
+                  <button
+                    onClick={() => setShowScanner(true)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 hover:bg-white/10 rounded-lg transition-colors"
+                    disabled={isLoading}
+                  >
+                    <ScanLine className="h-6 w-6 text-slate-400" />
+                  </button>
+                </div>
+              ) : (
+                <div className="relative bg-slate-800 rounded-lg overflow-hidden">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-64 object-cover"
+                    autoPlay
+                    playsInline
+                    muted
+                  />
+                  
+                  {/* Scanning overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-48 h-32 border-2 border-blue-400 rounded-lg bg-blue-400/10 backdrop-blur-sm">
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="w-1 h-8 bg-blue-400 animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Close scanner button */}
+                  <button
+                    onClick={() => setShowScanner(false)}
+                    className="absolute top-4 right-4 p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors"
+                  >
+                    <X className="h-5 w-5 text-white" />
+                  </button>
+                  
+                  {/* Camera controls */}
+                  <div className="absolute bottom-4 left-4 right-4 flex justify-between">
+                    <div className="flex gap-2">
+                      {devices.length > 1 && (
+                        <button
+                          onClick={switchCamera}
+                          className="p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors"
+                        >
+                          <RotateCcw className="h-4 w-4 text-white" />
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-white text-sm">Scanning...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
                 
                 {isLoading && (
                   <div className="flex justify-center">
@@ -231,23 +346,23 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
               </div>
             )}
 
-            {/* Identified State */}
-            {state === 'identified' && student && (
-              <div className="space-y-6">
-                {/* Large Title Name */}
-                <div className="text-center">
-                  <h2 className="text-3xl font-bold text-white mb-2">
-                    {student.firstName} {student.lastName}
-                  </h2>
-                  
-                  {/* Grade Pill */}
-                  <Badge 
-                    variant="outline" 
-                    className="bg-blue-500/20 border-blue-400/50 text-blue-300 text-sm px-3 py-1"
-                  >
-                    Grade {student.grade}
-                  </Badge>
-                </div>
+          {/* Identified State */}
+          {state === 'identified' && student && (
+            <div className="space-y-6">
+              {/* HUGE Student Name */}
+              <div className="text-center">
+                <h2 className="text-4xl font-black text-white mb-4 tracking-wide">
+                  {student.firstName} {student.lastName}
+                </h2>
+                
+                {/* Grade Pill */}
+                <Badge 
+                  variant="outline" 
+                  className="bg-blue-500/20 border-blue-400/50 text-blue-300 text-sm px-3 py-1"
+                >
+                  Grade {student.grade}
+                </Badge>
+              </div>
 
                 {/* ID/Homeroom Row */}
                 <div className="flex justify-between items-center text-sm">
@@ -255,21 +370,28 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
                   <span className="text-slate-400">Homeroom: {student.homeroom}</span>
                 </div>
 
-                {/* Chips Row */}
+              {/* Alert Badges - Prominent Display */}
+              <div className="space-y-3">
+                {/* Rule Triggered - Subdued Red Banner */}
+                {student.ruleTriggered && (
+                  <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-4">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-red-400" />
+                      <span className="text-red-300 font-medium">
+                        RULE TRIGGERED: {student.ruleTriggered}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Informational Data - Low-contrast Neutral Pills */}
                 <div className="flex flex-wrap gap-2">
                   {/* Last Tardy Chip */}
                   {student.lastTardy && (
                     <Badge 
                       variant="outline"
-                      className={`text-sm px-3 py-1 ${
-                        isTardyOverOneHour(student.lastTardy)
-                          ? 'bg-red-500/20 border-red-400/50 text-red-300'
-                          : 'bg-white/10 border-white/20 text-white'
-                      }`}
+                      className="bg-slate-700/50 border-slate-600/50 text-slate-300 text-sm px-3 py-1"
                     >
-                      {isTardyOverOneHour(student.lastTardy) && (
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                      )}
                       Last: {new Date(student.lastTardy).toLocaleDateString()}
                     </Badge>
                   )}
@@ -277,7 +399,7 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
                   {/* TTS Chip */}
                   <Badge 
                     variant="outline"
-                    className="bg-orange-500/20 border-orange-400/50 text-orange-300 text-sm px-3 py-1"
+                    className="bg-slate-700/50 border-slate-600/50 text-slate-300 text-sm px-3 py-1"
                   >
                     TTS#{student.ttsCount}
                   </Badge>
@@ -285,49 +407,37 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
                   {/* TTC Chip */}
                   <Badge 
                     variant="outline"
-                    className="bg-yellow-500/20 border-yellow-400/50 text-yellow-300 text-sm px-3 py-1"
+                    className="bg-slate-700/50 border-slate-600/50 text-slate-300 text-sm px-3 py-1"
                   >
                     TTC#{student.ttcCount}
                   </Badge>
-
-                  {/* Rule Chip */}
-                  {student.ruleTriggered && (
-                    <Badge 
-                      variant="outline"
-                      className="bg-red-500/20 border-red-400/50 text-red-300 text-sm px-3 py-1"
-                    >
-                      Rule: {student.ruleTriggered}
-                    </Badge>
-                  )}
                 </div>
+              </div>
 
-                {/* Action Buttons */}
-                <div className="space-y-3">
-                  {/* Primary Button */}
-                  <Button 
-                    onClick={handleLogTardy}
-                    disabled={isLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-lg font-medium"
-                  >
-                    {isLoading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    ) : (
-                      <CheckCircle className="h-5 w-5 mr-2" />
-                    )}
-                    Log Tardy
-                  </Button>
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                {/* Primary Button - Electric Blue */}
+                <Button 
+                  onClick={handleLogTardy}
+                  disabled={isLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white h-16 text-xl font-bold shadow-lg transform hover:scale-105 transition-all duration-200"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
+                  ) : (
+                    <CheckCircle className="h-6 w-6 mr-3" />
+                  )}
+                  LOG TARDY ({student.firstName.toUpperCase()})
+                </Button>
 
-                  {/* Secondary Row */}
-                  <div className="flex gap-3">
-                    <Sheet open={isExcuseOpen} onOpenChange={setIsExcuseOpen}>
-                      <SheetTrigger asChild>
-                        <Button 
-                          variant="outline"
-                          className="flex-1 border-white/20 text-white hover:bg-white/10 h-10"
-                        >
-                          Excuse
-                        </Button>
-                      </SheetTrigger>
+                {/* Secondary Actions - Subtle Text Links */}
+                <div className="flex justify-center gap-6 text-sm">
+                  <Sheet open={isExcuseOpen} onOpenChange={setIsExcuseOpen}>
+                    <SheetTrigger asChild>
+                      <button className="text-slate-400 hover:text-white transition-colors">
+                        Excuse
+                      </button>
+                    </SheetTrigger>
                       <SheetContent side="bottom" className="bg-slate-900 border-slate-700">
                         <SheetHeader>
                           <SheetTitle className="text-white">Excuse Reason</SheetTitle>
@@ -351,25 +461,24 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
                       </SheetContent>
                     </Sheet>
 
-                    <Button 
-                      onClick={resetToIdle}
-                      variant="outline"
-                      className="flex-1 border-white/20 text-white hover:bg-white/10 h-10"
-                    >
-                      Clear
-                    </Button>
-                  </div>
+                  <button 
+                    onClick={resetToIdle}
+                    className="text-slate-400 hover:text-white transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
 
-                  {/* Details Disclosure */}
-                  <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-                    <SheetTrigger asChild>
-                      <Button 
-                        variant="ghost"
-                        className="w-full text-slate-400 hover:text-white hover:bg-white/5 h-10"
-                      >
-                        Details
-                      </Button>
-                    </SheetTrigger>
+                {/* Details Disclosure */}
+                <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                  <SheetTrigger asChild>
+                    <Button 
+                      variant="ghost"
+                      className="w-full text-slate-400 hover:text-white hover:bg-white/5 h-10"
+                    >
+                      Details
+                    </Button>
+                  </SheetTrigger>
                     <SheetContent side="bottom" className="bg-slate-900 border-slate-700 max-h-[80vh]">
                       <SheetHeader>
                         <SheetTitle className="text-white">Student Details</SheetTitle>
@@ -379,14 +488,17 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
                         <div>
                           <h3 className="text-white font-medium mb-3">Recent Tardies</h3>
                           <div className="space-y-2">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                              <div key={i} className="bg-white/5 p-3 rounded-lg">
-                                <div className="flex justify-between items-center">
-                                  <span className="text-white">Tardy #{i}</span>
-                                  <span className="text-slate-400">Jan {15 - i}, 2024 8:15 AM</span>
+                            {[1, 2, 3, 4, 5].map((i) => {
+                              const date = new Date(2024, 0, 15 - i, 8, 15);
+                              return (
+                                <div key={i} className="bg-white/5 p-3 rounded-lg">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-white">Tardy #{i}</span>
+                                    <span className="text-slate-400">{date.toLocaleDateString()} {date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
 
@@ -407,42 +519,42 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
               </div>
             )}
 
-            {/* Success State */}
-            {state === 'success' && lastLog && (
-              <div className="text-center space-y-4">
-                <div className="animate-pulse">
-                  <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-4" />
-                </div>
-                <h3 className="text-white text-lg font-medium">Logged</h3>
-                <p className="text-slate-400">
-                  {lastLog.timestamp} · TTS#{lastLog.ttsNumber}
-                </p>
+          {/* Success State */}
+          {state === 'success' && lastLog && (
+            <div className="text-center space-y-4">
+              <div className="animate-pulse">
+                <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-4" />
+              </div>
+              <h3 className="text-white text-lg font-medium">Logged</h3>
+              <p className="text-slate-400">
+                {new Date(lastLog.timestamp).toLocaleString()} · TTS#{lastLog.ttsNumber}
+              </p>
               </div>
             )}
-          </div>
-        </Card>
 
-        {/* Undo Toast */}
-        {showUndo && lastLog && (
-          <div className="fixed bottom-6 left-4 right-4 z-50 bg-white/5 backdrop-blur-sm border border-white/20">
-            <div className="p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white font-medium">Tardy logged successfully</p>
-                  <p className="text-slate-400 text-sm">Tap to undo</p>
-                </div>
-                <Button
-                  onClick={handleUndo}
-                  size="sm"
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  Undo
-                </Button>
+        </div>
+      </Card>
+
+      {/* Undo Toast */}
+      {showUndo && lastLog && (
+        <div className="fixed bottom-6 left-4 right-4 z-50 bg-white/5 backdrop-blur-sm border border-white/20">
+          <div className="p-4 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white font-medium">Tardy logged successfully</p>
+                <p className="text-slate-400 text-sm">Tap to undo</p>
               </div>
+              <Button
+                onClick={handleUndo}
+                size="sm"
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Undo
+              </Button>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
     </div>
   );
 }
