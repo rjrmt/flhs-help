@@ -78,8 +78,17 @@ flhs-hub/
 │   │   ├── AppTile.tsx     # Feature tiles
 │   │   └── ui/            # Shadcn/ui components
 │   └── lib/               # Utility functions
+├── docs/                  # Documentation and assets
+│   ├── PROJECT_REPORT.md  # Technical documentation
+│   └── PROJECT PHOTOS/    # Project screenshots
+├── scripts/               # Build and deployment scripts
+│   ├── quick-push.sh      # Git push script
+│   └── start-dev.sh       # Development startup script
+├── public/                # Static assets
+│   └── images/           # SVG icons and images
 ├── components.json        # Shadcn/ui configuration
 ├── tailwind.config.ts     # Tailwind configuration
+├── .gitignore            # Git ignore rules
 └── package.json          # Dependencies and scripts
 ```
 

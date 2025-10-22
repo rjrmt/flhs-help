@@ -1,5 +1,6 @@
 'use client';
 import { Bell, Sun, Moon, Search } from "lucide-react";
+import Image from "next/image";
 import { useTheme } from 'next-themes';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
@@ -28,8 +29,15 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
         {/* Left: Logo & Brand */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-blue-800 via-blue-600 to-blue-400 rounded-xl shadow-xl pulse-glow">
-              <span className="text-white font-bold text-sm">FL</span>
+            <div className="flex items-center justify-center w-8 h-8 rounded-xl shadow-xl">
+              <Image 
+                src="/logo.svg?v=2" 
+                alt="FLHS Logo" 
+                width={32} 
+                height={32} 
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <h1 className="text-lg font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent">FLHS Hub</h1>
