@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { collection, doc, getDoc, addDoc, deleteDoc, onSnapshot, query } from 'firebase/firestore';
+import { collection, doc, getDoc, addDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { LiveScanCard } from '@/components/LiveScanCard';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { BatchLogScanner } from '@/components/BatchLogScanner';
@@ -154,7 +154,6 @@ export default function TardyLogPage() {
       const logToExcuse = dailyLogs.find(log => log.studentId === id && log.status === 'LOGGED');
       if (logToExcuse) {
         // Update the log status to EXCUSED
-        const logRef = doc(db, getTardyLogsCollection(userId), logToExcuse.logId);
         await addDoc(collection(db, getTardyLogsCollection(userId)), {
           ...logToExcuse,
           status: 'EXCUSED',

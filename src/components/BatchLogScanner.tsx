@@ -164,7 +164,7 @@ export function BatchLogScanner({ onLogTardy, dailyLogs, onExitBatch }: BatchLog
         setSuccessMessage(null);
       }, 1500);
       
-    } catch (error) {
+    } catch {
       setErrorMessage('Student not found');
       setTimeout(() => setErrorMessage(null), 2000);
     } finally {

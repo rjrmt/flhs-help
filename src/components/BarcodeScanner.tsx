@@ -83,12 +83,15 @@ export function BarcodeScanner({ onScan, onError, isActive, className }: Barcode
                   readerRef.current.decodeFromVideoDevice(
                     selectedDeviceId!,
                     videoRef.current,
-                    (result, error) => {
+                    (result, err) => {
                       if (result) {
                         const text = result.getText();
                         if (/^\d{10}$/.test(text)) {
                           onScan(text);
                         }
+                      }
+                      if (err && !(err as Error).name?.includes('NotFoundException')) {
+                        console.warn('Scan error:', err);
                       }
                     }
                   );
@@ -96,7 +99,7 @@ export function BarcodeScanner({ onScan, onError, isActive, className }: Barcode
               }, 1000);
             }
           }
-          if (error && !(error as any).name?.includes('NotFoundException')) {
+          if (error && !(error as Error).name?.includes('NotFoundException')) {
             console.warn('Scan error:', error);
           }
         }

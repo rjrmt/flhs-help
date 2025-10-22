@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Search, RotateCcw, CheckCircle, Filter } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ArrowLeft, Search, RotateCcw, CheckCircle } from 'lucide-react';
 
 interface LogEntry {
   logId: string;
@@ -92,7 +92,7 @@ export function DailyReviewList({ dailyLogs, onUndo, onExcuse }: DailyReviewList
             {['ALL', 'LOGGED', 'EXCUSED'].map((status) => (
               <Button
                 key={status}
-                onClick={() => setStatusFilter(status as any)}
+                onClick={() => setStatusFilter(status as 'ALL' | 'LOGGED' | 'EXCUSED')}
                 variant={statusFilter === status ? "default" : "outline"}
                 size="sm"
                 className={`
