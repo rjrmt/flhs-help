@@ -5,7 +5,7 @@ import Spotlight from '@/components/Spotlight';
 import { AppTile } from '@/components/AppTile';
 import DashboardCard from '@/components/DashboardCard';
 import DashboardRow from '@/components/DashboardRow';
-import { Clock, DoorOpen, MapPin, TriangleAlert, Star, Folder, Wrench, Laptop2, Building2 } from 'lucide-react';
+import { Clock, DoorOpen, MapPin, TriangleAlert, Star, Folder, Wrench, Laptop2, Building2, Settings, FileSpreadsheet } from 'lucide-react';
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -85,10 +85,12 @@ export default function Home() {
             <AppTile href="/it" Icon={Wrench} label="IT Help" hint="Report issues" />
             <AppTile href="/lost-device" Icon={Laptop2} label="Lost Device" hint="Flag devices" />
             <AppTile href="/rooms" Icon={Building2} label="Room Finder" hint="Find resources" />
+            <AppTile href="/admin" Icon={Settings} label="Admin" hint="Manage roster" />
+            <AppTile href="/data-processor" Icon={FileSpreadsheet} label="Data Processor" hint="Import Excel data" />
           </div>
 
-          {/* Desktop: 1x9 Horizontal Row */}
-          <div className="hidden lg:grid lg:grid-cols-9 gap-2 xl:gap-3 w-full">
+          {/* Desktop: 1x11 Horizontal Row */}
+          <div className="hidden lg:grid lg:grid-cols-11 gap-2 xl:gap-3 w-full">
             <AppTile href="/tardy" Icon={Clock} label="Tardy Log" hint="Record late students" />
             <AppTile href="/hallpass" Icon={DoorOpen} label="Hall Pass" hint="Timed passes" />
             <AppTile href="/locator" Icon={MapPin} label="Student Locator" hint="Find students" />
@@ -98,6 +100,8 @@ export default function Home() {
             <AppTile href="/it" Icon={Wrench} label="IT Help" hint="Report issues" />
             <AppTile href="/lost-device" Icon={Laptop2} label="Lost Device" hint="Flag devices" />
             <AppTile href="/rooms" Icon={Building2} label="Room Finder" hint="Find resources" />
+            <AppTile href="/admin" Icon={Settings} label="Admin" hint="Manage roster" />
+            <AppTile href="/data-processor" Icon={FileSpreadsheet} label="Data Processor" hint="Import Excel data" />
           </div>
         </div>
       </main>

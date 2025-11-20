@@ -1,26 +1,37 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { ScanLine, X, RotateCcw } from 'lucide-react';
 import { BrowserMultiFormatReader } from '@zxing/library';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Camera, CameraOff, RotateCcw } from 'lucide-react';
 
 interface BarcodeScannerProps {
-  onScan: (result: string) => void;
-  onError?: (error: Error) => void;
-  isActive: boolean;
+  onScanSuccess: (scannedId: string) => void;
+  onClose?: () => void;
+  placeholder?: string;
   className?: string;
+  showInput?: boolean;
+  autoFocus?: boolean;
+  disabled?: boolean;
 }
 
-export function BarcodeScanner({ onScan, onError, isActive, className }: BarcodeScannerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export function BarcodeScanner({
+  onScanSuccess,
+  onClose,
+  placeholder = "Scan ID or Type...",
+  className = "",
+  showInput = true,
+  autoFocus = true,
+  disabled = false,
+}: BarcodeScannerProps) {
+  const [showScanner, setShowScanner] = useState(false);
+  const [inputValue, setInputValue] = useState('');
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+  const [scanSuccess, setScanSuccess] = useState(false);
+  
+  const inputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
 
   // Initialize scanner
   useEffect(() => {
@@ -35,6 +46,33 @@ export function BarcodeScanner({ onScan, onError, isActive, className }: Barcode
     };
   }, []);
 
+  // Auto-focus input when component mounts
+  useEffect(() => {
+    if (autoFocus && inputRef.current && showInput) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus, showInput]);
+
+  // Auto-process on 10 digits
+  useEffect(() => {
+    if (inputValue.length === 10 && /^\d{10}$/.test(inputValue)) {
+      onScanSuccess(inputValue);
+    }
+  }, [inputValue, onScanSuccess]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 10) {
+      setInputValue(value);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && inputValue.length === 10) {
+      onScanSuccess(inputValue);
+    }
+  };
+
   // Get available cameras
   const getCameras = useCallback(async () => {
     try {
@@ -48,15 +86,9 @@ export function BarcodeScanner({ onScan, onError, isActive, className }: Barcode
           device.label.toLowerCase().includes('environment')
         );
         setSelectedDeviceId(backCamera?.deviceId || videoInputDevices[0].deviceId);
-        setHasPermission(true);
-      } else {
-        setHasPermission(false);
-        setError('No cameras found');
       }
     } catch (err) {
       console.error('Error getting cameras:', err);
-      setHasPermission(false);
-      setError('Failed to access cameras');
     }
   }, []);
 
@@ -65,38 +97,32 @@ export function BarcodeScanner({ onScan, onError, isActive, className }: Barcode
     if (!readerRef.current || !selectedDeviceId || !videoRef.current) return;
 
     try {
-      setIsScanning(true);
-      setError(null);
-
       await readerRef.current.decodeFromVideoDevice(
         selectedDeviceId,
         videoRef.current,
         (result, error) => {
           if (result) {
-            const text = result.getText();
+            const text = result.getText().trim();
+            console.log('Barcode detected:', text);
+            
+            // Handle different barcode formats
+            let studentId = text;
+            
+            // If it's a longer barcode, try to extract student ID
+            if (text.length > 10) {
+              // Look for 10-digit sequences in the barcode
+              const match = text.match(/\d{10}/);
+              if (match) {
+                studentId = match[0];
+              }
+            }
+            
             // Only process if it looks like a student ID (10 digits)
-            if (/^\d{10}$/.test(text)) {
-              onScan(text);
-              // Pause briefly to prevent duplicate scans
-              setTimeout(() => {
-                if (readerRef.current && videoRef.current) {
-                  readerRef.current.decodeFromVideoDevice(
-                    selectedDeviceId!,
-                    videoRef.current,
-                    (result, err) => {
-                      if (result) {
-                        const text = result.getText();
-                        if (/^\d{10}$/.test(text)) {
-                          onScan(text);
-                        }
-                      }
-                      if (err && !(err as Error).name?.includes('NotFoundException')) {
-                        console.warn('Scan error:', err);
-                      }
-                    }
-                  );
-                }
-              }, 1000);
+            if (/^\d{10}$/.test(studentId)) {
+              console.log('Valid student ID found:', studentId);
+              handleScannerSuccess(studentId);
+            } else {
+              console.log('Invalid barcode format:', text);
             }
           }
           if (error && !(error as Error).name?.includes('NotFoundException')) {
@@ -106,35 +132,42 @@ export function BarcodeScanner({ onScan, onError, isActive, className }: Barcode
       );
     } catch (err) {
       console.error('Error starting scan:', err);
-      setError('Failed to start camera');
-      setIsScanning(false);
-      if (onError) onError(err as Error);
     }
-  }, [selectedDeviceId, onScan, onError]);
+  }, [selectedDeviceId]);
 
-  // Stop scanning
-  const stopScanning = useCallback(() => {
+  // Initialize when scanner opens
+  useEffect(() => {
+    if (showScanner) {
+      getCameras();
+    }
+  }, [showScanner, getCameras]);
+
+  // Start scanning when we have device
+  useEffect(() => {
+    if (showScanner && selectedDeviceId) {
+      startScanning();
+    }
+  }, [showScanner, selectedDeviceId, startScanning]);
+
+  const handleScannerSuccess = (scannedId: string) => {
+    setInputValue(scannedId);
+    setScanSuccess(true);
+    
+    // Add visual feedback
     if (readerRef.current) {
       readerRef.current.reset();
     }
-    setIsScanning(false);
-  }, []);
-
-  // Initialize when component mounts and isActive becomes true
-  useEffect(() => {
-    if (isActive) {
-      getCameras();
-    } else {
-      stopScanning();
-    }
-  }, [isActive, getCameras, stopScanning]);
-
-  // Start scanning when we have permission and device
-  useEffect(() => {
-    if (isActive && hasPermission && selectedDeviceId && !isScanning) {
-      startScanning();
-    }
-  }, [isActive, hasPermission, selectedDeviceId, isScanning, startScanning]);
+    
+    // Show success animation briefly
+    setTimeout(() => {
+      setShowScanner(false);
+      setScanSuccess(false);
+      // Auto-process the scanned ID
+      setTimeout(() => {
+        onScanSuccess(scannedId);
+      }, 100);
+    }, 1000);
+  };
 
   const switchCamera = () => {
     if (devices.length > 1) {
@@ -144,108 +177,166 @@ export function BarcodeScanner({ onScan, onError, isActive, className }: Barcode
     }
   };
 
-  if (!isActive) {
-    return (
-      <div className={`flex items-center justify-center bg-slate-800 rounded-lg ${className}`}>
-        <div className="text-center p-8">
-          <CameraOff className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-          <p className="text-slate-400">Camera scanner inactive</p>
-        </div>
-      </div>
-    );
-  }
+  const handleCloseScanner = () => {
+    setShowScanner(false);
+    if (readerRef.current) {
+      readerRef.current.reset();
+    }
+    onClose?.();
+  };
 
-  if (hasPermission === false) {
-    return (
-      <Card className={`bg-slate-800/50 border-slate-700 ${className}`}>
-        <div className="p-6 text-center">
-          <CameraOff className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <h3 className="text-white font-medium mb-2">Camera Access Required</h3>
-          <p className="text-slate-400 text-sm mb-4">
-            Please allow camera access to scan student IDs
-          </p>
-          <Button 
-            onClick={getCameras}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Camera className="h-4 w-4 mr-2" />
-            Request Camera Access
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className={`bg-slate-800/50 border-slate-700 ${className}`}>
-        <div className="p-6 text-center">
-          <CameraOff className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <h3 className="text-white font-medium mb-2">Camera Error</h3>
-          <p className="text-slate-400 text-sm mb-4">{error}</p>
-          <Button 
-            onClick={() => {
-              setError(null);
-              getCameras();
-            }}
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/10"
-          >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Retry
-          </Button>
-        </div>
-      </Card>
-    );
-  }
+  const handleOpenScanner = () => {
+    setShowScanner(true);
+  };
 
   return (
-    <Card className={`bg-slate-800/50 border-slate-700 overflow-hidden ${className}`}>
-      <div className="relative">
-        <video
-          ref={videoRef}
-          className="w-full h-64 object-cover bg-slate-900"
-          autoPlay
-          playsInline
-          muted
-        />
-        
-        {/* Scanning overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-48 h-32 border-2 border-blue-400 rounded-lg bg-blue-400/10 backdrop-blur-sm">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-1 h-8 bg-blue-400 animate-pulse"></div>
+    <div className={`space-y-4 ${className}`}>
+      {showInput && !showScanner && (
+        <div className="relative">
+          <input
+            ref={inputRef}
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            placeholder={placeholder}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            className="w-full rounded-xl border-2 border-white/20 bg-white/10 backdrop-blur-sm px-6 py-4 text-white placeholder:text-slate-400 focus:border-red-500 focus:outline-none focus:ring-4 focus:ring-red-500/20 text-lg font-mono text-center shadow-lg transition-all duration-200"
+            disabled={disabled}
+          />
+          
+          {/* Barcode Scanner Button */}
+          <button
+            onClick={handleOpenScanner}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 p-3 hover:bg-white/20 rounded-xl transition-all duration-200 shadow-lg backdrop-blur-sm bg-white/10"
+            disabled={disabled}
+            title="Open Camera Scanner"
+          >
+            <ScanLine className="h-6 w-6 text-red-400" />
+          </button>
+          
+          {/* Input validation indicator */}
+          {inputValue.length > 0 && (
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+              <div className={`w-3 h-3 rounded-full ${
+                inputValue.length === 10 ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
+              }`}></div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {showScanner && (
+        <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl">
+          <video
+            ref={videoRef}
+            className="w-full h-80 object-cover"
+            autoPlay
+            playsInline
+            muted
+          />
+          
+          {/* Professional scanning overlay */}
+          <div className="absolute inset-0">
+            {/* Dark overlay with scanning window */}
+            <div className="absolute inset-0 bg-black/40">
+              {/* Scanning window */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className={`w-64 h-40 border-2 rounded-lg bg-transparent relative transition-all duration-300 ${
+                  scanSuccess ? 'border-green-500 bg-green-500/10' : 'border-red-500'
+                }`}>
+                  {/* Corner brackets */}
+                  <div className={`absolute -top-1 -left-1 w-6 h-6 border-t-2 border-l-2 ${
+                    scanSuccess ? 'border-green-500' : 'border-red-500'
+                  }`}></div>
+                  <div className={`absolute -top-1 -right-1 w-6 h-6 border-t-2 border-r-2 ${
+                    scanSuccess ? 'border-green-500' : 'border-red-500'
+                  }`}></div>
+                  <div className={`absolute -bottom-1 -left-1 w-6 h-6 border-b-2 border-l-2 ${
+                    scanSuccess ? 'border-green-500' : 'border-red-500'
+                  }`}></div>
+                  <div className={`absolute -bottom-1 -right-1 w-6 h-6 border-b-2 border-r-2 ${
+                    scanSuccess ? 'border-green-500' : 'border-red-500'
+                  }`}></div>
+                  
+                  {/* Animated scanning line */}
+                  {!scanSuccess && (
+                    <div className="absolute inset-0 overflow-hidden rounded-lg">
+                      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent animate-scan-line"></div>
+                    </div>
+                  )}
+                  
+                  {/* Success checkmark */}
+                  {scanSuccess && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-16 border-4 border-green-500 rounded-full flex items-center justify-center animate-pulse">
+                        <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Center crosshair */}
+                  {!scanSuccess && (
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="w-4 h-4 border border-red-500/50 rounded-full">
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-red-500 rounded-full"></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Instructions */}
+              <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+                <div className="bg-black/70 backdrop-blur-sm rounded-lg px-4 py-2">
+                  {scanSuccess ? (
+                    <p className="text-green-400 text-sm font-medium">✓ Barcode scanned successfully!</p>
+                  ) : (
+                    <>
+                      <p className="text-white text-sm font-medium">Position barcode within the frame</p>
+                      <p className="text-red-300 text-xs">Hold steady for automatic scanning</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Close scanner button */}
+          <button
+            onClick={handleCloseScanner}
+            className="absolute top-4 right-4 p-3 bg-black/70 backdrop-blur-sm rounded-full hover:bg-black/90 transition-all duration-200 shadow-lg"
+          >
+            <X className="h-5 w-5 text-white" />
+          </button>
+          
+          {/* Camera controls */}
+          <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+            <div className="flex gap-2">
+              {devices.length > 1 && (
+                <button
+                  onClick={switchCamera}
+                  className="p-3 bg-black/70 backdrop-blur-sm rounded-full hover:bg-black/90 transition-all duration-200 shadow-lg"
+                  title="Switch Camera"
+                >
+                  <RotateCcw className="h-4 w-4 text-white" />
+                </button>
+              )}
+            </div>
+            
+            {/* Scanning status */}
+            <div className="flex items-center gap-2 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+              <div className="relative">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75"></div>
+              </div>
+              <span className="text-white text-sm font-medium">Scanning...</span>
             </div>
           </div>
         </div>
-
-        {/* Camera controls */}
-        <div className="absolute bottom-4 left-4 right-4 flex justify-between">
-          <div className="flex gap-2">
-            {devices.length > 1 && (
-              <Button
-                onClick={switchCamera}
-                size="sm"
-                variant="outline"
-                className="bg-black/50 border-white/20 text-white hover:bg-white/10"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-white text-sm">Scanning...</span>
-          </div>
-        </div>
-      </div>
-      
-      <div className="p-4">
-        <p className="text-slate-400 text-sm text-center">
-          Point camera at student ID barcode
-        </p>
-      </div>
-    </Card>
+      )}
+    </div>
   );
 }

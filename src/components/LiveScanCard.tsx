@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { CheckCircle, XCircle, AlertTriangle, ScanLine, X, RotateCcw } from 'lucide-react';
-import { BrowserMultiFormatReader } from '@zxing/library';
+import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { BarcodeScanner } from '@/components/BarcodeScanner';
 
 // Types
 interface Student {
@@ -40,133 +39,23 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
   const [showUndo, setShowUndo] = useState(false);
   const [lastLog, setLastLog] = useState<{ logId: string; timestamp: string; ttsNumber: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
-  
-  const inputRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
-  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
 
-  // Auto-focus and refocus input
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [state]);
-
-  // Auto-verify on 10 digits
-  useEffect(() => {
-    if (studentId.length === 10) {
-      handleVerify();
-    }
-  }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 10) {
-      setStudentId(value);
-    }
-  };
-
-  // Initialize scanner
-  useEffect(() => {
-    if (!readerRef.current) {
-      readerRef.current = new BrowserMultiFormatReader();
-    }
-    
-    return () => {
-      if (readerRef.current) {
-        readerRef.current.reset();
-      }
-    };
-  }, []);
-
-  // Get available cameras
-  const getCameras = useCallback(async () => {
-    try {
-      const videoInputDevices = await readerRef.current?.listVideoInputDevices();
-      if (videoInputDevices && videoInputDevices.length > 0) {
-        setDevices(videoInputDevices);
-        // Prefer back camera if available
-        const backCamera = videoInputDevices.find(device => 
-          device.label.toLowerCase().includes('back') || 
-          device.label.toLowerCase().includes('rear') ||
-          device.label.toLowerCase().includes('environment')
-        );
-        setSelectedDeviceId(backCamera?.deviceId || videoInputDevices[0].deviceId);
-      }
-    } catch (err) {
-      console.error('Error getting cameras:', err);
-    }
-  }, []);
-
-  // Start scanning
-  const startScanning = useCallback(async () => {
-    if (!readerRef.current || !selectedDeviceId || !videoRef.current) return;
-
-    try {
-      await readerRef.current.decodeFromVideoDevice(
-        selectedDeviceId,
-        videoRef.current,
-        (result, error) => {
-          if (result) {
-            const text = result.getText();
-            // Only process if it looks like a student ID (10 digits)
-            if (/^\d{10}$/.test(text)) {
-              handleScannerSuccess(text);
-            }
-          }
-          if (error && !(error as Error).name?.includes('NotFoundException')) {
-            console.warn('Scan error:', error);
-          }
-        }
-      );
-    } catch (err) {
-      console.error('Error starting scan:', err);
-    }
-  }, [selectedDeviceId]);
-
-  // Initialize when scanner opens
-  useEffect(() => {
-    if (showScanner) {
-      getCameras();
-    }
-  }, [showScanner, getCameras]);
-
-  // Start scanning when we have device
-  useEffect(() => {
-    if (showScanner && selectedDeviceId) {
-      startScanning();
-    }
-  }, [showScanner, selectedDeviceId, startScanning]);
-
+  // Handle scanner success
   const handleScannerSuccess = (scannedId: string) => {
     setStudentId(scannedId);
-    setShowScanner(false);
-    // Auto-verify the scanned ID
-    setTimeout(() => {
-      handleVerify();
-    }, 100);
+    handleVerify(scannedId);
   };
 
-  const switchCamera = () => {
-    if (devices.length > 1) {
-      const currentIndex = devices.findIndex(d => d.deviceId === selectedDeviceId);
-      const nextIndex = (currentIndex + 1) % devices.length;
-      setSelectedDeviceId(devices[nextIndex].deviceId);
-    }
-  };
-
-  const handleVerify = async () => {
-    if (studentId.length !== 10) return;
+  const handleVerify = async (id?: string) => {
+    const verifyId = id || studentId;
+    if (verifyId.length !== 10) return;
     
-    console.log('Verifying student ID:', studentId);
+    console.log('Verifying student ID:', verifyId);
     setIsLoading(true);
     setState('scanning');
     
     try {
-      const result = await onVerify(studentId);
+      const result = await onVerify(verifyId);
       console.log('Verification result:', result);
       if (result) {
         setStudent(result);
@@ -246,81 +135,16 @@ export function LiveScanCard({ onVerify, onExcuse, onUndo, onLogTardy }: LiveSca
       {/* Live Scan Card */}
       <Card className="bg-white/5 backdrop-blur-sm border border-white/20">
         <div className="p-6">
-          {/* Input Section */}
-          {(state === 'idle' || state === 'scanning' || state === 'error') && (
-            <div className="space-y-4">
-              {!showScanner ? (
-                <div className="relative">
-                  <Input
-                    ref={inputRef}
-                    value={studentId}
-                    onChange={handleInputChange}
-                    placeholder="Scan ID or Type..."
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className={`bg-white/10 border-white/30 text-white placeholder:text-slate-400 focus:ring-blue-400/20 h-16 text-xl text-center font-mono ${
-                      state === 'error' ? 'border-red-400 focus:border-red-400' : 'focus:border-blue-400'
-                    }`}
-                    onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
-                    disabled={isLoading}
-                  />
-                  
-                  {/* Barcode Scanner Button */}
-                  <button
-                    onClick={() => setShowScanner(true)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 hover:bg-white/10 rounded-lg transition-colors"
-                    disabled={isLoading}
-                  >
-                    <ScanLine className="h-6 w-6 text-slate-400" />
-                  </button>
-                </div>
-              ) : (
-                <div className="relative bg-slate-800 rounded-lg overflow-hidden">
-                  <video
-                    ref={videoRef}
-                    className="w-full h-64 object-cover"
-                    autoPlay
-                    playsInline
-                    muted
-                  />
-                  
-                  {/* Scanning overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-48 h-32 border-2 border-blue-400 rounded-lg bg-blue-400/10 backdrop-blur-sm">
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className="w-1 h-8 bg-blue-400 animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Close scanner button */}
-                  <button
-                    onClick={() => setShowScanner(false)}
-                    className="absolute top-4 right-4 p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors"
-                  >
-                    <X className="h-5 w-5 text-white" />
-                  </button>
-                  
-                  {/* Camera controls */}
-                  <div className="absolute bottom-4 left-4 right-4 flex justify-between">
-                    <div className="flex gap-2">
-                      {devices.length > 1 && (
-                        <button
-                          onClick={switchCamera}
-                          className="p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors"
-                        >
-                          <RotateCcw className="h-4 w-4 text-white" />
-                        </button>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-white text-sm">Scanning...</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+           {/* Input Section */}
+           {(state === 'idle' || state === 'scanning' || state === 'error') && (
+             <div className="space-y-4">
+               <BarcodeScanner
+                 onScanSuccess={handleScannerSuccess}
+                 placeholder="Scan ID or Type..."
+                 className="w-full"
+                 autoFocus={true}
+                 disabled={isLoading}
+               />
                 
                 {isLoading && (
                   <div className="flex justify-center">

@@ -57,5 +57,7 @@ export const initializeAuth = async (): Promise<string> => {
 // Firestore collection paths
 export const getStudentsCollection = () => `artifacts/${APP_ID}/public/data/students`;
 export const getTardyLogsCollection = (userId: string) => `artifacts/${APP_ID}/users/${userId}/tardyLogs`;
+export const getAdminLogsCollection = () => `artifacts/${APP_ID}/public/logs/admin`;
+export const getImportLogsCollection = () => `artifacts/${APP_ID}/public/logs/imports`;
 
 export default app;

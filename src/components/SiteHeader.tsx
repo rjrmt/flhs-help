@@ -31,7 +31,7 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
           <div className="flex items-center space-x-3">
             <div className="flex items-center justify-center w-8 h-8 rounded-xl shadow-xl">
               <Image 
-                src="/logo.svg?v=2" 
+                src="/images/logo.svg" 
                 alt="FLHS Logo" 
                 width={32} 
                 height={32} 

@@ -5,9 +5,7 @@ import { Card } from '@/components/ui/card';
 import { SubHeader } from '@/components/SubHeader';
 import { Play, Square, Zap, ZapOff } from 'lucide-react';
 
-// TODO: Uncomment when ready to install ZXing
-// npm i @zxing/browser
-// import { BrowserMultiFormatReader } from '@zxing/browser';
+import { BrowserMultiFormatReader } from '@zxing/library';
 
 export default function ScanModePage() {
   const [isScanning, setIsScanning] = useState(false);
@@ -19,16 +17,23 @@ export default function ScanModePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  
-  // TODO: Initialize ZXing reader when ready
-  // const readerRef = useRef<BrowserMultiFormatReader | null>(null);
+  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
 
-  // Initialize audio context for beep sound
+  // Initialize audio context and ZXing reader
   useEffect(() => {
     audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    
+    // Initialize ZXing reader
+    if (!readerRef.current) {
+      readerRef.current = new BrowserMultiFormatReader();
+    }
+    
     return () => {
       if (audioContextRef.current) {
         audioContextRef.current.close();
+      }
+      if (readerRef.current) {
+        readerRef.current.reset();
       }
     };
   }, []);
@@ -52,15 +57,34 @@ export default function ScanModePage() {
     oscillator.stop(audioContextRef.current.currentTime + 0.1);
   };
 
-  // TODO: ZXing callback function
-  // const handleScanResult = (result: any) => {
-  //   const scannedId = result.getText();
-  //   if (!scannedIds.has(scannedId)) {
-  //     setScannedIds(prev => new Set([...prev, scannedId]));
-  //     console.log('Scanned ID:', scannedId);
-  //     playBeep();
-  //   }
-  // };
+  // ZXing callback function
+  const handleScanResult = (result: any) => {
+    const text = result.getText().trim();
+    console.log('Barcode detected:', text);
+    
+    // Handle different barcode formats
+    let studentId = text;
+    
+    // If it's a longer barcode, try to extract student ID
+    if (text.length > 10) {
+      const match = text.match(/\d{10}/);
+      if (match) {
+        studentId = match[0];
+      }
+    }
+    
+    // Only process if it looks like a student ID (10 digits)
+    if (/^\d{10}$/.test(studentId)) {
+      console.log('Valid student ID found:', studentId);
+      if (!scannedIds.has(studentId)) {
+        setScannedIds(prev => new Set([...prev, studentId]));
+        console.log('Scanned ID:', studentId);
+        playBeep();
+      }
+    } else {
+      console.log('Invalid barcode format:', text);
+    }
+  };
 
   const startScanning = async () => {
     try {
@@ -86,20 +110,20 @@ export default function ScanModePage() {
       setIsScanning(true);
       setPermissionStatus('granted');
       
-      // TODO: Initialize ZXing scanner
-      // if (!readerRef.current) {
-      //   readerRef.current = new BrowserMultiFormatReader();
-      // }
-      // 
-      // try {
-      //   await readerRef.current.decodeFromVideoDevice(
-      //     null, // Use default camera
-      //     videoRef.current,
-      //     handleScanResult
-      //   );
-      // } catch (scanError) {
-      //   console.warn('ZXing scan error:', scanError);
-      // }
+      // Initialize ZXing scanner
+      if (!readerRef.current) {
+        readerRef.current = new BrowserMultiFormatReader();
+      }
+      
+      try {
+        await readerRef.current.decodeFromVideoDevice(
+          null, // Use default camera
+          videoRef.current,
+          handleScanResult
+        );
+      } catch (scanError) {
+        console.warn('ZXing scan error:', scanError);
+      }
       
     } catch (err) {
       console.error('Camera access error:', err);
@@ -121,10 +145,10 @@ export default function ScanModePage() {
       videoRef.current.srcObject = null;
     }
     
-    // TODO: Stop ZXing scanner
-    // if (readerRef.current) {
-    //   readerRef.current.reset();
-    // }
+    // Stop ZXing scanner
+    if (readerRef.current) {
+      readerRef.current.reset();
+    }
     
     setIsTorchOn(false);
   };
@@ -175,19 +199,26 @@ export default function ScanModePage() {
                   muted
                 />
                 
-                {/* Scanning Overlay */}
+                {/* Professional Scanning Overlay */}
                 {isScanning && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 border-2 border-blue-400 rounded-2xl relative">
+                    <div className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 border-2 border-red-500 rounded-2xl relative">
                       {/* Corner brackets */}
-                      <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-blue-400 rounded-tl-lg"></div>
-                      <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-blue-400 rounded-tr-lg"></div>
-                      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-blue-400 rounded-bl-lg"></div>
-                      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-blue-400 rounded-br-lg"></div>
+                      <div className="absolute -top-1 -left-1 w-6 h-6 border-t-2 border-l-2 border-red-500"></div>
+                      <div className="absolute -top-1 -right-1 w-6 h-6 border-t-2 border-r-2 border-red-500"></div>
+                      <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-2 border-l-2 border-red-500"></div>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-2 border-r-2 border-red-500"></div>
                       
-                      {/* Scanning line animation */}
-                      <div className="absolute inset-0 overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-pulse"></div>
+                      {/* Animated red scanning line */}
+                      <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent animate-scan-line"></div>
+                      </div>
+                      
+                      {/* Center crosshair */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="w-4 h-4 border border-red-500/50 rounded-full">
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-red-500 rounded-full"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -306,17 +337,18 @@ export default function ScanModePage() {
             </Card>
           )}
           
-          {/* ZXing Installation Instructions */}
-          <Card className="mb-4 bg-blue-500/10 border border-blue-500/20">
-            <div className="p-4">
-              <h3 className="text-sm font-semibold text-blue-300 mb-2">ZXing Integration Ready</h3>
-              <div className="text-xs text-slate-300 space-y-1">
-                <p>To enable barcode scanning:</p>
-                <p className="font-mono bg-slate-800/50 p-1 rounded">npm i @zxing/browser</p>
-                <p>Then uncomment the TODO sections in the code.</p>
+          {/* Success Message */}
+          {scannedIds.size > 0 && (
+            <Card className="mb-4 bg-green-500/10 border border-green-500/20">
+              <div className="p-4">
+                <h3 className="text-sm font-semibold text-green-300 mb-2">✓ Barcode Scanning Active</h3>
+                <div className="text-xs text-slate-300">
+                  <p>Professional barcode scanner with ZXing library integration</p>
+                  <p>Red scanning line with corner brackets for precise targeting</p>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          )}
         </div>
       </main>
     </div>
