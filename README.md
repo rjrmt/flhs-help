@@ -1,4 +1,4 @@
-# FLHS Hub - Faculty Portal
+# Educational Management Hub
 
 <div align="center">
 
@@ -9,7 +9,7 @@
 ![License](https://img.shields.io/badge/license-Proprietary-red.svg)
 ![Status](https://img.shields.io/badge/status-Active-success.svg)
 
-**A comprehensive faculty management system designed and developed for Fort Lauderdale High School**
+**A comprehensive educational management system for faculty and administrative staff**
 
 [Features](#-key-features) • [Tech Stack](#-technology-stack) • [Getting Started](#-getting-started) • [Documentation](#-documentation)
 
@@ -19,7 +19,7 @@
 
 ## 🎓 Project Overview
 
-**FLHS Hub** is a modern, full-stack web application built specifically for Fort Lauderdale High School's faculty management needs. This project represents a complete digital transformation of traditional classroom management tools, providing teachers with an intuitive, efficient, and professional platform for daily operations.
+**Educational Management Hub** is a modern, full-stack web application designed for educational institution management. This project provides faculty and administrative staff with an intuitive, efficient, and professional platform for daily operations including student tracking, attendance management, and administrative functions.
 
 ### 🏆 Project Significance
 
@@ -61,7 +61,7 @@ This is my **master project** - a comprehensive demonstration of full-stack deve
 - **Reusable Component** - Consistent scanning experience across all apps
 
 ### 🎨 **Design Excellence**
-- **School Branding** - Royal blue, white, gray color scheme
+- **Professional Branding** - Customizable color scheme
 - **Glassmorphism UI** - Modern, professional aesthetic
 - **Responsive Design** - Optimized for all devices
 - **Accessibility** - WCAG AA compliant
@@ -120,7 +120,7 @@ This is my **master project** - a comprehensive demonstration of full-stack deve
 ## 📁 Project Structure
 
 ```
-flhs-hub/
+educational-management-hub/
 ├── src/
 │   ├── app/                      # Next.js App Router
 │   │   ├── globals.css           # Global styles and themes
@@ -188,7 +188,7 @@ This project was designed with real-world educational needs in mind, addressing 
 1. **Clone the repository**
    ```bash
    git clone https://github.com/rjrmt/flhs-help.git
-   cd flhs-hub
+   cd flhs-help
    ```
 
 2. **Install dependencies**
@@ -236,7 +236,7 @@ For detailed setup instructions, including Firebase configuration, see the [Fire
 - [x] Dashboard implementation
 - [x] Faculty tools suite
 - [x] Responsive design
-- [x] School branding
+- [x] Professional branding
 - [x] Professional barcode scanner
 - [x] Firebase integration
 - [x] Student history system
@@ -250,8 +250,8 @@ For detailed setup instructions, including Firebase configuration, see the [Fire
 - [ ] Batch scanning mode
 - [ ] Export/import functionality
 
-### **Phase 3: School Integration** 📋
-- [ ] School system integration (SIS)
+### **Phase 3: System Integration** 📋
+- [ ] Student Information System (SIS) integration
 - [ ] Multi-user support with roles
 - [ ] Admin dashboard
 - [ ] Comprehensive reporting system
@@ -272,8 +272,7 @@ For detailed setup instructions, including Firebase configuration, see the [Fire
 ## 👨‍💻 Developer
 
 **Developed by:** RJ Ramautar  
-**Institution:** Fort Lauderdale High School  
-**Project Type:** Master Project - Intellectual Property  
+**Project Type:** Professional Development Project - Intellectual Property  
 **Development Period:** October 2025 - Present  
 **Repository:** [github.com/rjrmt/flhs-help](https://github.com/rjrmt/flhs-help)  
 
@@ -285,27 +284,27 @@ For detailed setup instructions, including Firebase configuration, see the [Fire
 
 ## 🔒 License
 
-This project is my intellectual property and is developed for educational purposes at Fort Lauderdale High School. All rights reserved.
+This project is proprietary intellectual property. All rights reserved. This software is provided for professional use and is not affiliated with any educational institution or school district.
 
 ## 🤝 Contributing
 
-This is a personal master project. For collaboration or feature requests, please contact the developer directly.
+This is a proprietary project. For collaboration or licensing inquiries, please contact the developer directly.
 
 ## 🙏 Acknowledgments
 
-- **Fort Lauderdale High School** - For providing the opportunity to develop this project
-- **Next.js Team** - For the amazing framework
-- **Shadcn** - For the beautiful UI components
+- **Next.js Team** - For the framework
+- **Shadcn** - For the UI components
 - **ZXing Project** - For the barcode scanning library
+- **Firebase** - For the backend infrastructure
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for Fort Lauderdale High School Faculty**
+**Professional Educational Management System**
 
-*This project represents the culmination of modern web development skills applied to solve real-world educational challenges.*
+*A modern web application built with industry-standard technologies for educational institution management.*
 
-[⬆ Back to Top](#flhs-hub---faculty-portal)
+[⬆ Back to Top](#educational-management-hub)
 
 </div>

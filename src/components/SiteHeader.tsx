@@ -32,7 +32,7 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
             <div className="flex items-center justify-center w-8 h-8 rounded-xl shadow-xl">
               <Image 
                 src="/images/logo.svg" 
-                alt="FLHS Logo" 
+                alt="App Logo" 
                 width={32} 
                 height={32} 
                 className="w-full h-full object-contain"
@@ -40,7 +40,7 @@ export default function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void 
               />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-lg font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent">FLHS Hub</h1>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent">EduHub</h1>
               <p className="text-xs text-muted-foreground hidden sm:block">Faculty Portal</p>
             </div>
           </div>

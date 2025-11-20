@@ -1,7 +1,7 @@
 #!/bin/bash
 # Daily Development Workflow Script
 
-echo "🚀 Starting FLHS Hub Development..."
+echo "🚀 Starting Educational Management Hub Development..."
 
 # Pull latest changes
 echo "📥 Pulling latest changes from GitHub..."

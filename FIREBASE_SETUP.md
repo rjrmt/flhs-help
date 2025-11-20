@@ -38,7 +38,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-NEXT_PUBLIC_APP_ID=flhs-hub
+NEXT_PUBLIC_APP_ID=educational-management-hub
 NEXT_PUBLIC_INITIAL_AUTH_TOKEN=your-custom-token-or-leave-empty
 ```
 
@@ -46,12 +46,12 @@ NEXT_PUBLIC_INITIAL_AUTH_TOKEN=your-custom-token-or-leave-empty
 Create these collections in Firestore:
 
 **Students Collection:**
-- Path: `/artifacts/flhs-hub/public/data/students/`
+- Path: `/artifacts/educational-management-hub/public/data/students/`
 - Document ID: Student ID (e.g., "1234567890")
 - Fields: firstName, lastName, grade, homeroom, lastTardy, ttsCount, ttcCount, ruleTriggered
 
 **Tardy Logs Collection:**
-- Path: `/artifacts/flhs-hub/users/{userId}/tardyLogs/`
+- Path: `/artifacts/educational-management-hub/users/{userId}/tardyLogs/`
 - Auto-generated document IDs
 - Fields: studentId, studentName, timestamp, status, grade, homeroom, ttsNumber
 

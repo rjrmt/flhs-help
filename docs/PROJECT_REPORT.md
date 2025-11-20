@@ -1,7 +1,7 @@
-# FLHS Hub - Project Report
+# Educational Management Hub - Project Report
 
 ## Project Overview
-**Project Name:** FLHS Hub  
+**Project Name:** Educational Management Hub  
 **Developer:** RJ Ramautar  
 **Framework:** Next.js 15.5.6 with React 19.1.0  
 **Styling:** Tailwind CSS v4 with shadcn/ui components  
@@ -9,7 +9,7 @@
 **Date:** December 2024  
 
 ## Project Description
-FLHS Hub is a comprehensive faculty portal designed for Fort Lauderdale High School teachers. The application provides a centralized dashboard with quick access to essential classroom management tools including tardy logging, hall pass management, student tracking, and administrative functions.
+Educational Management Hub is a comprehensive faculty portal designed for educational institutions. The application provides a centralized dashboard with quick access to essential classroom management tools including tardy logging, hall pass management, student tracking, and administrative functions.
 
 ## Technical Architecture
 
@@ -230,7 +230,7 @@ All 9 faculty tool pages are created with:
 
 ## Conclusion
 
-The FLHS Hub project represents a well-architected, modern web application built with industry best practices. The codebase is clean, maintainable, and ready for production deployment. The foundation is solid for future feature development and scaling.
+The Educational Management Hub project represents a well-architected, modern web application built with industry best practices. The codebase is clean, maintainable, and ready for production deployment. The foundation is solid for future feature development and scaling.
 
 ### Key Achievements
 - ✅ Modern tech stack implementation

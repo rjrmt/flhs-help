@@ -269,7 +269,7 @@ export default function HistoryPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-[#2e00df]" />
-            <div className="text-lg font-semibold tracking-tight">FLHS Student Lookup</div>
+            <div className="text-lg font-semibold tracking-tight">Student Lookup</div>
           </div>
           <div className="flex items-center gap-2">
             <button

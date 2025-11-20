@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-The FLHS Hub now includes a comprehensive student roster management system that allows you to import, manage, and maintain student data efficiently. This system supports multiple implementation methods to fit your school's needs.
+The Educational Management Hub includes a comprehensive student roster management system that allows you to import, manage, and maintain student data efficiently. This system supports multiple implementation methods to fit your institution's needs.
 
 ## 🚀 Quick Start
 
@@ -60,7 +60,7 @@ id,first_name,last_name,grade,homeroom,pbis_points,email,phone,parent_name,paren
 
 ### Firestore Collections
 
-**Students Collection:** `/artifacts/flhs-hub/public/data/students/`
+**Students Collection:** `/artifacts/educational-management-hub/public/data/students/`
 ```typescript
 {
   id: string;                    // Student ID (10 digits)
@@ -107,7 +107,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-NEXT_PUBLIC_APP_ID=flhs-hub
+NEXT_PUBLIC_APP_ID=educational-management-hub
 ```
 
 ### 2. Firestore Security Rules
