@@ -6,7 +6,7 @@ import { useReducedMotion } from 'framer-motion';
 export function LiquidBackground() {
   const shouldReduceMotion = useReducedMotion();
 
-  // Optimized for mobile - fewer/smaller blobs
+  // Subtle background like testing hub - radial gradients instead of large blobs
   const baseAnimation = {
     repeat: Infinity,
     ease: 'easeInOut' as const,
@@ -14,13 +14,11 @@ export function LiquidBackground() {
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-      {/* Optimized liquid effects - smaller on mobile for better performance */}
+      {/* More vibrant blue gradients */}
       <motion.div
-        className="absolute -top-1/2 -left-1/4 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] bg-primary/35 sm:bg-primary/40 rounded-full blur-[100px] sm:blur-[120px]"
+        className="absolute top-[12%] left-[12%] w-[38%] h-[38%] bg-primary/45 rounded-full blur-[38px]"
         animate={shouldReduceMotion ? {} : {
-          x: [0, 100, 0],
-          y: [0, -100, 0],
-          scale: [1, 1.2, 1],
+          opacity: [0.9, 1, 0.9],
         }}
         transition={shouldReduceMotion ? {} : {
           duration: 20,
@@ -28,11 +26,9 @@ export function LiquidBackground() {
         }}
       />
       <motion.div
-        className="absolute top-1/2 -right-1/4 w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] md:w-[500px] md:h-[500px] bg-primary/25 sm:bg-primary/30 rounded-full blur-[90px] sm:blur-[100px]"
+        className="absolute top-[20%] right-[20%] w-[38%] h-[38%] bg-primary-light/45 rounded-full blur-[38px]"
         animate={shouldReduceMotion ? {} : {
-          x: [0, -100, 0],
-          y: [0, 100, 0],
-          scale: [1, 0.9, 1],
+          opacity: [0.9, 1, 0.9],
         }}
         transition={shouldReduceMotion ? {} : {
           duration: 25,
@@ -40,14 +36,22 @@ export function LiquidBackground() {
         }}
       />
       <motion.div
-        className="absolute -bottom-1/4 left-1/3 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[450px] md:h-[450px] bg-primary/30 sm:bg-primary/35 rounded-full blur-[80px] sm:blur-[110px]"
+        className="absolute bottom-[20%] left-[20%] w-[32%] h-[32%] bg-primary/40 rounded-full blur-[32px]"
         animate={shouldReduceMotion ? {} : {
-          x: [0, 60, 0],
-          y: [0, -60, 0],
-          scale: [1, 1.15, 1],
+          opacity: [0.9, 1, 0.9],
         }}
         transition={shouldReduceMotion ? {} : {
           duration: 30,
+          ...baseAnimation,
+        }}
+      />
+      <motion.div
+        className="absolute top-[70%] right-[30%] w-[32%] h-[32%] bg-primary-light/35 rounded-full blur-[32px]"
+        animate={shouldReduceMotion ? {} : {
+          opacity: [0.9, 1, 0.9],
+        }}
+        transition={shouldReduceMotion ? {} : {
+          duration: 28,
           ...baseAnimation,
         }}
       />

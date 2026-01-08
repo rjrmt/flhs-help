@@ -2,10 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: false,
     remotePatterns: [],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
 

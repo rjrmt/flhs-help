@@ -8,21 +8,21 @@ import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 
 export const authOptions: NextAuthOptions = {
-  adapter: DrizzleAdapter(db),
+  adapter: DrizzleAdapter(db) as any,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        pNumber: { label: 'P Number', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.pNumber || !credentials?.password) {
           return null;
         }
 
         const user = await db.query.users.findFirst({
-          where: eq(users.email, credentials.email),
+          where: eq(users.pNumber, credentials.pNumber),
         });
 
         if (!user || !user.passwordHash) {
@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: user.id,
-          email: user.email,
+          email: user.email || user.pNumber,
           name: user.name,
           role: user.role,
         };

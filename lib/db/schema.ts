@@ -4,7 +4,8 @@ import { relations } from 'drizzle-orm';
 // Users (Staff) - Extended for NextAuth
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
+  email: varchar('email', { length: 255 }),
+  pNumber: varchar('p_number', { length: 50 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   role: varchar('role', { length: 50 }).notNull().default('staff'), // 'staff', 'admin'
   passwordHash: text('password_hash'),
@@ -53,10 +54,12 @@ export const verificationTokens = pgTable(
 export const tickets = pgTable('tickets', {
   id: uuid('id').defaultRandom().primaryKey(),
   ticketId: varchar('ticket_id', { length: 50 }).notNull().unique(), // TICKET-2024-XXXXX
-  requesterName: varchar('requester_name', { length: 255 }).notNull(),
-  requesterEmail: varchar('requester_email', { length: 255 }).notNull(),
-  category: varchar('category', { length: 100 }).notNull(),
-  subject: varchar('subject', { length: 255 }).notNull(),
+  requesterName: varchar('requester_name', { length: 255 }),
+  requesterEmail: varchar('requester_email', { length: 255 }),
+  pNumber: varchar('p_number', { length: 50 }),
+  roomNumber: varchar('room_number', { length: 50 }),
+  category: varchar('category', { length: 100 }),
+  subject: varchar('subject', { length: 255 }),
   description: text('description').notNull(),
   urgency: varchar('urgency', { length: 20 }).notNull().default('medium'), // 'low', 'medium', 'high', 'critical'
   status: varchar('status', { length: 50 }).notNull().default('submitted'), // 'submitted', 'in_progress', 'resolved', 'closed'
@@ -72,7 +75,7 @@ export const ticketUpdates = pgTable('ticket_updates', {
   userId: uuid('user_id').references(() => users.id),
   note: text('note').notNull(),
   statusChange: varchar('status_change', { length: 50 }),
-  isInternal: boolean('is_internal', { mode: 'boolean' }).default(false), // Internal staff notes
+  isInternal: boolean('is_internal').default(false), // Internal staff notes
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -98,7 +101,7 @@ export const detentionUpdates = pgTable('detention_updates', {
   userId: uuid('user_id').references(() => users.id),
   note: text('note').notNull(),
   statusChange: varchar('status_change', { length: 50 }),
-  isInternal: boolean('is_internal', { mode: 'boolean' }).default(false),
+  isInternal: boolean('is_internal').default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

@@ -5,12 +5,14 @@ import { generateTicketId } from '@/lib/utils/ids';
 import { z } from 'zod';
 
 const createTicketSchema = z.object({
-  requesterName: z.string().min(2),
-  requesterEmail: z.string().email(),
-  category: z.string().min(1),
-  subject: z.string().min(5),
+  pNumber: z.string().min(1),
+  roomNumber: z.string().min(1),
   description: z.string().min(10),
   urgency: z.enum(['low', 'medium', 'high', 'critical']),
+  requesterName: z.string().optional(),
+  requesterEmail: z.string().email().optional(),
+  category: z.string().optional(),
+  subject: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -24,12 +26,14 @@ export async function POST(request: NextRequest) {
       .insert(tickets)
       .values({
         ticketId,
-        requesterName: validatedData.requesterName,
-        requesterEmail: validatedData.requesterEmail,
-        category: validatedData.category,
-        subject: validatedData.subject,
+        pNumber: validatedData.pNumber,
+        roomNumber: validatedData.roomNumber,
         description: validatedData.description,
         urgency: validatedData.urgency,
+        requesterName: validatedData.requesterName || null,
+        requesterEmail: validatedData.requesterEmail || null,
+        category: validatedData.category || null,
+        subject: validatedData.subject || null,
         status: 'submitted',
       })
       .returning();

@@ -7,7 +7,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 const sql = neon(process.env.DATABASE_URL);
-export const db = drizzle(sql, { schema });
+export const db = drizzle(sql as any, { schema });
 
 // Export schema for use in other files
 export { schema };
