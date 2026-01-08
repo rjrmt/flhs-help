@@ -3,6 +3,9 @@ import { db } from '@/lib/db';
 import { tickets } from '@/lib/db/schema';
 import { generateTicketId } from '@/lib/utils/ids';
 import { z } from 'zod';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { eq } from 'drizzle-orm';
 
 const createTicketSchema = z.object({
   pNumber: z.string().min(1),
@@ -89,8 +92,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, ticket });
     }
 
-    // Get all tickets (staff only - should check auth)
+    // Get all tickets (requires authentication)
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const userPNumber = (session.user as any)?.pNumber;
+    const isAdmin = session.user?.role === 'admin';
+
+    // Filter by user P number if not admin (staff see only their tickets)
     const allTickets = await db.query.tickets.findMany({
+      where: isAdmin ? undefined : eq(tickets.pNumber, userPNumber || ''),
       orderBy: (tickets, { desc }) => [desc(tickets.createdAt)],
       limit: 100,
     });

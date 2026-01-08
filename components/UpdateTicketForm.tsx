@@ -63,8 +63,8 @@ export function UpdateTicketForm({ ticketId, currentStatus }: { ticketId: string
 
   return (
     <Card>
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <Settings className="w-5 h-5 text-primary" />
+      <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900">
+        <Settings className="w-5 h-5" style={{ color: '#2E75B6' }} />
         Update Ticket
       </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -93,14 +93,35 @@ export function UpdateTicketForm({ ticketId, currentStatus }: { ticketId: string
             type="checkbox"
             id="isInternal"
             {...register('isInternal')}
-            className="w-4 h-4 rounded bg-surface border-surface-light"
+            className="w-4 h-4 rounded border-2 border-gray-300 text-blue-600 focus:ring-blue-500"
           />
-          <label htmlFor="isInternal" className="text-sm text-text-secondary">
+          <label htmlFor="isInternal" className="text-sm text-gray-700">
             Internal note (not visible to requester)
           </label>
         </div>
 
-        <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+        <Button 
+          type="submit" 
+          variant="primary" 
+          className="w-full" 
+          disabled={loading}
+          style={{
+            background: loading ? 'gray' : 'linear-gradient(135deg, #2E75B6 0%, #1e5a8f 100%)',
+            boxShadow: '0 2px 8px rgba(46, 117, 182, 0.3)',
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(46, 117, 182, 0.4)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!loading) {
+              e.currentTarget.style.transform = '';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(46, 117, 182, 0.3)';
+            }
+          }}
+        >
           {loading ? 'Updating...' : 'Update Ticket'}
         </Button>
       </form>

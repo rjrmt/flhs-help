@@ -12,14 +12,13 @@ export const Card: React.FC<CardProps> = ({
   children,
   className,
   hover = false,
-  glass = true,
+  glass = false,
 }) => {
   return (
     <div
       className={cn(
-        'rounded-2xl p-6 transition-all duration-300',
-        glass ? 'glass-strong' : 'bg-surface border border-surface-light',
-        hover && 'hover:scale-105 hover:shadow-2xl hover:shadow-primary/30 cursor-pointer',
+        'rounded-2xl p-6 transition-all duration-300 bg-white border border-gray-200 shadow-sm',
+        hover && 'hover:shadow-md hover:border-gray-300 cursor-pointer',
         className
       )}
     >

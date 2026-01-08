@@ -5,6 +5,8 @@ import { generateDetentionId } from '@/lib/utils/ids';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { neon } from '@neondatabase/serverless';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 
 const createDetentionSchema = z.object({
   pNumber: z.string().min(1),
@@ -110,8 +112,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, detention });
     }
 
-    // Get all detentions (staff only - should check auth)
+    // Get all detentions (requires authentication)
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const userPNumber = (session.user as any)?.pNumber;
+    const isAdmin = session.user?.role === 'admin';
+
+    // Filter by user P number if not admin (staff see only their detentions)
     const allDetentions = await db.query.detentions.findMany({
+      where: isAdmin ? undefined : eq(detentions.pNumber, userPNumber || ''),
       orderBy: (detentions, { desc }) => [desc(detentions.createdAt)],
       limit: 100,
     });

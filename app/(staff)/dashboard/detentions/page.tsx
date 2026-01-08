@@ -32,32 +32,33 @@ export default async function DetentionsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'attended':
-        return 'bg-green-500/20 text-green-500';
+        return 'bg-green-100 text-green-700 border-green-300';
       case 'confirmed':
-        return 'bg-blue-500/20 text-blue-400';
+        return 'bg-blue-100 text-blue-700 border-blue-300';
       case 'missed':
-        return 'bg-red-500/20 text-red-500';
+        return 'bg-red-100 text-red-700 border-red-300';
       default:
-        return 'bg-yellow-500/20 text-yellow-500';
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-16">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Detentions</h1>
-          <p className="text-text-secondary">
-            Manage and track all student detentions
-          </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2 text-gray-900">Detentions</h1>
+            <p className="text-gray-600">
+              Manage and track all student detentions
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <Link href="/dashboard">
+              <Button variant="outline">Back to Dashboard</Button>
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
-        <div className="flex gap-4">
-          <Link href="/dashboard">
-            <Button variant="outline">Back to Dashboard</Button>
-          </Link>
-          <SignOutButton />
-        </div>
-      </div>
 
       <Card className="mb-6">
         <div className="flex items-center gap-4">
@@ -77,8 +78,8 @@ export default async function DetentionsPage() {
       <div className="space-y-4">
         {allDetentions.length === 0 ? (
           <Card className="text-center py-12">
-            <AlertCircle className="w-16 h-16 mx-auto mb-4 text-text-secondary opacity-50" />
-            <p className="text-text-secondary">No detentions found</p>
+            <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+            <p className="text-gray-600">No detentions found</p>
           </Card>
         ) : (
           allDetentions.map((detention) => (
@@ -87,14 +88,14 @@ export default async function DetentionsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold">{detention.studentName}</h3>
-                      <span className="text-text-secondary text-sm">ID: {detention.studentId}</span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(detention.status)}`}>
+                      <h3 className="text-lg font-bold text-gray-900">{detention.studentName}</h3>
+                      <span className="text-gray-600 text-sm">ID: {detention.studentId}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium border-2 ${getStatusColor(detention.status)}`}>
                         {detention.status.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-text-secondary mb-2">{detention.reason.substring(0, 150)}...</p>
-                    <div className="flex items-center gap-4 text-sm text-text-secondary">
+                    <p className="text-gray-600 mb-2 text-sm">{detention.reason.substring(0, 150)}...</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
                       <span className="font-mono">{detention.detentionId}</span>
                       <span>•</span>
                       <span>{formatDateTime(detention.detentionDate)} at {detention.detentionTime}</span>
@@ -109,6 +110,7 @@ export default async function DetentionsPage() {
             </Link>
           ))
         )}
+      </div>
       </div>
     </div>
   );

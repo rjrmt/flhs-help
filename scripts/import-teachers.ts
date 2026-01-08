@@ -49,12 +49,12 @@ async function importTeachers() {
   // Option 1: Import from teachers.csv file
   const csvPath = join(process.cwd(), 'teachers.csv');
   
-  // Option 2: Use inline teachers list
+    // Option 2: Use inline teachers list
   const inlineTeachers: Teacher[] = [
-    // Add your teachers here:
-    // { pNumber: 'P00166224', name: 'RJ Ramautar', email: 'rajesh.ramautar@browardschools.com', role: 'admin' },
-    // { pNumber: 'P00166225', name: 'John Doe', email: 'john.doe@browardschools.com' },
-    // { pNumber: 'P00166226', name: 'Jane Smith', email: 'jane.smith@browardschools.com' },
+    // Test teachers for quick testing
+    { pNumber: 'P001', name: 'Test Teacher One', email: 'test.teacher1@browardschools.com', role: 'staff' },
+    { pNumber: 'P002', name: 'Test Teacher Two', email: 'test.teacher2@browardschools.com', role: 'staff' },
+    { pNumber: 'P003', name: 'Test Teacher Three', email: 'test.teacher3@browardschools.com', role: 'staff' },
   ];
 
   let teachers: Teacher[] = [];
