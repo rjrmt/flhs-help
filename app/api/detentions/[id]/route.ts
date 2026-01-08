@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { detentions, detentionUpdates } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
 const updateDetentionSchema = z.object({
