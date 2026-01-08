@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-xl bg-surface/50 border border-surface-light/50;
+  }
+  
+  .glass-strong {
+    @apply backdrop-blur-2xl bg-surface-light/30 border border-primary/20;
+  }
+}
+
