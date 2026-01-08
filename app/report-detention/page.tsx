@@ -76,12 +76,13 @@ export default function ReportDetentionPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...data,
+          pNumber: data.pNumber,
           studentName: `${data.studentFirstName} ${data.studentLastName}`,
+          studentId: data.studentId,
           reason: data.detentionReason.join(', ') + (data.details ? ` | Details: ${data.details}` : ''),
           detentionDate: new Date().toISOString().split('T')[0],
           detentionTime: new Date().toTimeString().slice(0, 5),
-          reportingStaff: 'Staff', // Will be filled from P Number lookup
+          // reportingStaff will be filled from P Number lookup in the API
         }),
       });
 

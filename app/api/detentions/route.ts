@@ -1,22 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { detentions } from '@/lib/db/schema';
+import { detentions, users } from '@/lib/db/schema';
 import { generateDetentionId } from '@/lib/utils/ids';
 import { z } from 'zod';
+import { eq } from 'drizzle-orm';
+import { neon } from '@neondatabase/serverless';
 
 const createDetentionSchema = z.object({
+  pNumber: z.string().min(1),
   studentName: z.string().min(2),
   studentId: z.string().min(1),
   reason: z.string().min(10),
   detentionDate: z.string(),
   detentionTime: z.string(),
-  reportingStaff: z.string().min(2),
+  reportingStaff: z.string().min(2).optional(), // Will be filled from P number lookup
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = createDetentionSchema.parse(body);
+
+    // Look up staff name from P number
+    let staffName = validatedData.reportingStaff;
+    if (validatedData.pNumber && !staffName) {
+      if (!process.env.DATABASE_URL) {
+        throw new Error('DATABASE_URL not set');
+      }
+      const neonSql = neon(process.env.DATABASE_URL);
+      const userResult = await neonSql`
+        SELECT name FROM users WHERE p_number = ${validatedData.pNumber.toUpperCase()} LIMIT 1
+      `;
+      
+      if (userResult[0]) {
+        staffName = (userResult[0] as any).name;
+      } else {
+        staffName = `P Number: ${validatedData.pNumber}`; // Fallback
+      }
+    }
 
     const detentionId = generateDetentionId();
 
@@ -32,7 +53,8 @@ export async function POST(request: NextRequest) {
         reason: validatedData.reason,
         detentionDate: detentionDateTime,
         detentionTime: validatedData.detentionTime,
-        reportingStaff: validatedData.reportingStaff,
+        pNumber: validatedData.pNumber?.toUpperCase() || null,
+        reportingStaff: staffName || 'Unknown Staff',
         status: 'pending',
       })
       .returning();

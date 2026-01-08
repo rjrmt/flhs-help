@@ -14,8 +14,12 @@ export default async function AdminTicketsPage() {
     redirect('/login');
   }
 
-  // Get all tickets
+  const userPNumber = (session.user as any)?.pNumber;
+  const isAdmin = session.user?.role === 'admin';
+
+  // Get tickets - all for admin, filtered by P number for staff
   const allTickets = await db.query.tickets.findMany({
+    where: isAdmin ? undefined : eq(tickets.pNumber, userPNumber || ''),
     orderBy: (tickets, { desc }) => [desc(tickets.createdAt)],
   });
 

@@ -7,9 +7,24 @@ import { db } from '@/lib/db';
 import { tickets } from '@/lib/db/schema';
 import { formatDateTime } from '@/lib/utils/format';
 import { SignOutButton } from '@/components/SignOutButton';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { eq } from 'drizzle-orm';
 
 export default async function TicketsPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect('/login');
+  }
+
+  const userPNumber = (session.user as any)?.pNumber;
+  const isAdmin = session.user?.role === 'admin';
+
+  // Filter tickets by user P number if not admin
   const allTickets = await db.query.tickets.findMany({
+    where: isAdmin ? undefined : eq(tickets.pNumber, userPNumber || ''),
     orderBy: (tickets, { desc }) => [desc(tickets.createdAt)],
     limit: 100,
   });

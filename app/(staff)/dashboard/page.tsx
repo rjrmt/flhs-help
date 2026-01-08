@@ -18,34 +18,53 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // Get ticket stats
-  const ticketStats = await db
-    .select({
-      total: sql<number>`count(*)`,
-      submitted: sql<number>`count(*) filter (where ${tickets.status} = 'submitted')`,
-      inProgress: sql<number>`count(*) filter (where ${tickets.status} = 'in_progress')`,
-      resolved: sql<number>`count(*) filter (where ${tickets.status} = 'resolved')`,
-    })
-    .from(tickets);
+  const userPNumber = (session.user as any)?.pNumber;
+  const isAdmin = session.user?.role === 'admin';
 
-  // Get detention stats
-  const detentionStats = await db
-    .select({
-      total: sql<number>`count(*)`,
-      pending: sql<number>`count(*) filter (where ${detentions.status} = 'pending')`,
-      confirmed: sql<number>`count(*) filter (where ${detentions.status} = 'confirmed')`,
-      attended: sql<number>`count(*) filter (where ${detentions.status} = 'attended')`,
-    })
-    .from(detentions);
+  // Get ticket stats - filter by user P number if not admin
+  const ticketStatsQuery = isAdmin 
+    ? db.select({
+        total: sql<number>`count(*)`,
+        submitted: sql<number>`count(*) filter (where ${tickets.status} = 'submitted')`,
+        inProgress: sql<number>`count(*) filter (where ${tickets.status} = 'in_progress')`,
+        resolved: sql<number>`count(*) filter (where ${tickets.status} = 'resolved')`,
+      }).from(tickets)
+    : db.select({
+        total: sql<number>`count(*)`,
+        submitted: sql<number>`count(*) filter (where ${tickets.status} = 'submitted')`,
+        inProgress: sql<number>`count(*) filter (where ${tickets.status} = 'in_progress')`,
+        resolved: sql<number>`count(*) filter (where ${tickets.status} = 'resolved')`,
+      }).from(tickets).where(eq(tickets.pNumber, userPNumber || ''));
 
-  // Get recent tickets
+  const ticketStats = await ticketStatsQuery;
+
+  // Get detention stats - filter by user P number if not admin
+  const detentionStatsQuery = isAdmin
+    ? db.select({
+        total: sql<number>`count(*)`,
+        pending: sql<number>`count(*) filter (where ${detentions.status} = 'pending')`,
+        confirmed: sql<number>`count(*) filter (where ${detentions.status} = 'confirmed')`,
+        attended: sql<number>`count(*) filter (where ${detentions.status} = 'attended')`,
+      }).from(detentions)
+    : db.select({
+        total: sql<number>`count(*)`,
+        pending: sql<number>`count(*) filter (where ${detentions.status} = 'pending')`,
+        confirmed: sql<number>`count(*) filter (where ${detentions.status} = 'confirmed')`,
+        attended: sql<number>`count(*) filter (where ${detentions.status} = 'attended')`,
+      }).from(detentions).where(eq(detentions.pNumber, userPNumber || ''));
+
+  const detentionStats = await detentionStatsQuery;
+
+  // Get recent tickets - filter by user P number if not admin
   const recentTickets = await db.query.tickets.findMany({
+    where: isAdmin ? undefined : eq(tickets.pNumber, userPNumber || ''),
     orderBy: (tickets, { desc }) => [desc(tickets.createdAt)],
     limit: 5,
   });
 
-  // Get recent detentions
+  // Get recent detentions - filter by user P number if not admin
   const recentDetentions = await db.query.detentions.findMany({
+    where: isAdmin ? undefined : eq(detentions.pNumber, userPNumber || ''),
     orderBy: (detentions, { desc }) => [desc(detentions.createdAt)],
     limit: 5,
   });

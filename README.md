@@ -58,13 +58,25 @@ public/           # Static assets
 - `npx tsx scripts/create-admin.ts` - Create admin user
 - `npx tsx scripts/apply-migration.ts` - Apply database migrations
 - `npx tsx scripts/setup-database.ts` - Complete database setup (recommended)
+- `npx tsx scripts/import-teachers.ts` - Import teachers from CSV or inline list
 - `npx tsx scripts/diagnose-db.ts` - Diagnose database issues
+- `npx tsx scripts/verify-data.ts` - Verify tickets/detentions are saving
 - `npx tsx scripts/test-login.ts` - Test login credentials
 
 ## 🔐 Default Admin Credentials
 
 - **P Number**: `P00166224`
 - **Password**: `1234` (change after first login!)
+
+## 👨‍🏫 Teacher Setup
+
+To import teachers and enable staff login, see [TEACHER_SETUP.md](./TEACHER_SETUP.md)
+
+Quick setup:
+1. Create `teachers.csv` with P Number, Name, Email, Role
+2. Run `npx tsx scripts/import-teachers.ts`
+3. Apply migration: `npx tsx scripts/apply-migration.ts`
+4. Verify: `npx tsx scripts/verify-data.ts`
 
 ## 📧 Contact
 

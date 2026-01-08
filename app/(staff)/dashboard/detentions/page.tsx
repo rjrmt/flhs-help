@@ -7,9 +7,24 @@ import { db } from '@/lib/db';
 import { detentions } from '@/lib/db/schema';
 import { formatDateTime } from '@/lib/utils/format';
 import { SignOutButton } from '@/components/SignOutButton';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { eq } from 'drizzle-orm';
 
 export default async function DetentionsPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect('/login');
+  }
+
+  const userPNumber = (session.user as any)?.pNumber;
+  const isAdmin = session.user?.role === 'admin';
+
+  // Filter detentions by user P number if not admin
   const allDetentions = await db.query.detentions.findMany({
+    where: isAdmin ? undefined : eq(detentions.pNumber, userPNumber || ''),
     orderBy: (detentions, { desc }) => [desc(detentions.createdAt)],
     limit: 100,
   });

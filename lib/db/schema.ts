@@ -88,6 +88,7 @@ export const detentions = pgTable('detentions', {
   reason: text('reason').notNull(),
   detentionDate: timestamp('detention_date').notNull(),
   detentionTime: varchar('detention_time', { length: 10 }).notNull(), // e.g., "15:30"
+  pNumber: varchar('p_number', { length: 50 }), // Staff P number for filtering
   reportingStaff: varchar('reporting_staff', { length: 255 }).notNull(),
   status: varchar('status', { length: 50 }).notNull().default('pending'), // 'pending', 'confirmed', 'attended', 'missed'
   createdAt: timestamp('created_at').defaultNow().notNull(),

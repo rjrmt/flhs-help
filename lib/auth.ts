@@ -56,6 +56,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email || user.p_number,
             name: user.name,
             role: user.role,
+            pNumber: user.p_number, // Include P number in session
           };
         } catch (error: any) {
           console.error('[Auth] Error:', error.message);
@@ -82,6 +83,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.pNumber = (user as any).pNumber;
       }
       return token;
     },
@@ -89,6 +91,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.sub!;
         session.user.role = token.role as string;
+        session.user.pNumber = token.pNumber as string;
       }
       return session;
     },
