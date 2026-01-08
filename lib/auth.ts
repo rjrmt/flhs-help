@@ -4,8 +4,9 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { db } from './db';
 import { users } from './db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
+import { neon } from '@neondatabase/serverless';
 
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db) as any,
@@ -17,33 +18,49 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.pNumber || !credentials?.password) {
+        try {
+          if (!credentials?.pNumber || !credentials?.password) {
+            return null;
+          }
+
+          // Use direct SQL query for reliability
+          if (!process.env.DATABASE_URL) {
+            throw new Error('DATABASE_URL not set');
+          }
+          
+          const neonSql = neon(process.env.DATABASE_URL);
+          const result = await neonSql`
+            SELECT id, email, name, p_number, role, password_hash
+            FROM users 
+            WHERE p_number = ${credentials.pNumber.trim().toUpperCase()}
+            LIMIT 1
+          `;
+
+          const user = result[0] as any;
+
+          if (!user || !user.password_hash) {
+            return null;
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password_hash
+          );
+
+          if (!isPasswordValid) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email || user.p_number,
+            name: user.name,
+            role: user.role,
+          };
+        } catch (error: any) {
+          console.error('[Auth] Error:', error.message);
           return null;
         }
-
-        const user = await db.query.users.findFirst({
-          where: eq(users.pNumber, credentials.pNumber),
-        });
-
-        if (!user || !user.passwordHash) {
-          return null;
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.passwordHash
-        );
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email || user.pNumber,
-          name: user.name,
-          role: user.role,
-        };
       },
     }),
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET

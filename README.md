@@ -18,6 +18,14 @@ NEXTAUTH_SECRET=$(openssl rand -base64 32)
 ```bash
 npm install
 npm run db:generate
+npx tsx scripts/setup-database.ts  # This does everything!
+npm run dev
+```
+
+**Or manually:**
+```bash
+npm install
+npm run db:generate
 npx tsx scripts/apply-migration.ts
 npx tsx scripts/create-admin.ts
 npm run dev
@@ -49,6 +57,9 @@ public/           # Static assets
 - `npm run db:generate` - Generate migrations
 - `npx tsx scripts/create-admin.ts` - Create admin user
 - `npx tsx scripts/apply-migration.ts` - Apply database migrations
+- `npx tsx scripts/setup-database.ts` - Complete database setup (recommended)
+- `npx tsx scripts/diagnose-db.ts` - Diagnose database issues
+- `npx tsx scripts/test-login.ts` - Test login credentials
 
 ## 🔐 Default Admin Credentials
 
