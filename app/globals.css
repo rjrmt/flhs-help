@@ -3,8 +3,28 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    /* Prevent font size adjustment on iOS */
+    -webkit-text-size-adjust: 100%;
+    /* Smooth scrolling for better UX */
+    scroll-behavior: smooth;
+  }
+  
   body {
     @apply bg-background text-text-primary;
+    /* Better font rendering on mobile */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent pull-to-refresh on mobile */
+    overscroll-behavior-y: contain;
+  }
+
+  /* Safe area insets for iPhone notches */
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 }
 
@@ -15,6 +35,12 @@
   
   .glass-strong {
     @apply backdrop-blur-2xl bg-surface-light/30 border border-primary/20;
+  }
+
+  /* Improved touch targets for mobile */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 
