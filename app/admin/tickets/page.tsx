@@ -7,6 +7,10 @@ import { eq, desc, sql } from 'drizzle-orm';
 import { formatDateTime } from '@/lib/utils/format';
 import TicketConsole from '@/components/TicketConsole';
 
+// Force dynamic rendering (prevents static generation)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminTicketsPage() {
   try {
     const session = await getServerSession(authOptions);
