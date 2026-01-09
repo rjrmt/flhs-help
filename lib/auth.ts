@@ -10,6 +10,7 @@ import { neon } from '@neondatabase/serverless';
 
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db) as any,
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -88,13 +89,14 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
+      if (session.user && token) {
         session.user.id = token.sub!;
-        session.user.role = token.role as string;
-        session.user.pNumber = token.pNumber as string;
+        session.user.role = (token.role as string) || 'staff';
+        session.user.pNumber = (token.pNumber as string) || '';
       }
       return session;
     },
   },
+  debug: process.env.NODE_ENV === 'development',
 };
 

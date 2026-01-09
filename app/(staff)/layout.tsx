@@ -12,19 +12,24 @@ export default async function StaffLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  try {
+    const session = await getServerSession(authOptions);
 
-  if (!session) {
+    if (!session || !session.user) {
+      redirect('/login');
+    }
+
+    return (
+      <div className="min-h-screen relative">
+        <LiquidBackground />
+        <div className="relative z-10">
+          {children}
+        </div>
+      </div>
+    );
+  } catch (error: any) {
+    console.error('Staff layout error:', error);
     redirect('/login');
   }
-
-  return (
-    <div className="min-h-screen relative">
-      <LiquidBackground />
-      <div className="relative z-10">
-        {children}
-      </div>
-    </div>
-  );
 }
 

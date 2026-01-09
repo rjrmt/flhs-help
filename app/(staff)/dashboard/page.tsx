@@ -16,66 +16,80 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  try {
+    const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect('/login');
-  }
+    if (!session || !session.user) {
+      redirect('/login');
+    }
 
   const userPNumber = (session.user as any)?.pNumber;
   const isAdmin = session.user?.role === 'admin';
 
-  // Get ticket stats - filter by user P number if not admin
-  const ticketStatsQuery = isAdmin 
-    ? db.select({
-        total: sql<number>`count(*)`,
-        submitted: sql<number>`count(*) filter (where ${tickets.status} = 'submitted')`,
-        inProgress: sql<number>`count(*) filter (where ${tickets.status} = 'in_progress')`,
-        resolved: sql<number>`count(*) filter (where ${tickets.status} = 'resolved')`,
-      }).from(tickets)
-    : db.select({
-        total: sql<number>`count(*)`,
-        submitted: sql<number>`count(*) filter (where ${tickets.status} = 'submitted')`,
-        inProgress: sql<number>`count(*) filter (where ${tickets.status} = 'in_progress')`,
-        resolved: sql<number>`count(*) filter (where ${tickets.status} = 'resolved')`,
-      }).from(tickets).where(eq(tickets.pNumber, userPNumber || ''));
+  // Initialize stats with defaults
+  let ticketStats = { total: 0, submitted: 0, inProgress: 0, resolved: 0 };
+  let detentionStats = { total: 0, pending: 0, confirmed: 0, attended: 0 };
+  let recentTickets: any[] = [];
+  let recentDetentions: any[] = [];
 
-  const ticketStats = await ticketStatsQuery;
+  try {
+    // Get ticket stats - filter by user P number if not admin
+    const ticketStatsQuery = isAdmin 
+      ? db.select({
+          total: sql<number>`count(*)`,
+          submitted: sql<number>`count(*) filter (where ${tickets.status} = 'submitted')`,
+          inProgress: sql<number>`count(*) filter (where ${tickets.status} = 'in_progress')`,
+          resolved: sql<number>`count(*) filter (where ${tickets.status} = 'resolved')`,
+        }).from(tickets)
+      : db.select({
+          total: sql<number>`count(*)`,
+          submitted: sql<number>`count(*) filter (where ${tickets.status} = 'submitted')`,
+          inProgress: sql<number>`count(*) filter (where ${tickets.status} = 'in_progress')`,
+          resolved: sql<number>`count(*) filter (where ${tickets.status} = 'resolved')`,
+        }).from(tickets).where(eq(tickets.pNumber, userPNumber || ''));
 
-  // Get detention stats - filter by user P number if not admin
-  const detentionStatsQuery = isAdmin
-    ? db.select({
-        total: sql<number>`count(*)`,
-        pending: sql<number>`count(*) filter (where ${detentions.status} = 'pending')`,
-        confirmed: sql<number>`count(*) filter (where ${detentions.status} = 'confirmed')`,
-        attended: sql<number>`count(*) filter (where ${detentions.status} = 'attended')`,
-      }).from(detentions)
-    : db.select({
-        total: sql<number>`count(*)`,
-        pending: sql<number>`count(*) filter (where ${detentions.status} = 'pending')`,
-        confirmed: sql<number>`count(*) filter (where ${detentions.status} = 'confirmed')`,
-        attended: sql<number>`count(*) filter (where ${detentions.status} = 'attended')`,
-      }).from(detentions).where(eq(detentions.pNumber, userPNumber || ''));
+    const ticketStatsResult = await ticketStatsQuery;
+    ticketStats = ticketStatsResult[0] || ticketStats;
 
-  const detentionStats = await detentionStatsQuery;
+    // Get detention stats - filter by user P number if not admin
+    const detentionStatsQuery = isAdmin
+      ? db.select({
+          total: sql<number>`count(*)`,
+          pending: sql<number>`count(*) filter (where ${detentions.status} = 'pending')`,
+          confirmed: sql<number>`count(*) filter (where ${detentions.status} = 'confirmed')`,
+          attended: sql<number>`count(*) filter (where ${detentions.status} = 'attended')`,
+        }).from(detentions)
+      : db.select({
+          total: sql<number>`count(*)`,
+          pending: sql<number>`count(*) filter (where ${detentions.status} = 'pending')`,
+          confirmed: sql<number>`count(*) filter (where ${detentions.status} = 'confirmed')`,
+          attended: sql<number>`count(*) filter (where ${detentions.status} = 'attended')`,
+        }).from(detentions).where(eq(detentions.pNumber, userPNumber || ''));
 
-  // Get recent tickets - filter by user P number if not admin
-  const recentTickets = await db.query.tickets.findMany({
-    where: isAdmin ? undefined : eq(tickets.pNumber, userPNumber || ''),
-    orderBy: (tickets, { desc }) => [desc(tickets.createdAt)],
-    limit: 5,
-  });
+    const detentionStatsResult = await detentionStatsQuery;
+    detentionStats = detentionStatsResult[0] || detentionStats;
 
-  // Get recent detentions - filter by user P number if not admin
-  const recentDetentions = await db.query.detentions.findMany({
-    where: isAdmin ? undefined : eq(detentions.pNumber, userPNumber || ''),
-    orderBy: (detentions, { desc }) => [desc(detentions.createdAt)],
-    limit: 5,
-  });
+    // Get recent tickets - filter by user P number if not admin
+    recentTickets = await db.query.tickets.findMany({
+      where: isAdmin ? undefined : eq(tickets.pNumber, userPNumber || ''),
+      orderBy: (tickets, { desc }) => [desc(tickets.createdAt)],
+      limit: 5,
+    });
+
+    // Get recent detentions - filter by user P number if not admin
+    recentDetentions = await db.query.detentions.findMany({
+      where: isAdmin ? undefined : eq(detentions.pNumber, userPNumber || ''),
+      orderBy: (detentions, { desc }) => [desc(detentions.createdAt)],
+      limit: 5,
+    });
+  } catch (dbError: any) {
+    console.error('Dashboard database error:', dbError);
+    // Continue with empty data instead of crashing
+  }
 
   const stats = {
-    tickets: ticketStats[0] || { total: 0, submitted: 0, inProgress: 0, resolved: 0 },
-    detentions: detentionStats[0] || { total: 0, pending: 0, confirmed: 0, attended: 0 },
+    tickets: ticketStats,
+    detentions: detentionStats,
   };
 
   return (
@@ -266,5 +280,38 @@ export default async function DashboardPage() {
       </div>
     </div>
   );
+  } catch (error: any) {
+    console.error('Dashboard error:', error);
+    // Return error UI instead of crashing
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Dashboard</h1>
+          <p className="text-gray-600 mb-4">
+            There was an error loading the dashboard. Please try:
+          </p>
+          <ul className="list-disc list-inside text-gray-600 space-y-2 mb-6">
+            <li>Refreshing the page</li>
+            <li>Logging out and logging back in</li>
+            <li>Checking Vercel function logs</li>
+          </ul>
+          <div className="space-y-2">
+            <a
+              href="/login"
+              className="inline-block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center"
+            >
+              Go to Login
+            </a>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
