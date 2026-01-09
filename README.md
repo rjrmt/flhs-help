@@ -36,8 +36,12 @@ npm run dev
 ```
 app/              # Next.js pages & API routes
 components/       # React components
+  ├── forms/      # Form components (Input, Select, Textarea, Update forms)
+  └── ui/         # UI components (Button, Card)
 lib/              # Utilities, auth, database
 scripts/          # Utility scripts
+docs/             # Documentation files
+data/             # Data files (teachers.csv)
 public/           # Static assets
 ```
 
@@ -70,10 +74,10 @@ public/           # Static assets
 
 ## 👨‍🏫 Teacher Setup
 
-To import teachers and enable staff login, see [TEACHER_SETUP.md](./TEACHER_SETUP.md)
+To import teachers and enable staff login, see [docs/TEACHER_SETUP.md](./docs/TEACHER_SETUP.md)
 
 Quick setup:
-1. Create `teachers.csv` with P Number, Name, Email, Role
+1. Create `data/teachers.csv` with P Number, Name, Email, Role
 2. Run `npx tsx scripts/import-teachers.ts`
 3. Apply migration: `npx tsx scripts/apply-migration.ts`
 4. Verify: `npx tsx scripts/verify-data.ts`

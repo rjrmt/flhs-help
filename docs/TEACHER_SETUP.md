@@ -8,7 +8,7 @@ This guide explains how to build a database of teachers with P numbers so they c
 
 **Option A: Using CSV file (Recommended)**
 
-1. Create a `teachers.csv` file in the project root:
+1. Create a `data/teachers.csv` file:
 ```csv
 P Number,Name,Email,Role
 P00166224,RJ Ramautar,rajesh.ramautar@browardschools.com,admin
@@ -151,7 +151,7 @@ npx tsx scripts/test-login.ts
 ## Adding More Teachers
 
 Simply:
-1. Add to `teachers.csv` or edit `scripts/import-teachers.ts`
+1. Add to `data/teachers.csv` or edit `scripts/import-teachers.ts`
 2. Run `npx tsx scripts/import-teachers.ts`
 3. Done! Teachers can immediately login
 

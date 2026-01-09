@@ -46,8 +46,8 @@ async function importTeachers() {
   const defaultPassword = process.env.DEFAULT_TEACHER_PASSWORD || 'ChangeMe123!';
   const defaultRole = 'staff'; // All imported teachers are staff by default
 
-  // Option 1: Import from teachers.csv file
-  const csvPath = join(process.cwd(), 'teachers.csv');
+  // Option 1: Import from data/teachers.csv file
+  const csvPath = join(process.cwd(), 'data', 'teachers.csv');
   
     // Option 2: Use inline teachers list
   const inlineTeachers: Teacher[] = [
@@ -61,7 +61,7 @@ async function importTeachers() {
 
   // Try to read from CSV file
   if (existsSync(csvPath)) {
-    console.log('📄 Reading from teachers.csv...\n');
+    console.log('📄 Reading from data/teachers.csv...\n');
     const csvContent = readFileSync(csvPath, 'utf-8');
     const lines = csvContent.split('\n').filter(line => line.trim());
     
@@ -93,8 +93,8 @@ async function importTeachers() {
     console.log('📝 Using inline teachers list...\n');
     teachers = inlineTeachers;
   } else {
-    console.log('⚠️  No teachers.csv file found and no inline teachers defined.');
-    console.log('\n📝 Create a teachers.csv file with format:');
+    console.log('⚠️  No data/teachers.csv file found and no inline teachers defined.');
+    console.log('\n📝 Create a data/teachers.csv file with format:');
     console.log('   P Number,Name,Email,Role');
     console.log('   P00166224,RJ Ramautar,rajesh.ramautar@browardschools.com,admin');
     console.log('   P00166225,John Doe,john.doe@browardschools.com,staff\n');

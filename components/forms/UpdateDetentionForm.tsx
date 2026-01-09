@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
-import { Textarea } from './forms/Textarea';
-import { Select } from './forms/Select';
+import { Card } from '../ui/Card';
+import { Button } from '../ui/Button';
+import { Textarea } from './Textarea';
+import { Select } from './Select';
 import { Settings } from 'lucide-react';
 
 const updateSchema = z.object({

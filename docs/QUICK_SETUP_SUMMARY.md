@@ -13,7 +13,7 @@
 
 #### Step 1: Import Teachers
 
-Create `teachers.csv`:
+Create `data/teachers.csv`:
 ```csv
 P Number,Name,Email,Role
 P00166224,RJ Ramautar,rajesh.ramautar@browardschools.com,admin
@@ -93,7 +93,7 @@ npx tsx scripts/test-login.ts
 
 - [TEACHER_SETUP.md](./TEACHER_SETUP.md) - Detailed teacher setup guide
 - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - Troubleshooting guide
-- [README.md](./README.md) - Project overview
+- [README.md](../README.md) - Project overview
 
 ## Success Indicators
 

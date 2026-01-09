@@ -10,7 +10,7 @@ import { tickets, ticketUpdates } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { formatDateTime } from '@/lib/utils/format';
 import { SignOutButton } from '@/components/SignOutButton';
-import { UpdateTicketForm } from '@/components/UpdateTicketForm';
+import { UpdateTicketForm } from '@/components/forms/UpdateTicketForm';
 
 export default async function TicketDetailPage({ params }: { params: { id: string } }) {
   const ticket = await db.query.tickets.findFirst({

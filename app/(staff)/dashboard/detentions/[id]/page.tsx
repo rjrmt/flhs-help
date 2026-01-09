@@ -7,7 +7,7 @@ import { detentions, detentionUpdates } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { formatDateTime } from '@/lib/utils/format';
 import { SignOutButton } from '@/components/SignOutButton';
-import { UpdateDetentionForm } from '@/components/UpdateDetentionForm';
+import { UpdateDetentionForm } from '@/components/forms/UpdateDetentionForm';
 
 export default async function DetentionDetailPage({ params }: { params: { id: string } }) {
   const detention = await db.query.detentions.findFirst({
