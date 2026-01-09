@@ -3,6 +3,10 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { LiquidBackground } from '@/components/LiquidBackground';
 
+// Force dynamic rendering (prevents static generation)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function StaffLayout({
   children,
 }: {

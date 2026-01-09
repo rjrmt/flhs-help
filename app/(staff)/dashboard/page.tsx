@@ -11,6 +11,10 @@ import { eq, sql, and } from 'drizzle-orm';
 import { formatRelativeTime } from '@/lib/utils/format';
 import { SignOutButton } from '@/components/SignOutButton';
 
+// Force dynamic rendering (prevents static generation)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
