@@ -5,6 +5,9 @@ import { db } from '@/lib/db';
 import { tickets } from '@/lib/db/schema';
 import { sql, eq } from 'drizzle-orm';
 
+// Force dynamic rendering (uses getServerSession which requires headers)
+export const dynamic = 'force-dynamic';
+
 // Extract building number from room number
 function extractBuilding(roomNumber: string | null): string | null {
   if (!roomNumber) return null;
