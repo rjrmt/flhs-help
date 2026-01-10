@@ -22,9 +22,9 @@ export function BuildingChart({ data }: BuildingChartProps) {
     });
 
   return (
-    <div className="w-full h-[300px]">
+    <div className="w-full h-[220px]">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <BarChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis 
             dataKey="building" 

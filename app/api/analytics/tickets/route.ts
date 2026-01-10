@@ -4,6 +4,11 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { tickets } from '@/lib/db/schema';
 import { sql, eq } from 'drizzle-orm';
+import { handleApiError } from '@/lib/utils/error-handler';
+
+// Simple in-memory cache for analytics
+const analyticsCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 30 * 1000; // 30 seconds
 
 // Force dynamic rendering (uses getServerSession which requires headers)
 export const dynamic = 'force-dynamic';
@@ -36,8 +41,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all tickets (IT technician sees all tickets)
+    // Check cache
+    const cacheKey = 'analytics:all';
+    const cached = analyticsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return NextResponse.json({
+        success: true,
+        analytics: cached.data,
+        cached: true,
+      });
+    }
+
+    // Get all tickets (IT technician sees all tickets) - optimized query
     const allTickets = await db.query.tickets.findMany({
+      columns: {
+        id: true,
+        ticketId: true,
+        requesterName: true,
+        pNumber: true,
+        roomNumber: true,
+        urgency: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: (tickets, { desc }) => [desc(tickets.createdAt)],
     });
 
@@ -124,23 +151,39 @@ export async function GET(request: NextRequest) {
       avgResolutionHours = Math.round(totalHours / resolvedTickets.length);
     }
 
+    const analyticsData = {
+      buildingCounts,
+      topSubmitters,
+      urgencyCounts,
+      statusCounts,
+      totalTickets: allTickets.length,
+      avgResolutionHours,
+      resolvedCount: resolvedTickets.length,
+    };
+
+    // Cache the result
+    analyticsCache.set(cacheKey, {
+      data: analyticsData,
+      timestamp: Date.now(),
+    });
+
     return NextResponse.json({
       success: true,
-      analytics: {
-        buildingCounts,
-        topSubmitters,
-        urgencyCounts,
-        statusCounts,
-        totalTickets: allTickets.length,
-        avgResolutionHours,
-        resolvedCount: resolvedTickets.length,
+      analytics: analyticsData,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=59',
       },
     });
   } catch (error: any) {
-    console.error('Analytics error:', error);
+    const handled = handleApiError(error);
     return NextResponse.json(
-      { error: 'Failed to fetch analytics', details: error.message },
-      { status: 500 }
+      { 
+        success: false,
+        error: handled.message,
+        code: handled.code,
+      },
+      { status: handled.statusCode }
     );
   }
 }

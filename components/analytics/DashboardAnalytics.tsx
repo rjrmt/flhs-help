@@ -1,11 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, memo } from 'react';
 import { Card } from '@/components/ui/Card';
-import { BuildingChart } from './BuildingChart';
-import { TopSubmitters } from './TopSubmitters';
-import { UrgencyStatusChart } from './UrgencyStatusChart';
 import { Building2, Users, Clock, TrendingUp } from 'lucide-react';
+import { useApi } from '@/lib/hooks/useApi';
+import dynamic from 'next/dynamic';
+
+// Lazy load heavy chart components
+const BuildingChart = dynamic(() => import('./BuildingChart').then(mod => ({ default: mod.BuildingChart })), {
+  loading: () => <div className="h-[220px] animate-pulse bg-gray-200 rounded" />,
+  ssr: false,
+});
+
+const TopSubmitters = dynamic(() => import('./TopSubmitters').then(mod => ({ default: mod.TopSubmitters })), {
+  loading: () => <div className="h-32 animate-pulse bg-gray-200 rounded" />,
+  ssr: false,
+});
+
+const UrgencyStatusChart = dynamic(() => import('./UrgencyStatusChart').then(mod => ({ default: mod.UrgencyStatusChart })), {
+  loading: () => <div className="h-[180px] animate-pulse bg-gray-200 rounded" />,
+  ssr: false,
+});
 
 interface AnalyticsData {
   buildingCounts: Record<string, number>;
@@ -17,59 +32,46 @@ interface AnalyticsData {
   resolvedCount: number;
 }
 
-export function DashboardAnalytics() {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchAnalytics() {
-      try {
-        const response = await fetch('/api/analytics/tickets');
-        if (!response.ok) {
-          throw new Error('Failed to fetch analytics');
-        }
-        const data = await response.json();
-        if (data.success) {
-          setAnalytics(data.analytics);
-        } else {
-          throw new Error(data.error || 'Failed to fetch analytics');
-        }
-      } catch (err: any) {
-        console.error('Analytics fetch error:', err);
-        setError(err.message || 'Failed to load analytics');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchAnalytics();
-  }, []);
+export const DashboardAnalytics = memo(function DashboardAnalytics() {
+  const { data: analytics, loading, error } = useApi<AnalyticsData>('/api/analytics/tickets', {
+    cacheTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000, // 30 seconds
+    retries: 3,
+    retryDelay: 1000,
+  });
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <div className="animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-          </div>
-        </Card>
-        <Card>
-          <div className="animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-          </div>
-        </Card>
+      <div className="space-y-4">
+        <div className="grid grid-cols-3 gap-3">
+          {[1, 2, 3].map(i => (
+            <Card key={i} className="p-3">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </Card>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {[1, 2].map(i => (
+            <Card key={i} className="p-4">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-1/3 mb-3"></div>
+                <div className="h-48 bg-gray-200 rounded"></div>
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (error || !analytics) {
     return (
-      <Card className="mb-8">
-        <div className="p-6 text-center">
-          <p className="text-gray-600">Unable to load analytics. {error || 'Please try again later.'}</p>
+      <Card className="p-4">
+        <div className="text-center">
+          <p className="text-sm text-gray-600">Unable to load analytics. {error || 'Please try again later.'}</p>
         </div>
       </Card>
     );
@@ -83,74 +85,74 @@ export function DashboardAnalytics() {
   };
 
   return (
-    <div className="space-y-6 mb-8">
-      {/* Performance Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
+    <div className="space-y-4">
+      {/* Performance Metrics - More Compact */}
+      <div className="grid grid-cols-3 gap-3">
+        <Card className="p-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm mb-1">Avg Resolution Time</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-gray-600 text-xs mb-0.5">Avg Resolution</p>
+              <p className="text-lg font-bold text-gray-900">
                 {analytics.avgResolutionHours > 0 
                   ? formatResolutionTime(analytics.avgResolutionHours)
                   : 'N/A'}
               </p>
             </div>
-            <Clock className="w-8 h-8 text-gray-400" />
+            <Clock className="w-6 h-6 text-gray-400" />
           </div>
         </Card>
-        <Card>
+        <Card className="p-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm mb-1">Resolved Tickets</p>
-              <p className="text-2xl font-bold text-green-600">{analytics.resolvedCount}</p>
+              <p className="text-gray-600 text-xs mb-0.5">Resolved</p>
+              <p className="text-lg font-bold text-green-600">{analytics.resolvedCount}</p>
             </div>
-            <TrendingUp className="w-8 h-8 text-green-600" />
+            <TrendingUp className="w-6 h-6 text-green-600" />
           </div>
         </Card>
-        <Card>
+        <Card className="p-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm mb-1">Total Tickets</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.totalTickets}</p>
+              <p className="text-gray-600 text-xs mb-0.5">Total</p>
+              <p className="text-lg font-bold text-gray-900">{analytics.totalTickets}</p>
             </div>
-            <Building2 className="w-8 h-8 text-gray-400" />
+            <Building2 className="w-6 h-6 text-gray-400" />
           </div>
         </Card>
       </div>
 
-      {/* Building Chart */}
-      <Card>
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">
-          <Building2 className="w-5 h-5" style={{ color: '#2E75B6' }} />
-          Tickets by Building
-        </h2>
-        <BuildingChart data={analytics.buildingCounts} />
-      </Card>
-
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Submitters */}
-        <Card>
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">
-            <Users className="w-5 h-5" style={{ color: '#2E75B6' }} />
-            Top Ticket Submitters
-          </h2>
-          <TopSubmitters submitters={analytics.topSubmitters} />
+      {/* Charts Grid - More Compact */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Building Chart */}
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-gray-900">
+            <Building2 className="w-4 h-4" style={{ color: '#2E75B6' }} />
+            Tickets by Building
+          </h3>
+          <BuildingChart data={analytics.buildingCounts} />
         </Card>
 
         {/* Urgency & Status Charts */}
-        <Card>
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">
-            <TrendingUp className="w-5 h-5" style={{ color: '#2E75B6' }} />
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-gray-900">
+            <TrendingUp className="w-4 h-4" style={{ color: '#2E75B6' }} />
             Ticket Breakdown
-          </h2>
+          </h3>
           <UrgencyStatusChart 
             urgencyData={analytics.urgencyCounts}
             statusData={analytics.statusCounts}
           />
         </Card>
       </div>
+
+      {/* Top Submitters - Full Width but Compact */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-gray-900">
+          <Users className="w-4 h-4" style={{ color: '#2E75B6' }} />
+          Top Ticket Submitters
+        </h3>
+        <TopSubmitters submitters={analytics.topSubmitters} />
+      </Card>
     </div>
   );
-}
+});

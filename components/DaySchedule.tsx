@@ -69,11 +69,15 @@ export function DaySchedule() {
   useEffect(() => {
     async function loadSchedule() {
       try {
-        const response = await fetch('/api/calendar');
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+        const response = await fetch('/api/calendar', {
+          credentials: 'include',
+        }).catch(() => null);
+        
+        if (!response || !response.ok) {
+          throw new Error(`HTTP ${response?.status || 'Network Error'}`);
         }
-        const result = await response.json();
+        
+        const result = await response.json().catch(() => ({ success: false }));
         
         if (!result.success || !result.data) {
           throw new Error('Failed to load calendar');

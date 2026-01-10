@@ -8,21 +8,21 @@ export function TopSubmitters({ submitters }: TopSubmittersProps) {
   const maxCount = Math.max(...submitters.map(s => s.count), 1);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {submitters.length === 0 ? (
-        <p className="text-gray-500 text-sm text-center py-4">No data available</p>
+        <p className="text-gray-500 text-xs text-center py-3">No data available</p>
       ) : (
-        submitters.map((submitter, index) => {
+        submitters.slice(0, 5).map((submitter, index) => {
           const percentage = (submitter.count / maxCount) * 100;
           return (
             <div key={submitter.name} className="space-y-1">
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-xs">
                 <span className="font-medium text-gray-900 truncate flex-1 mr-2">
                   {index + 1}. {submitter.name}
                 </span>
                 <span className="text-gray-600 font-semibold">{submitter.count}</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{

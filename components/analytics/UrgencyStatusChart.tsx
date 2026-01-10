@@ -39,11 +39,11 @@ export function UrgencyStatusChart({ urgencyData, statusData }: UrgencyStatusCha
     }));
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-4">
       {/* Urgency Chart */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-4 text-center">By Urgency</h3>
-        <div className="h-[250px]">
+        <h3 className="text-xs font-medium text-gray-700 mb-2 text-center">By Urgency</h3>
+        <div className="h-[180px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -52,7 +52,7 @@ export function UrgencyStatusChart({ urgencyData, statusData }: UrgencyStatusCha
                 cy="50%"
                 labelLine={false}
                 label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
-                outerRadius={80}
+                outerRadius={60}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -68,8 +68,8 @@ export function UrgencyStatusChart({ urgencyData, statusData }: UrgencyStatusCha
 
       {/* Status Chart */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-4 text-center">By Status</h3>
-        <div className="h-[250px]">
+        <h3 className="text-xs font-medium text-gray-700 mb-2 text-center">By Status</h3>
+        <div className="h-[180px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -78,7 +78,7 @@ export function UrgencyStatusChart({ urgencyData, statusData }: UrgencyStatusCha
                 cy="50%"
                 labelLine={false}
                 label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
-                outerRadius={80}
+                outerRadius={60}
                 fill="#8884d8"
                 dataKey="value"
               >

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { LiquidBackground } from '@/components/LiquidBackground';
 import { 
   Ticket, 
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 import { HomeButton } from '@/components/HomeButton';
 import { formatDateTime } from '@/lib/utils/format';
+import { debounce } from '@/lib/utils/debounce';
 
 type Ticket = {
   id: string;
@@ -47,16 +49,25 @@ type TicketConsoleProps = {
   stats: Stats;
 };
 
-export default function TicketConsole({ tickets: initialTickets, stats }: TicketConsoleProps) {
+const TicketConsole = memo(function TicketConsole({ tickets: initialTickets, stats }: TicketConsoleProps) {
   const [tickets, setTickets] = useState(initialTickets);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [urgencyFilter, setUrgencyFilter] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<'createdAt' | 'status' | 'urgency'>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
-  const getStatusColor = (status: string) => {
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const getStatusColor = useCallback((status: string) => {
     switch (status.toLowerCase()) {
       case 'resolved':
         return 'bg-green-100 text-green-700 border-green-300';
@@ -67,9 +78,9 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
       default:
         return 'bg-yellow-100 text-yellow-700 border-yellow-300';
     }
-  };
+  }, []);
 
-  const getUrgencyColor = (urgency: string) => {
+  const getUrgencyColor = useCallback((urgency: string) => {
     switch (urgency.toLowerCase()) {
       case 'critical':
         return 'bg-red-100 text-red-700 border-red-300';
@@ -80,9 +91,9 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
       default:
         return 'bg-blue-100 text-blue-700 border-blue-300';
     }
-  };
+  }, []);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = useCallback((status: string) => {
     switch (status.toLowerCase()) {
       case 'resolved':
         return <CheckCircle className="w-4 h-4" />;
@@ -93,24 +104,27 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
       default:
         return <AlertCircle className="w-4 h-4" />;
     }
-  };
+  }, []);
 
-  const filteredTickets = tickets.filter((ticket) => {
-    const matchesSearch = 
-      ticket.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (ticket.requesterName && ticket.requesterName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (ticket.requesterEmail && ticket.requesterEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (ticket.pNumber && ticket.pNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (ticket.roomNumber && ticket.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredTickets = useMemo(() => {
+    return tickets.filter((ticket) => {
+      const matchesSearch = 
+      ticket.ticketId.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      (ticket.requesterName && ticket.requesterName.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
+      (ticket.requesterEmail && ticket.requesterEmail.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
+      (ticket.pNumber && ticket.pNumber.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
+      ticket.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      (ticket.roomNumber && ticket.roomNumber.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
     
-    const matchesStatus = !statusFilter || ticket.status === statusFilter;
-    const matchesUrgency = !urgencyFilter || ticket.urgency === urgencyFilter;
-    
-    return matchesSearch && matchesStatus && matchesUrgency;
-  });
+      const matchesStatus = !statusFilter || ticket.status === statusFilter;
+      const matchesUrgency = !urgencyFilter || ticket.urgency === urgencyFilter;
+      
+      return matchesSearch && matchesStatus && matchesUrgency;
+    });
+  }, [tickets, debouncedSearchTerm, statusFilter, urgencyFilter]);
 
-  const sortedTickets = [...filteredTickets].sort((a, b) => {
+  const sortedTickets = useMemo(() => {
+    return [...filteredTickets].sort((a, b) => {
     let aVal: any = a[sortColumn];
     let bVal: any = b[sortColumn];
     
@@ -125,17 +139,18 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
       return aVal < bVal ? 1 : -1;
     }
   });
+  }, [filteredTickets, sortColumn, sortDirection]);
 
-  const toggleSort = (column: 'createdAt' | 'status' | 'urgency') => {
+  const toggleSort = useCallback((column: 'createdAt' | 'status' | 'urgency') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortColumn(column);
       setSortDirection('desc');
     }
-  };
+  }, [sortColumn, sortDirection]);
 
-  const toggleRow = (ticketId: string) => {
+  const toggleRow = useCallback((ticketId: string) => {
     const newExpanded = new Set(expandedRows);
     if (newExpanded.has(ticketId)) {
       newExpanded.delete(ticketId);
@@ -143,7 +158,7 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
       newExpanded.add(ticketId);
     }
     setExpandedRows(newExpanded);
-  };
+  }, [expandedRows]);
 
   return (
     <main className="min-h-screen bg-gray-50 p-3 safe-area-inset pb-24" style={{ padding: '10px' }}>
@@ -412,5 +427,7 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
       <HomeButton />
     </main>
   );
-}
+});
+
+export default TicketConsole;
 
