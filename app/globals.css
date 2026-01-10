@@ -11,7 +11,8 @@
   }
   
   body {
-    @apply bg-background text-text-primary;
+    @apply text-text-primary;
+    background: transparent;
     /* Better font rendering on mobile */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

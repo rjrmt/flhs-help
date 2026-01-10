@@ -5,7 +5,6 @@ import GoogleProvider from 'next-auth/providers/google';
 import { db } from './db';
 import { users } from './db/schema';
 import { eq, sql } from 'drizzle-orm';
-import bcrypt from 'bcryptjs';
 import { neon } from '@neondatabase/serverless';
 
 export const authOptions: NextAuthOptions = {
@@ -16,11 +15,11 @@ export const authOptions: NextAuthOptions = {
       name: 'Credentials',
       credentials: {
         pNumber: { label: 'P Number', type: 'text' },
-        password: { label: 'Password', type: 'password' },
+        password: { label: 'Password', type: 'password' }, // Kept for NextAuth compatibility but not used
       },
       async authorize(credentials) {
         try {
-          if (!credentials?.pNumber || !credentials?.password) {
+          if (!credentials?.pNumber) {
             return null;
           }
 
@@ -31,7 +30,7 @@ export const authOptions: NextAuthOptions = {
           
           const neonSql = neon(process.env.DATABASE_URL);
           const result = await neonSql`
-            SELECT id, email, name, p_number, role, password_hash
+            SELECT id, email, name, p_number, role
             FROM users 
             WHERE p_number = ${credentials.pNumber.trim().toUpperCase()}
             LIMIT 1
@@ -39,16 +38,8 @@ export const authOptions: NextAuthOptions = {
 
           const user = result[0] as any;
 
-          if (!user || !user.password_hash) {
-            return null;
-          }
-
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password,
-            user.password_hash
-          );
-
-          if (!isPasswordValid) {
+          // If user exists with this P Number, authenticate them (no password check)
+          if (!user) {
             return null;
           }
 
@@ -83,14 +74,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.pNumber = (user as any).pNumber;
+        token.role = user.role || 'staff';
+        token.pNumber = (user as any).pNumber || '';
+        token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token) {
-        session.user.id = token.sub!;
+        session.user.id = token.sub || token.id as string || '';
         session.user.role = (token.role as string) || 'staff';
         session.user.pNumber = (token.pNumber as string) || '';
       }

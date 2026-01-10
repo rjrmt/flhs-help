@@ -4,8 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { LiquidBackground } from '@/components/LiquidBackground';
-import { MessageCircle, ClipboardList, Search, CheckCircle, Clock, XCircle, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { MessageCircle, ClipboardList, Search, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { HomeButton } from '@/components/HomeButton';
 import { formatDateTime } from '@/lib/utils/format';
 
 type StatusType = 'ticket' | 'detention' | null;
@@ -135,7 +135,7 @@ function StatusPageContent() {
   };
 
   return (
-    <main className="min-h-screen relative overflow-hidden p-3 safe-area-inset" style={{ padding: '10px' }}>
+    <main className="min-h-screen relative flex items-center justify-center p-3 safe-area-inset overflow-x-hidden" style={{ padding: '10px' }}>
       <div 
         className="fixed inset-0 -z-10"
         style={{
@@ -151,21 +151,12 @@ function StatusPageContent() {
       />
       <LiquidBackground />
       
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-2xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 mb-6 transition-colors text-sm font-medium"
-          style={{ color: '#1e5a8f' }}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
-
+      <div className="relative z-10 w-full max-w-[500px] px-4 py-4 flex flex-col items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative bg-white/95 backdrop-blur-[20px] rounded-3xl shadow-xl overflow-hidden mb-6"
+          className="relative bg-white/95 backdrop-blur-[20px] rounded-3xl shadow-xl overflow-hidden w-full max-h-[90vh] overflow-y-auto mb-4"
           style={{
             padding: '32px 24px',
             maxWidth: '500px',
@@ -484,6 +475,7 @@ function StatusPageContent() {
             </div>
           </motion.div>
         )}
+        <HomeButton variant="relative" />
       </div>
     </main>
   );

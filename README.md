@@ -35,13 +35,17 @@ npm run dev
 
 ```
 app/              # Next.js pages & API routes
+  ├── (staff)/   # Staff dashboard routes (role-based)
+  ├── admin/     # Admin console routes
+  └── api/       # API endpoints (tickets, detentions, analytics, calendar)
 components/       # React components
-  ├── forms/      # Form components (Input, Select, Textarea, Update forms)
-  └── ui/         # UI components (Button, Card)
+  ├── analytics/ # Dashboard charts and analytics
+  ├── forms/     # Form components (Input, Select, Textarea, Update forms)
+  └── ui/        # UI components (Button, Card)
 lib/              # Utilities, auth, database
-scripts/          # Utility scripts
+scripts/          # Utility scripts (excluded from build)
 docs/             # Documentation files
-data/             # Data files (teachers.csv)
+data/             # Data files (teachers.csv, academic-calendar.csv)
 public/           # Static assets
 ```
 
@@ -50,9 +54,10 @@ public/           # Static assets
 - Next.js 14 (App Router)
 - Neon PostgreSQL
 - Drizzle ORM
-- NextAuth.js
+- NextAuth.js (Password-less authentication)
 - Tailwind CSS
 - Framer Motion
+- Recharts (Analytics & Charts)
 
 ## 📝 Scripts
 
@@ -67,10 +72,14 @@ public/           # Static assets
 - `npx tsx scripts/verify-data.ts` - Verify tickets/detentions are saving
 - `npx tsx scripts/test-login.ts` - Test login credentials
 
-## 🔐 Default Admin Credentials
+## 🔐 Authentication
+
+**Password-less Authentication**: The application uses P Number (PIN) as the sole authentication method. No password is required.
+
+### Default Admin Credentials
 
 - **P Number**: `P00166224`
-- **Password**: `1234` (change after first login!)
+- **Login**: Enter your P Number on the login page
 
 ## 👨‍🏫 Teacher Setup
 

@@ -5,10 +5,13 @@ import { MessageCircle, FileText, ClipboardList, Mail, Shield } from 'lucide-rea
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import { DaySchedule } from '@/components/DaySchedule';
+import { BellSchedule } from '@/components/BellSchedule';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function HomePage() {
   return (
-    <main className="h-screen relative overflow-hidden flex items-center justify-center p-2.5 safe-area-inset" style={{ padding: '10px' }}>
+    <main className="h-screen relative flex items-center justify-center p-2.5 safe-area-inset overflow-x-hidden" style={{ padding: '10px' }}>
       {/* Background - Match testing hub exactly */}
       <div 
         className="fixed inset-0 -z-10"
@@ -115,6 +118,20 @@ export default function HomePage() {
         >
           Fort Lauderdale High School
         </motion.p>
+
+        {/* Day Schedule */}
+        <ErrorBoundary>
+          <div className="relative z-[2] w-full">
+            <DaySchedule />
+          </div>
+        </ErrorBoundary>
+
+        {/* Bell Schedule */}
+        <ErrorBoundary>
+          <div className="relative z-[2] w-full">
+            <BellSchedule />
+          </div>
+        </ErrorBoundary>
 
         {/* Contact Info */}
         <motion.a
@@ -351,7 +368,7 @@ export default function HomePage() {
           transition={{ duration: 0.5, delay: 0.7 }}
           className="w-full"
         >
-          <Link href="/admin/tickets" className="group block w-full">
+          <Link href="/admin" className="group block w-full">
             <motion.div
               whileTap={{ scale: 0.97 }}
               whileHover={{ scale: 1.02, y: -3 }}

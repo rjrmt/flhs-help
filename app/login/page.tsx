@@ -5,13 +5,12 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { LiquidBackground } from '@/components/LiquidBackground';
-import { Lock, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Lock } from 'lucide-react';
+import { HomeButton } from '@/components/HomeButton';
 
 export default function LoginPage() {
   const router = useRouter();
   const [pNumber, setPNumber] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,28 +19,42 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+    if (!pNumber.trim()) {
+      setError('Please enter your P Number');
+      setLoading(false);
+      return;
+    }
+
     try {
       const result = await signIn('credentials', {
-        pNumber: pNumber.trim(),
-        password,
+        pNumber: pNumber.trim().toUpperCase(),
+        password: 'not_required', // Dummy value for NextAuth compatibility
         redirect: false,
       });
 
       if (result?.error) {
-        setError('Invalid P Number or password');
+        console.error('Sign in error:', result.error);
+        setError('Invalid P Number. Please check your P Number and try again.');
         setLoading(false);
+      } else if (result?.ok) {
+        // Small delay to ensure session is set
+        setTimeout(() => {
+          router.push('/dashboard');
+          router.refresh();
+        }, 100);
       } else {
-        router.push('/dashboard');
-        router.refresh();
+        setError('Failed to sign in. Please try again.');
+        setLoading(false);
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err?.message || 'An error occurred. Please try again.');
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen relative overflow-hidden p-3 safe-area-inset" style={{ padding: '10px' }}>
+    <main className="h-screen relative flex items-center justify-center p-3 safe-area-inset overflow-x-hidden" style={{ padding: '10px' }}>
       <div 
         className="fixed inset-0 -z-10"
         style={{
@@ -57,21 +70,12 @@ export default function LoginPage() {
       />
       <LiquidBackground />
       
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-2xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 mb-6 transition-colors text-sm font-medium"
-          style={{ color: '#1e5a8f' }}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
-
+      <div className="relative z-10 w-full max-w-[500px] px-4 flex flex-col items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative bg-white/95 backdrop-blur-[20px] rounded-3xl shadow-xl overflow-hidden"
+          className="relative bg-white/95 backdrop-blur-[20px] rounded-3xl shadow-xl overflow-hidden w-full"
           style={{
             padding: '32px 24px',
             maxWidth: '500px',
@@ -95,7 +99,7 @@ export default function LoginPage() {
                 Staff Login
               </h1>
               <p className="text-sm" style={{ color: '#666' }}>
-                Access the staff dashboard to manage tickets and detentions
+                Enter your P Number to access your dashboard
               </p>
             </div>
 
@@ -108,37 +112,24 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-semibold mb-2" style={{ color: '#333' }}>
-                  P Number
+                  P Number (PIN)
                 </label>
                 <input
                   type="text"
-                  placeholder="P00166224"
+                  placeholder="Enter your P Number"
                   value={pNumber}
                   onChange={(e) => setPNumber(e.target.value.toUpperCase())}
                   required
+                  autoFocus
                   className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-base font-medium focus:outline-none focus:border-primary focus:ring-0 transition-all uppercase"
                   style={{ 
                     boxShadow: 'none',
                   }}
                   maxLength={20}
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#333' }}>
-                  Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-base font-medium focus:outline-none focus:border-primary focus:ring-0 transition-all"
-                  style={{ 
-                    boxShadow: 'none',
-                  }}
-                />
+                <p className="text-xs mt-1.5" style={{ color: '#666' }}>
+                  Enter your P Number to sign in
+                </p>
               </div>
 
               <button
@@ -182,6 +173,7 @@ export default function LoginPage() {
               </button>
             </form>
           </div>
+          <HomeButton variant="relative" />
         </motion.div>
       </div>
     </main>

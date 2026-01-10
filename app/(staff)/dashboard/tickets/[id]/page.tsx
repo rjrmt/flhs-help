@@ -10,6 +10,7 @@ import { tickets, ticketUpdates } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { formatDateTime } from '@/lib/utils/format';
 import { SignOutButton } from '@/components/SignOutButton';
+import { HomeButton } from '@/components/HomeButton';
 import { UpdateTicketForm } from '@/components/forms/UpdateTicketForm';
 
 export default async function TicketDetailPage({ params }: { params: { id: string } }) {
@@ -30,7 +31,7 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-24">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <Link href="/dashboard/tickets" className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
@@ -135,6 +136,7 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
         </div>
       </div>
       </div>
+      <HomeButton />
     </div>
   );
 }

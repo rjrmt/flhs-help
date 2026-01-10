@@ -7,8 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { LiquidBackground } from '@/components/LiquidBackground';
-import { ClipboardList, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { ClipboardList } from 'lucide-react';
+import { HomeButton } from '@/components/HomeButton';
 
 const detentionSchema = z.object({
   pNumber: z.string().min(1, 'P Number is required'),
@@ -106,7 +106,7 @@ export default function ReportDetentionPage() {
 
   if (submitSuccess) {
     return (
-      <main className="h-screen relative overflow-hidden flex items-center justify-center p-3 safe-area-inset" style={{ padding: '10px' }}>
+      <main className="h-screen relative flex items-center justify-center p-3 safe-area-inset overflow-x-hidden" style={{ padding: '10px' }}>
         <div 
           className="fixed inset-0 -z-10"
           style={{
@@ -122,55 +122,58 @@ export default function ReportDetentionPage() {
         />
         <LiquidBackground />
         
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="relative z-10 max-w-[420px] w-full bg-white/12 backdrop-blur-[50px] rounded-3xl border border-white/22 shadow-2xl overflow-hidden flex flex-col mx-auto my-auto"
-          style={{
-            padding: '24px',
-            boxShadow: `
-              0 12px 40px rgba(0, 0, 0, 0.35),
-              0 0 0 1px rgba(255, 255, 255, 0.25) inset,
-              0 2px 0 rgba(255, 255, 255, 0.35) inset,
-              0 0 60px rgba(59, 130, 246, 0.1)
-            `,
-            WebkitBackdropFilter: 'blur(50px) saturate(200%)',
-          }}
-        >
-          <div className="relative z-[2] text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="w-16 h-16 mx-auto mb-4 bg-primary/20 rounded-full flex items-center justify-center"
-            >
-              <ClipboardList className="w-8 h-8 text-primary" />
-            </motion.div>
-            <h1 className="text-2xl font-extrabold mb-2 text-white" style={{ textShadow: '0 3px 12px rgba(0, 0, 0, 0.5)' }}>
-              Detention Reported
-            </h1>
-            <p className="text-sm text-white/90 mb-6">
-              The detention has been successfully reported.
-            </p>
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4 border border-white/20">
-              <p className="text-xs text-white/80 mb-1">Detention ID:</p>
-              <p className="text-xl font-bold text-primary font-mono">{submitSuccess}</p>
-              <p className="text-xs text-white/70 mt-2">
-                Please save this ID to check the detention status.
+        <div className="relative z-10 w-full max-w-[420px] px-4 flex flex-col items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="relative w-full bg-white/12 backdrop-blur-[50px] rounded-3xl border border-white/22 shadow-2xl overflow-hidden flex flex-col"
+            style={{
+              padding: '24px',
+              boxShadow: `
+                0 12px 40px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.25) inset,
+                0 2px 0 rgba(255, 255, 255, 0.35) inset,
+                0 0 60px rgba(59, 130, 246, 0.1)
+              `,
+              WebkitBackdropFilter: 'blur(50px) saturate(200%)',
+            }}
+          >
+            <div className="relative z-[2] text-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="w-16 h-16 mx-auto mb-4 bg-primary/20 rounded-full flex items-center justify-center"
+              >
+                <ClipboardList className="w-8 h-8 text-primary" />
+              </motion.div>
+              <h1 className="text-2xl font-extrabold mb-2 text-white" style={{ textShadow: '0 3px 12px rgba(0, 0, 0, 0.5)' }}>
+                Detention Reported
+              </h1>
+              <p className="text-sm text-white/90 mb-6">
+                The detention has been successfully reported.
+              </p>
+              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4 border border-white/20">
+                <p className="text-xs text-white/80 mb-1">Detention ID:</p>
+                <p className="text-xl font-bold text-primary font-mono">{submitSuccess}</p>
+                <p className="text-xs text-white/70 mt-2">
+                  Please save this ID to check the detention status.
+                </p>
+              </div>
+              <p className="text-xs text-white/80">
+                Redirecting to status page...
               </p>
             </div>
-            <p className="text-xs text-white/80">
-              Redirecting to status page...
-            </p>
-          </div>
-        </motion.div>
-      </main>
+            <HomeButton variant="relative" />
+          </motion.div>
+        </div>
+    </main>
     );
   }
 
   return (
-    <main className="min-h-screen relative overflow-hidden p-3 safe-area-inset" style={{ padding: '10px' }}>
+    <main className="min-h-screen relative flex items-center justify-center p-3 safe-area-inset overflow-x-hidden" style={{ padding: '10px' }}>
       <div 
         className="fixed inset-0 -z-10"
         style={{
@@ -186,21 +189,12 @@ export default function ReportDetentionPage() {
       />
       <LiquidBackground />
       
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-2xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 mb-6 transition-colors text-sm font-medium"
-          style={{ color: '#1e5a8f' }}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
-
+      <div className="relative z-10 w-full max-w-[500px] px-4 py-4 flex flex-col items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative bg-white/95 backdrop-blur-[20px] rounded-3xl shadow-xl overflow-hidden"
+          className="relative bg-white/95 backdrop-blur-[20px] rounded-3xl shadow-xl overflow-hidden w-full max-h-[90vh] overflow-y-auto"
           style={{
             padding: '32px 24px',
             maxWidth: '500px',
@@ -270,7 +264,7 @@ export default function ReportDetentionPage() {
                 )}
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2" style={{ color: '#333' }}>
                     Student First Name *
@@ -454,6 +448,7 @@ export default function ReportDetentionPage() {
               </div>
             </form>
           </div>
+          <HomeButton variant="relative" />
         </motion.div>
       </div>
     </main>

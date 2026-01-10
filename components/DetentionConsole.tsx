@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { LiquidBackground } from '@/components/LiquidBackground';
 import { 
-  Ticket, 
+  ClipboardList, 
   Search, 
   Filter, 
   CheckCircle, 
@@ -18,103 +18,86 @@ import {
 import { HomeButton } from '@/components/HomeButton';
 import { formatDateTime } from '@/lib/utils/format';
 
-type Ticket = {
+type Detention = {
   id: string;
-  ticketId: string;
-  requesterName: string | null;
-  requesterEmail: string | null;
+  detentionId: string;
+  studentName: string;
+  studentId: string;
+  reason: string;
+  detentionDate: Date | string;
+  detentionTime: string;
+  reportingStaff: string;
   pNumber: string | null;
-  roomNumber: string | null;
-  description: string;
   status: string;
-  urgency: string;
   createdAt: Date | string;
   updatedAt: Date | string;
-  category?: string | null;
-  subject?: string | null;
-  assignedTo?: string | null;
 };
 
 type Stats = {
   total: number;
-  open: number;
-  resolved: number;
-  closed: number;
+  pending: number;
+  confirmed: number;
+  attended: number;
+  missed: number;
 };
 
-type TicketConsoleProps = {
-  tickets: Ticket[];
+type DetentionConsoleProps = {
+  detentions: Detention[];
   stats: Stats;
 };
 
-export default function TicketConsole({ tickets: initialTickets, stats }: TicketConsoleProps) {
-  const [tickets, setTickets] = useState(initialTickets);
+export default function DetentionConsole({ detentions: initialDetentions, stats }: DetentionConsoleProps) {
+  const [detentions, setDetentions] = useState(initialDetentions);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [urgencyFilter, setUrgencyFilter] = useState<string | null>(null);
-  const [sortColumn, setSortColumn] = useState<'createdAt' | 'status' | 'urgency'>('createdAt');
+  const [sortColumn, setSortColumn] = useState<'createdAt' | 'status' | 'detentionDate'>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'resolved':
+      case 'attended':
         return 'bg-green-100 text-green-700 border-green-300';
-      case 'in_progress':
+      case 'confirmed':
         return 'bg-blue-100 text-blue-700 border-blue-300';
-      case 'closed':
-        return 'bg-gray-100 text-gray-700 border-gray-300';
-      default:
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-    }
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency.toLowerCase()) {
-      case 'critical':
+      case 'missed':
         return 'bg-red-100 text-red-700 border-red-300';
-      case 'high':
-        return 'bg-orange-100 text-orange-700 border-orange-300';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
       default:
-        return 'bg-blue-100 text-blue-700 border-blue-300';
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'resolved':
+      case 'attended':
         return <CheckCircle className="w-4 h-4" />;
-      case 'in_progress':
+      case 'confirmed':
         return <Clock className="w-4 h-4" />;
-      case 'closed':
+      case 'missed':
         return <XCircle className="w-4 h-4" />;
       default:
         return <AlertCircle className="w-4 h-4" />;
     }
   };
 
-  const filteredTickets = tickets.filter((ticket) => {
+  const filteredDetentions = detentions.filter((detention) => {
     const matchesSearch = 
-      ticket.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (ticket.requesterName && ticket.requesterName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (ticket.requesterEmail && ticket.requesterEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (ticket.pNumber && ticket.pNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (ticket.roomNumber && ticket.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()));
+      detention.detentionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      detention.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      detention.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      detention.reportingStaff.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      detention.reason.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = !statusFilter || ticket.status === statusFilter;
-    const matchesUrgency = !urgencyFilter || ticket.urgency === urgencyFilter;
+    const matchesStatus = !statusFilter || detention.status === statusFilter;
     
-    return matchesSearch && matchesStatus && matchesUrgency;
+    return matchesSearch && matchesStatus;
   });
 
-  const sortedTickets = [...filteredTickets].sort((a, b) => {
+  const sortedDetentions = [...filteredDetentions].sort((a, b) => {
     let aVal: any = a[sortColumn];
     let bVal: any = b[sortColumn];
     
-    if (sortColumn === 'createdAt') {
+    if (sortColumn === 'createdAt' || sortColumn === 'detentionDate') {
       aVal = new Date(aVal).getTime();
       bVal = new Date(bVal).getTime();
     }
@@ -126,7 +109,7 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
     }
   });
 
-  const toggleSort = (column: 'createdAt' | 'status' | 'urgency') => {
+  const toggleSort = (column: 'createdAt' | 'status' | 'detentionDate') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -135,12 +118,12 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
     }
   };
 
-  const toggleRow = (ticketId: string) => {
+  const toggleRow = (detentionId: string) => {
     const newExpanded = new Set(expandedRows);
-    if (newExpanded.has(ticketId)) {
-      newExpanded.delete(ticketId);
+    if (newExpanded.has(detentionId)) {
+      newExpanded.delete(detentionId);
     } else {
-      newExpanded.add(ticketId);
+      newExpanded.add(detentionId);
     }
     setExpandedRows(newExpanded);
   };
@@ -174,10 +157,10 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-4">
             <div>
               <h1 className="text-xl sm:text-2xl font-extrabold mb-2 text-gray-900" style={{ letterSpacing: '-0.6px' }}>
-                IT Ticket Console
+                Detention Management Console
               </h1>
               <p className="text-xs sm:text-sm text-gray-600">
-                Manage and track all IT support tickets
+                Manage and track all student detentions
               </p>
             </div>
             <div className="flex gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
@@ -186,12 +169,12 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
                 <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-600">Open</p>
-                <p className="text-xl sm:text-2xl font-bold" style={{ color: '#2E75B6' }}>{stats.open}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-600">Pending</p>
+                <p className="text-xl sm:text-2xl font-bold text-yellow-600">{stats.pending}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-600">Resolved</p>
-                <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.resolved}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide mb-1 text-gray-600">Attended</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.attended}</p>
               </div>
             </div>
           </div>
@@ -202,7 +185,7 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search by Ticket ID, Staff Name, Email, Room, or Issue..."
+                placeholder="Search by Detention ID, Student Name, Student ID, Staff Name, or Reason..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-sm font-medium focus:outline-none focus:border-primary focus:ring-0 transition-all"
@@ -217,45 +200,27 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
                 style={{ boxShadow: 'none' }}
               >
                 <option value="">All Status</option>
-                <option value="submitted">Submitted</option>
-                <option value="in_progress">In Progress</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
-              </select>
-              <select
-                value={urgencyFilter || ''}
-                onChange={(e) => setUrgencyFilter(e.target.value || null)}
-                className="flex-1 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-gray-900 text-sm font-medium focus:outline-none focus:border-primary focus:ring-0 transition-all"
-                style={{ boxShadow: 'none' }}
-              >
-                <option value="">All Urgency</option>
-                <option value="critical">Critical</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="attended">Attended</option>
+                <option value="missed">Missed</option>
               </select>
             </div>
           </div>
 
           {/* Results count */}
           <div className="text-sm mb-4 text-gray-600">
-            Showing {sortedTickets.length} of {tickets.length} tickets
+            Showing {sortedDetentions.length} of {detentions.length} detentions
             {statusFilter && (
               <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded text-xs font-semibold">
                 Status: {statusFilter}
                 <button onClick={() => setStatusFilter(null)} className="ml-1 hover:text-gray-900">×</button>
               </span>
             )}
-            {urgencyFilter && (
-              <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded text-xs font-semibold">
-                Urgency: {urgencyFilter}
-                <button onClick={() => setUrgencyFilter(null)} className="ml-1 hover:text-gray-900">×</button>
-              </span>
-            )}
           </div>
         </motion.div>
 
-        {/* Tickets Table */}
+        {/* Detentions Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -270,10 +235,10 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
             WebkitBackdropFilter: 'blur(20px) saturate(150%)',
           }}
         >
-          {sortedTickets.length === 0 ? (
+          {sortedDetentions.length === 0 ? (
             <div className="p-12 text-center">
-              <Ticket className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <p className="text-lg font-semibold mb-2 text-gray-900">No tickets found</p>
+              <ClipboardList className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+              <p className="text-lg font-semibold mb-2 text-gray-900">No detentions found</p>
               <p className="text-sm text-gray-600">Try adjusting your search or filters</p>
             </div>
           ) : (
@@ -282,27 +247,41 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
                 <thead>
                   <tr className="border-b-2 border-gray-200 bg-gray-50">
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-700">
-                      Ticket ID
+                      Detention ID
                     </th>
                     <th 
                       className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition-colors text-gray-700"
                       onClick={() => toggleSort('createdAt')}
                     >
                       <div className="flex items-center gap-1">
-                        Submission Time
+                        Reported
                         {sortColumn === 'createdAt' && (
                           sortDirection === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                         )}
                       </div>
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-700">
-                      Staff Name
+                      Student Name
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-700">
-                      Room Number
+                      Student ID
+                    </th>
+                    <th 
+                      className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition-colors text-gray-700"
+                      onClick={() => toggleSort('detentionDate')}
+                    >
+                      <div className="flex items-center gap-1">
+                        Detention Date
+                        {sortColumn === 'detentionDate' && (
+                          sortDirection === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                        )}
+                      </div>
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-700">
-                      IT Issue
+                      Reporting Staff
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-700">
+                      Reason
                     </th>
                     <th 
                       className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition-colors text-gray-700"
@@ -315,71 +294,60 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
                         )}
                       </div>
                     </th>
-                    <th 
-                      className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition-colors text-gray-700"
-                      onClick={() => toggleSort('urgency')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Urgency
-                        {sortColumn === 'urgency' && (
-                          sortDirection === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                        )}
-                      </div>
-                    </th>
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-700">
                       Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedTickets.map((ticket) => {
-                    const isExpanded = expandedRows.has(ticket.ticketId);
+                  {sortedDetentions.map((detention) => {
+                    const isExpanded = expandedRows.has(detention.detentionId);
                     return (
                       <tr
-                        key={ticket.id}
+                        key={detention.id}
                         className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer bg-white"
-                        onClick={() => toggleRow(ticket.ticketId)}
+                        onClick={() => toggleRow(detention.detentionId)}
                       >
                         <td className="px-4 py-3">
                           <span className="font-mono text-sm font-semibold text-gray-900">
-                            {ticket.ticketId}
+                            {detention.detentionId}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-700">
-                          {formatDateTime(ticket.createdAt)}
+                          {formatDateTime(detention.createdAt)}
                         </td>
                         <td className="px-4 py-3">
-                          <div>
-                            <p className="text-sm font-semibold text-gray-900">
-                              {ticket.requesterName || (ticket.pNumber ? `P-${ticket.pNumber}` : 'N/A')}
-                            </p>
-                            {ticket.requesterEmail && (
-                              <p className="text-xs text-gray-500">{ticket.requesterEmail}</p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-sm font-semibold text-gray-700">
-                          {ticket.roomNumber || '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <p className="text-sm line-clamp-2 text-gray-700">
-                            {ticket.description}
+                          <p className="text-sm font-semibold text-gray-900">
+                            {detention.studentName}
                           </p>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border-2 ${getStatusColor(ticket.status)}`}>
-                            {getStatusIcon(ticket.status)}
-                            {ticket.status.replace('_', ' ').toUpperCase()}
+                          <span className="font-mono text-sm text-gray-700">
+                            {detention.studentId}
                           </span>
                         </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          {formatDateTime(detention.detentionDate)} at {detention.detentionTime}
+                        </td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border-2 ${getUrgencyColor(ticket.urgency)}`}>
-                            {ticket.urgency.toUpperCase()}
+                          <p className="text-sm font-semibold text-gray-900">
+                            {detention.reportingStaff}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p className="text-sm line-clamp-2 text-gray-700">
+                            {detention.reason}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border-2 ${getStatusColor(detention.status)}`}>
+                            {getStatusIcon(detention.status)}
+                            {detention.status.toUpperCase()}
                           </span>
                         </td>
                         <td className="px-4 py-3">
                           <Link
-                            href={`/dashboard/tickets/${ticket.id}`}
+                            href={`/dashboard/detentions/${detention.id}`}
                             onClick={(e) => e.stopPropagation()}
                             className="px-3 py-1.5 text-white rounded-lg text-xs font-semibold transition-all hover:shadow-md"
                             style={{
@@ -413,4 +381,3 @@ export default function TicketConsole({ tickets: initialTickets, stats }: Ticket
     </main>
   );
 }
-
