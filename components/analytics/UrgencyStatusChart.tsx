@@ -3,8 +3,8 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 interface UrgencyStatusChartProps {
-  urgencyData: Record<string, number>;
-  statusData: Record<string, number>;
+  urgencyData?: Record<string, number>;
+  statusData?: Record<string, number>;
 }
 
 const URGENCY_COLORS: Record<string, string> = {
@@ -21,8 +21,8 @@ const STATUS_COLORS: Record<string, string> = {
   closed: '#6b7280',
 };
 
-export function UrgencyStatusChart({ urgencyData, statusData }: UrgencyStatusChartProps) {
-  const urgencyChartData = Object.entries(urgencyData)
+export function UrgencyStatusChart({ urgencyData = {}, statusData = {} }: UrgencyStatusChartProps) {
+  const urgencyChartData = Object.entries(urgencyData || {})
     .filter(([, count]) => count > 0)
     .map(([urgency, count]) => ({
       name: urgency.charAt(0).toUpperCase() + urgency.slice(1),
@@ -30,7 +30,7 @@ export function UrgencyStatusChart({ urgencyData, statusData }: UrgencyStatusCha
       color: URGENCY_COLORS[urgency] || '#6b7280',
     }));
 
-  const statusChartData = Object.entries(statusData)
+  const statusChartData = Object.entries(statusData || {})
     .filter(([, count]) => count > 0)
     .map(([status, count]) => ({
       name: status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),

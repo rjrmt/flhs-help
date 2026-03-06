@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+export const maxDuration = 30;
 import { db } from '@/lib/db';
 import { detentions, detentionUpdates } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';

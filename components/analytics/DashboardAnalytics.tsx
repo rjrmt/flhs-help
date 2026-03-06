@@ -129,7 +129,7 @@ export const DashboardAnalytics = memo(function DashboardAnalytics() {
             <Building2 className="w-4 h-4" style={{ color: '#2E75B6' }} />
             Tickets by Building
           </h3>
-          <BuildingChart data={analytics.buildingCounts} />
+          <BuildingChart data={analytics.buildingCounts ?? {}} />
         </Card>
 
         {/* Urgency & Status Charts */}
@@ -139,8 +139,8 @@ export const DashboardAnalytics = memo(function DashboardAnalytics() {
             Ticket Breakdown
           </h3>
           <UrgencyStatusChart 
-            urgencyData={analytics.urgencyCounts}
-            statusData={analytics.statusCounts}
+            urgencyData={analytics.urgencyCounts ?? {}}
+            statusData={analytics.statusCounts ?? {}}
           />
         </Card>
       </div>
@@ -151,7 +151,7 @@ export const DashboardAnalytics = memo(function DashboardAnalytics() {
           <Users className="w-4 h-4" style={{ color: '#2E75B6' }} />
           Top Ticket Submitters
         </h3>
-        <TopSubmitters submitters={analytics.topSubmitters} />
+        <TopSubmitters submitters={analytics.topSubmitters ?? []} />
       </Card>
     </div>
   );

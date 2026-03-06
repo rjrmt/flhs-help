@@ -1,22 +1,15 @@
-import { config } from 'dotenv';
+import './load-env';
 import { join } from 'path';
 import { readFileSync } from 'fs';
 import { parse } from 'csv-parse/sync';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
 import { tickets } from '../lib/db/schema';
 import { eq } from 'drizzle-orm';
-
-// Load environment variables
-config({ path: join(process.cwd(), '.env.local') });
+import { db } from '../lib/db';
 
 if (!process.env.DATABASE_URL) {
   console.error('❌ DATABASE_URL environment variable is not set');
   process.exit(1);
 }
-
-const sql = neon(process.env.DATABASE_URL);
-const db = drizzle(sql as any, { schema: { tickets } });
 
 // Normalize text: proper capitalization and word format
 function normalizeText(text: string | null | undefined): string {

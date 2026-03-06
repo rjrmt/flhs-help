@@ -12,6 +12,7 @@ import { formatRelativeTime } from '@/lib/utils/format';
 import { SignOutButton } from '@/components/SignOutButton';
 import { HomeButton } from '@/components/HomeButton';
 import { ITDashboardTabs } from '@/components/ITDashboardTabs';
+import { DashboardError } from '@/components/DashboardError';
 
 // Force dynamic rendering (prevents static generation)
 export const dynamic = 'force-dynamic';
@@ -89,23 +90,6 @@ export default async function ITTechnicianDashboardPage() {
     );
   } catch (error: any) {
     console.error('Dashboard error:', error);
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Dashboard</h1>
-          <p className="text-gray-600 mb-4">
-            There was an error loading the dashboard. Please try refreshing the page.
-          </p>
-          <div className="space-y-2">
-            <a
-              href="/login"
-              className="inline-block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center"
-            >
-              Go to Login
-            </a>
-          </div>
-        </div>
-      </div>
-    );
+    return <DashboardError error={error ? { message: error?.message, stack: error?.stack, name: error?.name } : undefined} />;
   }
 }

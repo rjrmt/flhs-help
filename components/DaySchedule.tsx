@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { fetchWithTimeout } from '@/lib/utils/fetchWithTimeout';
 
 interface CalendarEntry {
   date: string;
@@ -69,12 +70,14 @@ export function DaySchedule() {
   useEffect(() => {
     async function loadSchedule() {
       try {
-        const response = await fetch('/api/calendar', {
+        const response = await fetchWithTimeout('/api/calendar', {
           credentials: 'include',
+          timeout: 10000,
         }).catch(() => null);
-        
+
         if (!response || !response.ok) {
-          throw new Error(`HTTP ${response?.status || 'Network Error'}`);
+          const msg = response?.status === 404 ? 'Calendar file not found' : `HTTP ${response?.status || 'Network Error'}`;
+          throw new Error(msg);
         }
         
         const result = await response.json().catch(() => ({ success: false }));

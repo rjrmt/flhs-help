@@ -1,32 +1,21 @@
 /**
  * Database Diagnostic Script
  * Run with: npx tsx scripts/diagnose-db.ts
- * 
- * This script checks:
- * - Database connection
- * - Table existence
- * - Admin user existence
- * - Schema integrity
+ *
+ * Checks: connection, tables, admin user, schema integrity
  */
-
-import { config } from 'dotenv';
-import { join } from 'path';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { sql } from 'drizzle-orm';
-import * as schema from '../lib/db/schema';
-
-// Load environment variables
-config({ path: join(process.cwd(), '.env.local') });
+import './load-env';
+import postgres from 'postgres';
+import { db } from '../lib/db';
+import { users } from '../lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 if (!process.env.DATABASE_URL) {
   console.error('❌ DATABASE_URL environment variable is not set');
-  console.error('Please create a .env.local file with your DATABASE_URL');
   process.exit(1);
 }
 
-const neonSql = neon(process.env.DATABASE_URL);
-const db = drizzle(neonSql as any, { schema });
+const client = postgres(process.env.DATABASE_URL, { prepare: false });
 
 async function diagnose() {
   console.log('🔍 Starting Database Diagnostic...\n');
@@ -35,181 +24,85 @@ async function diagnose() {
   try {
     // 1. Test connection
     console.log('\n1️⃣ Testing database connection...');
-    try {
-      await neonSql`SELECT 1 as test`;
+    const [test] = await client`SELECT 1 as test`;
+    if (test) {
       console.log('✅ Database connection successful');
-    } catch (error: any) {
-      console.error('❌ Database connection failed:', error.message);
-      process.exit(1);
+    } else {
+      throw new Error('Connection test failed');
     }
 
-    // 2. Check if tables exist
+    // 2. Check tables
     console.log('\n2️⃣ Checking table existence...');
-    const tables = [
-      'users',
-      'accounts',
-      'sessions',
-      'verification_tokens',
-      'tickets',
-      'ticket_updates',
-      'detentions',
-      'detention_updates',
-    ];
+    const tables = ['users', 'accounts', 'sessions', 'verification_tokens', 'tickets', 'ticket_updates', 'detentions', 'detention_updates'];
 
     for (const table of tables) {
-      try {
-        const result = await neonSql`
-          SELECT EXISTS (
-            SELECT FROM information_schema.tables 
-            WHERE table_schema = 'public' 
-            AND table_name = ${table}
-          );
-        `;
-        const exists = result[0]?.exists;
-        if (exists) {
-          console.log(`  ✅ Table '${table}' exists`);
-        } else {
-          console.log(`  ❌ Table '${table}' does NOT exist`);
-        }
-      } catch (error: any) {
-        console.log(`  ⚠️  Error checking table '${table}': ${error.message}`);
-      }
+      const [result] = await client`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_name = ${table}
+        ) as exists
+      `;
+      console.log(`  ${result?.exists ? '✅' : '❌'} Table '${table}' ${result?.exists ? 'exists' : 'does NOT exist'}`);
     }
 
-    // 3. Check users table structure
+    // 3. Users table structure
     console.log('\n3️⃣ Checking users table structure...');
-    try {
-      const columns = await neonSql`
-        SELECT column_name, data_type, is_nullable
-        FROM information_schema.columns
-        WHERE table_schema = 'public' AND table_name = 'users'
-        ORDER BY ordinal_position;
-      `;
-      
-      if (columns.length > 0) {
-        console.log('  Users table columns:');
-        columns.forEach((col: any) => {
-          console.log(`    - ${col.column_name} (${col.data_type}, nullable: ${col.is_nullable})`);
-        });
-        
-        // Check for p_number column
-        const hasPNumber = columns.some((col: any) => col.column_name === 'p_number');
-        if (!hasPNumber) {
-          console.log('  ⚠️  Missing p_number column!');
-        }
-      } else {
-        console.log('  ❌ Users table does not exist');
-      }
-    } catch (error: any) {
-      console.log(`  ⚠️  Error checking users structure: ${error.message}`);
+    const columns = await client`
+      SELECT column_name, data_type, is_nullable
+      FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = 'users'
+      ORDER BY ordinal_position
+    `;
+    if (columns.length > 0) {
+      columns.forEach((col: { column_name: string; data_type: string; is_nullable: string }) => {
+        console.log(`    - ${col.column_name} (${col.data_type}, nullable: ${col.is_nullable})`);
+      });
+      const hasPNumber = columns.some((c: { column_name: string }) => c.column_name === 'p_number');
+      if (!hasPNumber) console.log('  ⚠️  Missing p_number column!');
+    } else {
+      console.log('  ❌ Users table does not exist');
     }
 
-    // 4. Check for admin user
+    // 4. Admin user
     console.log('\n4️⃣ Checking for admin user...');
-    try {
-      const users = await neonSql`
-        SELECT id, email, name, p_number, role 
-        FROM users 
-        WHERE role = 'admin' OR p_number = 'P00166224';
-      `;
-      
-      if (users.length > 0) {
-        console.log('  ✅ Found admin/staff users:');
-        users.forEach((user: any) => {
-          console.log(`    - ${user.name} (${user.email || 'no email'})`);
-          console.log(`      P Number: ${user.p_number || 'NOT SET'}`);
-          console.log(`      Role: ${user.role}`);
-        });
-      } else {
-        console.log('  ❌ No admin user found');
-        console.log('  💡 Run: npx tsx scripts/create-admin.ts');
-      }
-    } catch (error: any) {
-      if (error.message?.includes('does not exist')) {
-        console.log('  ❌ Users table does not exist - need to run migrations');
-      } else {
-        console.log(`  ⚠️  Error checking users: ${error.message}`);
-      }
+    const adminUsers = await db.select().from(users).where(eq(users.role, 'admin'));
+    const pNumberUsers = await db.select().from(users).where(eq(users.pNumber, 'P00166224'));
+    const found = [...new Map([...adminUsers, ...pNumberUsers].map((u) => [u.id, u])).values()];
+
+    if (found.length > 0) {
+      console.log('  ✅ Found admin/staff users:');
+      found.forEach((u) => console.log(`    - ${u.name} (${u.email || 'no email'}) P: ${u.pNumber} Role: ${u.role}`));
+    } else {
+      console.log('  ❌ No admin user found. Run: npx tsx scripts/create-admin.ts');
     }
 
-    // 5. Check NextAuth tables
+    // 5. NextAuth tables
     console.log('\n5️⃣ Checking NextAuth tables...');
     const nextAuthTables = ['accounts', 'sessions', 'verification_tokens'];
-    let nextAuthComplete = true;
-    
     for (const table of nextAuthTables) {
-      try {
-        const result = await neonSql`
-          SELECT EXISTS (
-            SELECT FROM information_schema.tables 
-            WHERE table_schema = 'public' 
-            AND table_name = ${table}
-          );
-        `;
-        if (!result[0]?.exists) {
-          nextAuthComplete = false;
-          console.log(`  ❌ Table '${table}' missing`);
-        }
-      } catch (error: any) {
-        nextAuthComplete = false;
-        console.log(`  ⚠️  Error checking '${table}': ${error.message}`);
-      }
-    }
-    
-    if (nextAuthComplete) {
-      console.log('  ✅ All NextAuth tables exist');
+      const [r] = await client`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = ${table}) as exists`;
+      console.log(`  ${r?.exists ? '✅' : '❌'} ${table}`);
     }
 
-    // 6. Summary and recommendations
+    // 6. Summary
     console.log('\n' + '='.repeat(60));
-    console.log('\n📋 Summary & Recommendations:\n');
-    
-    const tablesExist = await Promise.all(
-      tables.map(async (table) => {
-        try {
-          const result = await neonSql`
-            SELECT EXISTS (
-              SELECT FROM information_schema.tables 
-              WHERE table_schema = 'public' 
-              AND table_name = ${table}
-            );
-          `;
-          return result[0]?.exists;
-        } catch {
-          return false;
-        }
+    console.log('\n📋 Summary:');
+    const tableChecks = await Promise.all(
+      tables.map(async (t) => {
+        const [r] = await client`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = ${t}) as exists`;
+        return r?.exists ?? false;
       })
     );
-
-    const allTablesExist = tablesExist.every(exists => exists);
-    
-    if (!allTablesExist) {
-      console.log('❌ Some tables are missing. Run migrations:');
-      console.log('   1. npm run db:generate');
-      console.log('   2. npx tsx scripts/apply-migration.ts');
-    } else {
-      console.log('✅ All required tables exist');
-    }
-
-    const adminExists = await neonSql`
-      SELECT COUNT(*) as count FROM users WHERE role = 'admin' OR p_number = 'P00166224';
-    `.then((result: any) => result[0]?.count > 0).catch(() => false);
-
-    if (!adminExists) {
-      console.log('❌ Admin user not found. Create one:');
-      console.log('   npx tsx scripts/create-admin.ts');
-    } else {
-      console.log('✅ Admin user exists');
-    }
-
+    const allExist = tableChecks.every(Boolean);
+    console.log(allExist ? '✅ All required tables exist' : '❌ Some tables missing. Run: npx tsx scripts/setup-database.ts');
+    console.log(found.length > 0 ? '✅ Admin user exists' : '❌ Create admin: npx tsx scripts/create-admin.ts');
     console.log('\n✅ Diagnostic complete!\n');
-
-  } catch (error: any) {
-    console.error('\n❌ Diagnostic failed:', error.message);
-    console.error(error);
+  } catch (error: unknown) {
+    console.error('\n❌ Diagnostic failed:', (error as Error).message);
     process.exit(1);
+  } finally {
+    await client.end();
   }
 }
 
 diagnose();
-

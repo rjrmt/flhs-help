@@ -8,10 +8,12 @@ A modern web application for managing IT tickets and student detentions at Fort 
 
 Create `.env.local`:
 ```env
-DATABASE_URL=postgresql://your-neon-connection-string?sslmode=require
+DATABASE_URL=postgresql://postgres.[project-ref]:[YOUR-PASSWORD]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=$(openssl rand -base64 32)
 ```
+
+For Supabase: Get your connection string from **Project Settings → Database** in the [Supabase Dashboard](https://supabase.com/dashboard). Use the **Connection pooling** URI (port 6543).
 
 ### 2. Install & Setup
 
@@ -52,7 +54,7 @@ public/           # Static assets
 ## 🛠 Tech Stack
 
 - Next.js 14 (App Router)
-- Neon PostgreSQL
+- Supabase (PostgreSQL)
 - Drizzle ORM
 - NextAuth.js (Password-less authentication)
 - Tailwind CSS
@@ -70,7 +72,6 @@ public/           # Static assets
 - `npx tsx scripts/import-teachers.ts` - Import teachers from CSV or inline list
 - `npx tsx scripts/diagnose-db.ts` - Diagnose database issues
 - `npx tsx scripts/verify-data.ts` - Verify tickets/detentions are saving
-- `npx tsx scripts/test-login.ts` - Test login credentials
 
 ## 🔐 Authentication
 

@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, varchar, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, varchar, boolean, integer } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // Users (Staff) - Extended for NextAuth
@@ -49,6 +49,35 @@ export const verificationTokens = pgTable(
     compoundKey: { primaryKey: [table.identifier, table.token] },
   })
 );
+
+// Supabase roster tables (existing data - used for ticket lookup)
+export const staffRoster = pgTable('staff_roster', {
+  pNumber: text('p_number').primaryKey(),
+  fullName: text('full_name'),
+  jobTitle: text('job_title'),
+  email: text('email'),
+  createdAt: timestamp('created_at', { withTimezone: true }),
+});
+
+export const studentRoster = pgTable('student_roster', {
+  studentId: text('student_id').primaryKey(),
+  fullName: text('full_name'),
+  gradeLevel: integer('grade_level'),
+  email: text('email'),
+  homeroom: text('homeroom'),
+  createdAt: timestamp('created_at', { withTimezone: true }),
+});
+
+// Students (fallback - prefer student_roster when available)
+export const students = pgTable('students', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  studentId: varchar('student_id', { length: 50 }).notNull().unique(), // 06# e.g. 0612345678
+  firstName: varchar('first_name', { length: 255 }).notNull(),
+  lastName: varchar('last_name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
 
 // IT Tickets
 export const tickets = pgTable('tickets', {

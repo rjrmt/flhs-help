@@ -1,31 +1,26 @@
 /**
  * Complete Database Setup Script
  * Run with: npx tsx scripts/setup-database.ts
- * 
- * This script:
+ *
  * 1. Applies all migrations
  * 2. Creates admin user if needed
  * 3. Verifies everything works
  */
-
-import { config } from 'dotenv';
+import './load-env';
 import { join } from 'path';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import { readFileSync, readdirSync } from 'fs';
 import * as bcrypt from 'bcryptjs';
 import { users } from '../lib/db/schema';
-
-// Load environment variables
-config({ path: join(process.cwd(), '.env.local') });
 
 if (!process.env.DATABASE_URL) {
   console.error('❌ DATABASE_URL environment variable is not set');
   process.exit(1);
 }
 
-const sql = neon(process.env.DATABASE_URL);
-const db = drizzle(sql as any, { schema: { users } });
+const client = postgres(process.env.DATABASE_URL, { prepare: false });
+const db = drizzle(client, { schema: { users } });
 
 async function setupDatabase() {
   console.log('🚀 Starting Complete Database Setup...\n');
@@ -34,7 +29,7 @@ async function setupDatabase() {
   try {
     // Step 1: Test connection
     console.log('\n1️⃣ Testing database connection...');
-    await sql`SELECT 1`;
+    await client`SELECT 1`;
     console.log('✅ Connection successful\n');
 
     // Step 2: Apply migrations
@@ -67,7 +62,7 @@ async function setupDatabase() {
           const statement = statements[i];
           if (statement.trim()) {
             try {
-              await sql(statement);
+              await client.unsafe(statement);
             } catch (error: any) {
               // Ignore "already exists" errors
               if (!error.message?.includes('already exists') && 
@@ -90,16 +85,16 @@ async function setupDatabase() {
     // Step 3: Ensure p_number column exists
     console.log('3️⃣ Ensuring p_number column exists...');
     try {
-      await sql`
+      await client`
         ALTER TABLE users 
         ADD COLUMN IF NOT EXISTS p_number VARCHAR(50);
       `;
-      await sql`
+      await client`
         ALTER TABLE users 
         ALTER COLUMN email DROP NOT NULL;
       `;
       try {
-        await sql`
+        await client`
           CREATE UNIQUE INDEX IF NOT EXISTS users_p_number_unique 
           ON users(p_number) 
           WHERE p_number IS NOT NULL;
@@ -114,6 +109,25 @@ async function setupDatabase() {
       console.error('⚠️  Error setting up p_number:', error.message);
     }
 
+    // Step 3b: Ensure students table exists (for 06# lookup)
+    console.log('3b️⃣ Ensuring students table exists...');
+    try {
+      await client.unsafe(`
+        CREATE TABLE IF NOT EXISTS students (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          student_id VARCHAR(50) NOT NULL UNIQUE,
+          first_name VARCHAR(255) NOT NULL,
+          last_name VARCHAR(255) NOT NULL,
+          email VARCHAR(255),
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `);
+      console.log('✅ students table ready\n');
+    } catch (error: any) {
+      console.error('⚠️  Error setting up students:', error.message);
+    }
+
     // Step 4: Create admin user
     console.log('4️⃣ Creating admin user...');
     const email = 'rajesh.ramautar@browardschools.com';
@@ -123,7 +137,7 @@ async function setupDatabase() {
     const role = 'admin';
 
     // Check if user already exists
-    const existingUser = await sql`
+    const existingUser = await client`
       SELECT id, p_number FROM users 
       WHERE p_number = ${pNumber} OR email = ${email}
       LIMIT 1;
@@ -132,7 +146,7 @@ async function setupDatabase() {
     if (existingUser) {
       console.log('   ⚠️  User already exists, updating password...');
       const passwordHash = await bcrypt.hash(password, 10);
-      await sql`
+      await client`
         UPDATE users 
         SET 
           password_hash = ${passwordHash},
@@ -163,11 +177,11 @@ async function setupDatabase() {
 
     // Step 5: Verify setup
     console.log('5️⃣ Verifying setup...');
-    const userCount = await sql`
+    const userCount = await client`
       SELECT COUNT(*) as count FROM users;
     `.then((result: any) => parseInt(result[0]?.count || '0')).catch(() => 0);
 
-    const adminCount = await sql`
+    const adminCount = await client`
       SELECT COUNT(*) as count FROM users WHERE role = 'admin';
     `.then((result: any) => parseInt(result[0]?.count || '0')).catch(() => 0);
 
@@ -175,10 +189,10 @@ async function setupDatabase() {
     console.log(`   Admin users: ${adminCount}`);
 
     // Check tables
-    const tables = ['users', 'tickets', 'detentions', 'accounts', 'sessions'];
+    const tables = ['users', 'tickets', 'detentions', 'accounts', 'sessions', 'students'];
     let allTablesExist = true;
     for (const table of tables) {
-      const exists = await sql`
+      const exists = await client`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_schema = 'public' 

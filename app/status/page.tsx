@@ -11,13 +11,13 @@ import { formatDateTime } from '@/lib/utils/format';
 type StatusType = 'ticket' | 'detention' | null;
 type TicketData = {
   ticketId: string;
-  subject: string;
+  subject: string | null;
   status: string;
   urgency: string;
   createdAt: string;
   updatedAt: string;
   description: string;
-  category: string;
+  category: string | null;
 };
 
 type DetentionData = {
@@ -381,7 +381,8 @@ function StatusPageContent() {
             <div className="flex items-start justify-between mb-4 pb-4 border-b-2 border-primary/20">
               <div>
                 <h2 className="text-xl font-bold mb-2" style={{ color: '#1e5a8f' }}>
-                  {ticketData.subject}
+                  {ticketData.subject || ticketData.description?.slice(0, 60) || ticketData.ticketId}
+                  {ticketData.description && ticketData.description.length > 60 && !ticketData.subject ? '...' : ''}
                 </h2>
                 <p className="text-xs font-mono" style={{ color: '#666' }}>{ticketData.ticketId}</p>
               </div>
@@ -395,7 +396,7 @@ function StatusPageContent() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs mb-1 font-semibold uppercase tracking-wide" style={{ color: '#666' }}>Category</p>
-                  <p className="text-sm font-semibold" style={{ color: '#1a1a1a' }}>{ticketData.category}</p>
+                  <p className="text-sm font-semibold" style={{ color: '#1a1a1a' }}>{ticketData.category || '—'}</p>
                 </div>
                 <div>
                   <p className="text-xs mb-1 font-semibold uppercase tracking-wide" style={{ color: '#666' }}>Urgency</p>

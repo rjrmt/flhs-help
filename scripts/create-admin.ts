@@ -5,23 +5,15 @@
  * Usage: Edit the credentials below and run the script
  */
 
-import { config } from 'dotenv';
-import { join } from 'path';
+import './load-env';
 import * as bcrypt from 'bcryptjs';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
 import { users } from '../lib/db/schema';
-
-// Load environment variables from .env.local FIRST
-config({ path: join(process.cwd(), '.env.local') });
+import { db } from '../lib/db';
 
 if (!process.env.DATABASE_URL) {
   console.error('❌ DATABASE_URL environment variable is not set');
   process.exit(1);
 }
-
-const sql = neon(process.env.DATABASE_URL);
-const db = drizzle(sql as any, { schema: { users } });
 
 async function createAdmin() {
   try {
@@ -42,18 +34,7 @@ async function createAdmin() {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // First, ensure p_number column exists
-    await sql(`
-      ALTER TABLE users 
-      ADD COLUMN IF NOT EXISTS p_number VARCHAR(50);
-      
-      ALTER TABLE users 
-      ALTER COLUMN email DROP NOT NULL;
-      
-      CREATE UNIQUE INDEX IF NOT EXISTS users_p_number_unique ON users(p_number) WHERE p_number IS NOT NULL;
-    `);
-
-    // Create user
+    // Create user (run setup-database.ts first if schema needs p_number column)
     const [user] = await db
       .insert(users)
       .values({

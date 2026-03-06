@@ -69,9 +69,6 @@ npx tsx scripts/diagnose-db.ts
 
 # Verify data is saving
 npx tsx scripts/verify-data.ts
-
-# Test login credentials
-npx tsx scripts/test-login.ts
 ```
 
 ## 🛠 Development Workflow

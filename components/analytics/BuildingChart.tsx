@@ -3,14 +3,14 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface BuildingChartProps {
-  data: Record<string, number>;
+  data?: Record<string, number>;
 }
 
 const COLORS = ['#2E75B6', '#1e5a8f', '#4A90E2', '#6BA3E8', '#8CB6ED', '#ADD0F2', '#CEE5F7'];
 
-export function BuildingChart({ data }: BuildingChartProps) {
-  const chartData = Object.entries(data)
-    .filter(([building]) => building !== 'Other' || data[building] > 0)
+export function BuildingChart({ data = {} }: BuildingChartProps) {
+  const chartData = Object.entries(data || {})
+    .filter(([building]) => building !== 'Other' || (data || {})[building] > 0)
     .map(([building, count]) => ({
       building: building === 'Other' ? 'Other' : `Building ${building}`,
       count,

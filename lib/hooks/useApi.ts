@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { fetchWithTimeout } from '@/lib/utils/fetchWithTimeout';
 
 interface UseApiOptions {
   retries?: number;
@@ -6,6 +7,7 @@ interface UseApiOptions {
   cacheTime?: number;
   staleTime?: number;
   enabled?: boolean;
+  timeout?: number;
 }
 
 interface UseApiResult<T> {
@@ -28,6 +30,7 @@ export function useApi<T>(
     cacheTime = 5 * 60 * 1000, // 5 minutes
     staleTime = 10 * 1000, // 10 seconds
     enabled = true,
+    timeout = 15000,
   } = options;
 
   const [data, setData] = useState<T | null>(null);
@@ -69,9 +72,10 @@ export function useApi<T>(
 
     const attemptFetch = async (attempt: number): Promise<void> => {
       try {
-        const response = await fetch(url, {
+        const response = await fetchWithTimeout(url, {
           credentials: 'include',
           signal: abortControllerRef.current?.signal,
+          timeout,
           headers: {
             'Content-Type': 'application/json',
           },
@@ -119,7 +123,7 @@ export function useApi<T>(
     };
 
     await attemptFetch(1);
-  }, [url, retries, retryDelay, staleTime, enabled]);
+  }, [url, retries, retryDelay, staleTime, enabled, timeout]);
 
   useEffect(() => {
     fetchData();

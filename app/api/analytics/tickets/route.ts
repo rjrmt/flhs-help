@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+export const maxDuration = 30;
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -47,7 +49,7 @@ export async function GET(request: NextRequest) {
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       return NextResponse.json({
         success: true,
-        analytics: cached.data,
+        data: cached.data,
         cached: true,
       });
     }
@@ -169,7 +171,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      analytics: analyticsData,
+      data: analyticsData,
     }, {
       headers: {
         'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=59',

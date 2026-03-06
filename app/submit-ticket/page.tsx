@@ -1,28 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { LiquidBackground } from '@/components/LiquidBackground';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, CheckCircle, AlertCircle } from 'lucide-react';
 import { HomeButton } from '@/components/HomeButton';
 
 const ticketSchema = z.object({
-  pNumber: z.string().min(1, 'P Number is required'),
-  roomNumber: z.string().min(1, 'Room number is required'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  pNumber: z.string().min(1, 'Staff or Student ID is required').transform((v) => v.trim()),
+  roomNumber: z.string().min(1, 'Room number is required').transform((v) => v.trim()),
+  description: z.string().min(10, 'Description must be at least 10 characters').transform((v) => v.trim()),
   urgency: z.enum(['low', 'medium', 'high', 'critical']),
 });
 
 type TicketFormData = z.infer<typeof ticketSchema>;
 
+type PNumberStatus = 'idle' | 'checking' | 'verified' | 'unregistered';
+
 export default function SubmitTicketPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const [pNumberStatus, setPNumberStatus] = useState<PNumberStatus>('idle');
+  const [pNumberVerifiedName, setPNumberVerifiedName] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -35,30 +40,61 @@ export default function SubmitTicketPage() {
     },
   });
 
+  const verifyPNumber = useCallback(async (value: string) => {
+    const trimmed = value?.trim();
+    if (!trimmed || trimmed.length < 2) {
+      setPNumberStatus('idle');
+      setPNumberVerifiedName(null);
+      return;
+    }
+    setPNumberStatus('checking');
+    try {
+      const res = await fetch(`/api/verify-pnumber?pNumber=${encodeURIComponent(trimmed)}`);
+      const data = await res.json();
+      if (data.found && data.name) {
+        setPNumberStatus('verified');
+        setPNumberVerifiedName(data.name);
+      } else {
+        setPNumberStatus('unregistered');
+        setPNumberVerifiedName(null);
+      }
+    } catch {
+      setPNumberStatus('idle');
+      setPNumberVerifiedName(null);
+    }
+  }, []);
+
   const onSubmit = async (data: TicketFormData) => {
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       const response = await fetch('/api/tickets', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          pNumber: data.pNumber.trim(),
+          roomNumber: data.roomNumber.trim(),
+          description: data.description.trim(),
+          urgency: data.urgency,
+        }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to submit ticket');
+        throw new Error(result.error || 'Failed to submit ticket');
       }
 
-      const result = await response.json();
       setSubmitSuccess(result.ticketId);
-      
+
       setTimeout(() => {
         router.push(`/status?ticketId=${result.ticketId}`);
       }, 3000);
     } catch (error) {
-      console.error('Error submitting ticket:', error);
-      alert('Failed to submit ticket. Please try again.');
+      const message = error instanceof Error ? error.message : 'Failed to submit ticket. Please try again.';
+      setSubmitError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -184,31 +220,66 @@ export default function SubmitTicketPage() {
               </p>
             </div>
 
+            {submitError && (
+              <div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-red-700">Could not submit ticket</p>
+                  <p className="text-sm text-red-600 mt-1">{submitError}</p>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#333' }}>
-                    P Number *
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#1e5a8f' }}>
+                    Staff or Student ID <span className="text-gray-500 font-normal">(required)</span>
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter your P Number"
-                    {...register('pNumber')}
-                    className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-base font-medium focus:outline-none focus:border-primary focus:ring-0 transition-all"
-                    style={{ 
-                      boxShadow: 'none',
+                    placeholder="Staff: P00123456  •  Student: 0612345678"
+                    {...register('pNumber', {
+                      onBlur: (e) => verifyPNumber(e.target.value),
+                    })}
+                    onChange={() => {
+                      if (pNumberStatus !== 'idle') setPNumberStatus('idle');
                     }}
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-base font-medium focus:outline-none focus:border-primary focus:ring-0 transition-all"
+                    style={{ boxShadow: 'none' }}
+                    autoComplete="username"
                   />
                   {errors.pNumber && (
-                    <p className="text-xs text-red-500 mt-2">{errors.pNumber.message}</p>
+                    <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      {errors.pNumber.message}
+                    </p>
                   )}
-                  <p className="text-xs mt-1.5" style={{ color: '#666' }}>
-                    Your name and email will be auto-filled
-                  </p>
+                  {pNumberStatus === 'checking' && (
+                    <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: '#666' }}>
+                      Verifying...
+                    </p>
+                  )}
+                  {pNumberStatus === 'verified' && pNumberVerifiedName && (
+                    <p className="text-xs mt-1.5 flex items-center gap-1 text-green-600 font-medium">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      Verified — {pNumberVerifiedName}
+                    </p>
+                  )}
+                  {pNumberStatus === 'unregistered' && (
+                    <p className="text-xs mt-1.5" style={{ color: '#666' }}>
+                      Not in directory — you can still submit. Your ticket will be processed.
+                    </p>
+                  )}
+                  {pNumberStatus === 'idle' && !errors.pNumber && (
+                    <p className="text-xs mt-1.5" style={{ color: '#666' }}>
+                      Staff: P#  •  Students: 06#. Name and email auto-fill if staff P# is registered.
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#333' }}>
-                    Room Number *
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#1e5a8f' }}>
+                    Room Number <span className="text-gray-500 font-normal">(required)</span>
                   </label>
                   <input
                     type="text"
@@ -226,8 +297,8 @@ export default function SubmitTicketPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#333' }}>
-                  Urgency *
+                <label className="block text-sm font-semibold mb-2" style={{ color: '#1e5a8f' }}>
+                  Urgency <span className="text-gray-500 font-normal">(required)</span>
                 </label>
                 <select
                   {...register('urgency')}
@@ -247,8 +318,8 @@ export default function SubmitTicketPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#333' }}>
-                  Description *
+                <label className="block text-sm font-semibold mb-2" style={{ color: '#1e5a8f' }}>
+                  Description <span className="text-gray-500 font-normal">(required)</span>
                 </label>
                 <textarea
                   placeholder="Please provide detailed information about your issue..."

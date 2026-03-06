@@ -1,19 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+export const maxDuration = 30;
 import { db } from '@/lib/db';
-import { tickets } from '@/lib/db/schema';
+import { tickets, users, staffRoster, studentRoster } from '@/lib/db/schema';
 import { generateTicketId } from '@/lib/utils/ids';
 import { z } from 'zod';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 
+/** Normalize ID for lookup: trim, remove spaces. P# stays uppercase, 06# stays as-is. */
+function normalizeId(id: string): { normalized: string; isStaff: boolean } {
+  const trimmed = id.trim().replace(/\s/g, '');
+  const isStaff = /^p\d+/i.test(trimmed);
+  return {
+    normalized: isStaff ? trimmed.toUpperCase() : trimmed,
+    isStaff,
+  };
+}
+
 const createTicketSchema = z.object({
-  pNumber: z.string().min(1),
-  roomNumber: z.string().min(1),
-  description: z.string().min(10),
+  pNumber: z.string().min(1, 'Staff or Student ID is required').transform((v) => v.trim()),
+  roomNumber: z.string().min(1, 'Room number is required').transform((v) => v.trim()),
+  description: z.string().min(10, 'Description must be at least 10 characters').transform((v) => v.trim()),
   urgency: z.enum(['low', 'medium', 'high', 'critical']),
   requesterName: z.string().optional(),
-  requesterEmail: z.string().email().optional(),
+  requesterEmail: z.string().optional().transform((v) => (v && v.trim() ? v.trim() : undefined)),
   category: z.string().optional(),
   subject: z.string().optional(),
 });
@@ -23,18 +35,48 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createTicketSchema.parse(body);
 
+    const { normalized: idNormalized, isStaff } = normalizeId(validatedData.pNumber);
+
+    // Look up in database: staff (P#) in users table, students (06#) in students table
+    // Pull first name, last name, and email when found.
+    let requesterName = validatedData.requesterName?.trim() || null;
+    let requesterEmail = validatedData.requesterEmail?.trim() || null;
+    if (validatedData.requesterEmail === '') requesterEmail = null;
+
+    if (isStaff) {
+      const [staff] = await db
+        .select({ fullName: staffRoster.fullName, email: staffRoster.email })
+        .from(staffRoster)
+        .where(eq(staffRoster.pNumber, idNormalized))
+        .limit(1);
+      if (staff) {
+        requesterName = staff.fullName || requesterName;
+        requesterEmail = staff.email || requesterEmail;
+      }
+    } else {
+      const [student] = await db
+        .select({ fullName: studentRoster.fullName, email: studentRoster.email })
+        .from(studentRoster)
+        .where(eq(studentRoster.studentId, idNormalized))
+        .limit(1);
+      if (student) {
+        requesterName = student.fullName || requesterName;
+        requesterEmail = student.email || requesterEmail;
+      }
+    }
+
     const ticketId = generateTicketId();
 
     const [newTicket] = await db
       .insert(tickets)
       .values({
         ticketId,
-        pNumber: validatedData.pNumber,
+        pNumber: idNormalized,
         roomNumber: validatedData.roomNumber,
         description: validatedData.description,
         urgency: validatedData.urgency,
-        requesterName: validatedData.requesterName || null,
-        requesterEmail: validatedData.requesterEmail || null,
+        requesterName,
+        requesterEmail,
         category: validatedData.category || null,
         subject: validatedData.subject || null,
         status: 'submitted',
@@ -51,15 +93,17 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const firstError = error.errors[0];
+      const message = firstError?.message || 'Please check your form and try again.';
       return NextResponse.json(
-        { success: false, error: 'Validation error', details: error.errors },
+        { success: false, error: message, details: error.errors },
         { status: 400 }
       );
     }
 
     console.error('Error creating ticket:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create ticket' },
+      { success: false, error: 'Unable to submit ticket. Please try again or contact support.' },
       { status: 500 }
     );
   }

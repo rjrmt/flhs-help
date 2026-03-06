@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { StaffConsoleShell } from '@/components/StaffConsoleShell';
 
 // Force dynamic rendering (prevents static generation)
 export const dynamic = 'force-dynamic';
@@ -23,7 +24,11 @@ export default async function AdminLayout({
       redirect('/dashboard');
     }
 
-    return <>{children}</>;
+    return (
+      <StaffConsoleShell userName={session.user?.name || null}>
+        {children}
+      </StaffConsoleShell>
+    );
   } catch (error) {
     console.error('Admin layout error:', error);
     redirect('/login');

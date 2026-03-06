@@ -6,6 +6,7 @@ import { detentions } from '@/lib/db/schema';
 import { eq, desc, sql } from 'drizzle-orm';
 import { formatDateTime } from '@/lib/utils/format';
 import DetentionConsole from '@/components/DetentionConsole';
+import { PageError } from '@/components/PageError';
 
 // Force dynamic rendering (prevents static generation)
 export const dynamic = 'force-dynamic';
@@ -55,30 +56,30 @@ export default async function AdminDetentionsPage() {
       // Continue with default stats if query fails
     }
 
-    return <DetentionConsole detentions={allDetentions} stats={stats} />;
+    const serializedStats = {
+      total: Number(stats.total) || 0,
+      pending: Number(stats.pending) || 0,
+      confirmed: Number(stats.confirmed) || 0,
+      attended: Number(stats.attended) || 0,
+      missed: Number(stats.missed) || 0,
+    };
+    return <DetentionConsole detentions={allDetentions} stats={serializedStats} />;
   } catch (error) {
     console.error('Admin detentions page error:', error);
-    // Return error state instead of crashing
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Admin Console</h1>
-          <p className="text-gray-600 mb-4">
-            There was an error loading the detentions console. Please check:
-          </p>
+      <PageError
+        title="Error Loading Admin Console"
+        message="There was an error loading the detentions console. Please check:"
+        details={
           <ul className="list-disc list-inside text-gray-600 space-y-2 mb-6">
             <li>Database connection is configured correctly</li>
             <li>Environment variables are set</li>
             <li>You are logged in as an admin user</li>
           </ul>
-          <a
-            href="/admin"
-            className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Back to Admin
-          </a>
-        </div>
-      </div>
+        }
+        errorMessage={error instanceof Error ? error.message : undefined}
+        links={[{ href: '/admin', label: 'Back to Admin' }]}
+      />
     );
   }
 }

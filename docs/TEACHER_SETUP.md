@@ -56,7 +56,7 @@ npx tsx scripts/diagnose-db.ts
 npx tsx scripts/verify-data.ts
 
 # Test login
-npx tsx scripts/test-login.ts
+npx tsx scripts/verify-data.ts
 ```
 
 ## How It Works
@@ -107,7 +107,7 @@ npx tsx scripts/verify-data.ts
 
 ### Test Login
 ```bash
-npx tsx scripts/test-login.ts
+npx tsx scripts/verify-data.ts
 ```
 - Tests if admin credentials work
 - Verifies password hashing
@@ -130,7 +130,7 @@ npx tsx scripts/test-login.ts
 
 ### Teachers can't login
 1. Check user exists: `npx tsx scripts/diagnose-db.ts`
-2. Verify password: `npx tsx scripts/test-login.ts`
+2. Verify setup: `npx tsx scripts/verify-data.ts`, then test login at /login
 3. Check P Number matches exactly (case-sensitive, but script auto-uppercases)
 
 ### Teachers see all tickets instead of just theirs

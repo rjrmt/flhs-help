@@ -4,8 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { db } from './db';
 import { users } from './db/schema';
-import { eq, sql } from 'drizzle-orm';
-import { neon } from '@neondatabase/serverless';
+import { eq } from 'drizzle-orm';
 
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db) as any,
@@ -23,20 +22,11 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          // Use direct SQL query for reliability
-          if (!process.env.DATABASE_URL) {
-            throw new Error('DATABASE_URL not set');
-          }
-          
-          const neonSql = neon(process.env.DATABASE_URL);
-          const result = await neonSql`
-            SELECT id, email, name, p_number, role
-            FROM users 
-            WHERE p_number = ${credentials.pNumber.trim().toUpperCase()}
-            LIMIT 1
-          `;
-
-          const user = result[0] as any;
+          const [user] = await db
+            .select({ id: users.id, email: users.email, name: users.name, pNumber: users.pNumber, role: users.role })
+            .from(users)
+            .where(eq(users.pNumber, credentials.pNumber.trim().toUpperCase()))
+            .limit(1);
 
           // If user exists with this P Number, authenticate them (no password check)
           if (!user) {
@@ -45,10 +35,10 @@ export const authOptions: NextAuthOptions = {
 
           return {
             id: user.id,
-            email: user.email || user.p_number,
+            email: user.email || user.pNumber,
             name: user.name,
             role: user.role,
-            pNumber: user.p_number, // Include P number in session
+            pNumber: user.pNumber,
           };
         } catch (error: any) {
           console.error('[Auth] Error:', error.message);

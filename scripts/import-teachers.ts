@@ -11,24 +11,18 @@
  * P00166226,Jane Smith,jane.smith@browardschools.com
  */
 
-import { config } from 'dotenv';
+import './load-env';
 import { join } from 'path';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
 import * as bcrypt from 'bcryptjs';
 import { users } from '../lib/db/schema';
 import { readFileSync, existsSync } from 'fs';
-
-// Load environment variables
-config({ path: join(process.cwd(), '.env.local') });
+import { db } from '../lib/db';
+import { eq } from 'drizzle-orm';
 
 if (!process.env.DATABASE_URL) {
   console.error('❌ DATABASE_URL environment variable is not set');
   process.exit(1);
 }
-
-const sql = neon(process.env.DATABASE_URL);
-const db = drizzle(sql as any, { schema: { users } });
 
 interface Teacher {
   pNumber: string;
@@ -122,22 +116,17 @@ async function importTeachers() {
       const password = teacher.password || defaultPassword;
 
       // Check if user already exists
-      const existing = await sql`
-        SELECT id, name, role FROM users WHERE p_number = ${pNumber} LIMIT 1
-      `.then((result: any) => result[0]).catch(() => null);
+      const [existing] = await db.select({ id: users.id, name: users.name, role: users.role }).from(users).where(eq(users.pNumber, pNumber)).limit(1);
 
       if (existing) {
         // Update existing user
         const passwordHash = await bcrypt.hash(password, 10);
-        await sql`
-          UPDATE users 
-          SET 
-            name = ${name},
-            email = ${email || null},
-            password_hash = ${passwordHash},
-            role = ${role}
-          WHERE id = ${existing.id}
-        `;
+        await db.update(users).set({
+          name,
+          email: email || null,
+          passwordHash,
+          role: role as 'staff' | 'admin',
+        }).where(eq(users.id, existing.id));
         updated++;
         console.log(`✅ Updated: ${name} (${pNumber}) - ${role}`);
       } else {

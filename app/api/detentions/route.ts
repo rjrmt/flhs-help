@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+export const maxDuration = 30;
 import { db } from '@/lib/db';
-import { detentions, users } from '@/lib/db/schema';
+import { detentions, users, staffRoster } from '@/lib/db/schema';
 import { generateDetentionId } from '@/lib/utils/ids';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { neon } from '@neondatabase/serverless';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
@@ -23,21 +24,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createDetentionSchema.parse(body);
 
-    // Look up staff name from P number
+    // Look up staff name from P number (Supabase staff_roster, fallback to users)
     let staffName = validatedData.reportingStaff;
     if (validatedData.pNumber && !staffName) {
-      if (!process.env.DATABASE_URL) {
-        throw new Error('DATABASE_URL not set');
-      }
-      const neonSql = neon(process.env.DATABASE_URL);
-      const userResult = await neonSql`
-        SELECT name FROM users WHERE p_number = ${validatedData.pNumber.toUpperCase()} LIMIT 1
-      `;
-      
-      if (userResult[0]) {
-        staffName = (userResult[0] as any).name;
+      const pUpper = validatedData.pNumber.toUpperCase();
+      const [rosterStaff] = await db
+        .select({ fullName: staffRoster.fullName })
+        .from(staffRoster)
+        .where(eq(staffRoster.pNumber, pUpper))
+        .limit(1);
+      if (rosterStaff?.fullName) {
+        staffName = rosterStaff.fullName;
       } else {
-        staffName = `P Number: ${validatedData.pNumber}`; // Fallback
+        const [user] = await db
+          .select({ name: users.name })
+          .from(users)
+          .where(eq(users.pNumber, pUpper))
+          .limit(1);
+        staffName = user?.name ?? `P Number: ${validatedData.pNumber}`;
       }
     }
 

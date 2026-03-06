@@ -194,7 +194,7 @@ export default function HomePage() {
           <Link href="/submit-ticket" className="group block w-full">
             <motion.div
               whileTap={{ scale: 0.97 }}
-              whileHover={{ scale: 1.03, y: -4 }}
+              whileHover={{ scale: 1.03, y: -3 }}
               className="flex flex-col items-center justify-center p-4 bg-white/15 backdrop-blur-[40px] rounded-[20px] border border-white/20 text-white min-h-[95px] transition-all duration-300 relative overflow-hidden"
               style={{
                 boxShadow: `
@@ -404,7 +404,7 @@ export default function HomePage() {
             >
               <Shield className="w-4 h-4 relative z-10 group-hover:scale-110 transition-transform duration-300" />
               <span className="text-xs font-semibold relative z-10" style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.6)' }}>
-                Admin Console
+                Staff Console
               </span>
             </motion.div>
           </Link>

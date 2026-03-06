@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+export const maxDuration = 30;
 import fs from 'fs';
 import path from 'path';
 

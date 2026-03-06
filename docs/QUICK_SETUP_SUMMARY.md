@@ -66,9 +66,7 @@ npx tsx scripts/verify-data.ts
 ```
 
 ### Test Login
-```bash
-npx tsx scripts/test-login.ts
-```
+Visit `http://localhost:3000/login` and sign in with a P Number.
 
 ## Next Steps
 
@@ -86,7 +84,6 @@ npx tsx scripts/test-login.ts
 - `scripts/setup-database.ts` - Complete database setup
 - `scripts/diagnose-db.ts` - Check database health
 - `scripts/verify-data.ts` - Verify data is saving
-- `scripts/test-login.ts` - Test login credentials
 - `scripts/create-admin.ts` - Create admin user
 
 ## Documentation

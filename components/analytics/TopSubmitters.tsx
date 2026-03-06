@@ -1,18 +1,19 @@
 'use client';
 
 interface TopSubmittersProps {
-  submitters: Array<{ name: string; count: number }>;
+  submitters?: Array<{ name: string; count: number }>;
 }
 
-export function TopSubmitters({ submitters }: TopSubmittersProps) {
-  const maxCount = Math.max(...submitters.map(s => s.count), 1);
+export function TopSubmitters({ submitters = [] }: TopSubmittersProps) {
+  const safeSubmitters = Array.isArray(submitters) ? submitters : [];
+  const maxCount = Math.max(...safeSubmitters.map(s => s.count), 1);
 
   return (
     <div className="space-y-2">
-      {submitters.length === 0 ? (
+      {safeSubmitters.length === 0 ? (
         <p className="text-gray-500 text-xs text-center py-3">No data available</p>
       ) : (
-        submitters.slice(0, 5).map((submitter, index) => {
+        safeSubmitters.slice(0, 5).map((submitter, index) => {
           const percentage = (submitter.count / maxCount) * 100;
           return (
             <div key={submitter.name} className="space-y-1">

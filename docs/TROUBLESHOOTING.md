@@ -23,7 +23,7 @@ If you're getting "Application error: a server-side exception has occurred" when
 
 3. **Test login credentials:**
    ```bash
-   npx tsx scripts/test-login.ts
+   npx tsx scripts/verify-data.ts
    ```
    This verifies your credentials work.
 
