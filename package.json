@@ -2,6 +2,7 @@
   "name": "flhshelp",
   "private": true,
   "scripts": {
-    "dev": "npx --yes serve ."
+    "dev": "npx --yes serve .",
+    "convert:homerooms": "python3 scripts/convert_homerooms.py"
   }
 }
