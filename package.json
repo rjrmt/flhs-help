@@ -1,0 +1,7 @@
+{
+  "name": "flhshelp",
+  "private": true,
+  "scripts": {
+    "dev": "npx --yes serve ."
+  }
+}

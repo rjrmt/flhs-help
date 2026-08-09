@@ -1,0 +1,31 @@
+# FLHS White/Blue, Early Release (ERD), and Professional Study Day (PSD) bell schedules.
+# ERD/PSD dates are driven by data/flhs_calendar_2026_2027.csv (day_type) — not this file.
+# Times are Eastern (America/New_York), 24-hour HH:MM.
+# lunch_track: A = lunch then class; B = class then lunch; empty for non-lunch blocks and ERD/PSD.
+day_type,block,period,label,start_time,end_time,lunch_track,buildings,notes
+white,1,1,Period 1,07:40,09:12,,,
+white,2,2,Period 2,09:19,10:51,,,
+white,3,lunch,Lunch A,10:51,11:22,A,"Buildings 21, 20, 5, 9",Lunch then Period 3
+white,3,3,Period 3,11:29,13:01,A,"Buildings 21, 20, 5, 9",Class after Lunch A
+white,3,3,Period 3,10:58,12:30,B,"Buildings 17, 8, PE",Class before Lunch B
+white,3,lunch,Lunch B,12:30,13:01,B,"Buildings 17, 8, PE",Period 3 then Lunch
+white,4,4,Period 4,13:08,14:40,,,
+blue,1,5,Period 5,07:40,09:12,,,
+blue,2,6,Period 6,09:19,10:51,,,
+blue,3,lunch,Lunch A,10:51,11:22,A,"Buildings 21, 20, 5, 9",Lunch then Period 7
+blue,3,7,Period 7,11:29,13:01,A,"Buildings 21, 20, 5, 9",Class after Lunch A
+blue,3,7,Period 7,10:58,12:30,B,"Buildings 17, 8, PE",Class before Lunch B
+blue,3,lunch,Lunch B,12:30,13:01,B,"Buildings 17, 8, PE",Period 7 then Lunch
+blue,4,8,Period 8,13:08,14:40,,,
+erd,1,1/5,Period 1/5,07:40,08:50,,,
+erd,2,2/6,Period 2/6,08:56,10:08,,,
+erd,3,3/7,Period 3/7,10:14,11:24,,,
+erd,4,4/8,Period 4/8,11:30,12:40,,,
+erd,lunch,lunch,Grab & Go Lunch,12:40,12:50,,,Grab & go after last period
+erd,buses,buses,Buses Depart,12:50,12:50,,,Dismissal
+psd,1,1/5,Period 1/5,07:40,08:35,,,
+psd,2,2/6,Period 2/6,08:41,09:38,,,
+psd,3,3/7,Period 3/7,09:44,10:39,,,
+psd,4,4/8,Period 4/8,10:45,11:40,,,
+psd,lunch,lunch,Grab & Go Lunch,11:40,11:50,,,Grab & go after last period
+psd,buses,buses,Buses Depart,11:50,11:50,,,Dismissal

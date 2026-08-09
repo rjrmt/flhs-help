@@ -1,0 +1,219 @@
+date,day_of_week,day_type,notes
+2026-08-03,Monday,planning,Teacher planning day
+2026-08-04,Tuesday,planning,Teacher planning day
+2026-08-05,Wednesday,planning,Teacher planning day
+2026-08-06,Thursday,planning,Teacher planning day
+2026-08-07,Friday,planning,Teacher planning day
+2026-08-10,Monday,white,First day of school
+2026-08-11,Tuesday,blue,SAC Meeting 3:30 PM
+2026-08-12,Wednesday,white,
+2026-08-13,Thursday,blue,
+2026-08-14,Friday,white,
+2026-08-17,Monday,blue,
+2026-08-18,Tuesday,white,
+2026-08-19,Wednesday,blue,
+2026-08-20,Thursday,white,
+2026-08-21,Friday,blue,
+2026-08-24,Monday,white,
+2026-08-25,Tuesday,blue,
+2026-08-26,Wednesday,white,
+2026-08-27,Thursday,blue,
+2026-08-28,Friday,white,
+2026-08-31,Monday,blue,
+2026-09-01,Tuesday,white,SAC Meeting 3:30 PM
+2026-09-02,Wednesday,blue,
+2026-09-03,Thursday,psd,Professional Study Day - 11:50 release
+2026-09-04,Friday,blue,
+2026-09-07,Monday,closed,School closed (Labor Day)
+2026-09-08,Tuesday,white,
+2026-09-09,Wednesday,blue,
+2026-09-10,Thursday,white,
+2026-09-11,Friday,blue,
+2026-09-14,Monday,white,
+2026-09-15,Tuesday,blue,
+2026-09-16,Wednesday,white,
+2026-09-17,Thursday,blue,
+2026-09-18,Friday,white,
+2026-09-21,Monday,closed,School closed
+2026-09-22,Tuesday,blue,
+2026-09-23,Wednesday,white,
+2026-09-24,Thursday,blue,
+2026-09-25,Friday,white,Interim Reports
+2026-09-28,Monday,blue,
+2026-09-29,Tuesday,white,
+2026-09-30,Wednesday,blue,
+2026-10-01,Thursday,white,
+2026-10-02,Friday,blue,
+2026-10-05,Monday,white,
+2026-10-06,Tuesday,blue,SAC Meeting 3:30 PM
+2026-10-07,Wednesday,white,
+2026-10-08,Thursday,blue,
+2026-10-09,Friday,erd,Early Release Day - 12:50 dismissal
+2026-10-12,Monday,planning,Teacher planning day · Quarter last day
+2026-10-13,Tuesday,blue,
+2026-10-14,Wednesday,white,
+2026-10-15,Thursday,blue,
+2026-10-16,Friday,white,
+2026-10-19,Monday,blue,
+2026-10-20,Tuesday,white,
+2026-10-21,Wednesday,blue,
+2026-10-22,Thursday,white,
+2026-10-23,Friday,blue,
+2026-10-26,Monday,white,
+2026-10-27,Tuesday,blue,
+2026-10-28,Wednesday,white,
+2026-10-29,Thursday,blue,
+2026-10-30,Friday,white,
+2026-11-02,Monday,blue,
+2026-11-03,Tuesday,planning,Teacher planning day · SAC Meeting 3:30 PM
+2026-11-04,Wednesday,white,
+2026-11-05,Thursday,psd,Professional Study Day - 11:50 release
+2026-11-06,Friday,white,
+2026-11-09,Monday,blue,Report Cards
+2026-11-10,Tuesday,white,
+2026-11-11,Wednesday,closed,School closed (Veterans Day)
+2026-11-12,Thursday,blue,
+2026-11-13,Friday,white,
+2026-11-16,Monday,blue,
+2026-11-17,Tuesday,white,
+2026-11-18,Wednesday,blue,
+2026-11-19,Thursday,white,
+2026-11-20,Friday,blue,Interim Reports
+2026-11-23,Monday,closed,School closed - Thanksgiving
+2026-11-24,Tuesday,closed,School closed - Thanksgiving
+2026-11-25,Wednesday,closed,School closed - Thanksgiving
+2026-11-26,Thursday,closed,School closed - Thanksgiving
+2026-11-27,Friday,closed,School closed - Thanksgiving
+2026-11-30,Monday,white,
+2026-12-01,Tuesday,blue,SAC Meeting 3:30 PM
+2026-12-02,Wednesday,white,
+2026-12-03,Thursday,blue,
+2026-12-04,Friday,white,
+2026-12-07,Monday,blue,
+2026-12-08,Tuesday,white,
+2026-12-09,Wednesday,blue,
+2026-12-10,Thursday,white,
+2026-12-11,Friday,blue,
+2026-12-14,Monday,white,
+2026-12-15,Tuesday,blue,Exams
+2026-12-16,Wednesday,white,Exams
+2026-12-17,Thursday,blue,Exams
+2026-12-18,Friday,erd,Early Release Day - 12:50 dismissal · Exams
+2026-12-21,Monday,closed,School closed - Winter Break
+2026-12-22,Tuesday,closed,School closed - Winter Break
+2026-12-23,Wednesday,closed,School closed - Winter Break
+2026-12-24,Thursday,closed,School closed - Winter Break
+2026-12-25,Friday,closed,School closed - Winter Break
+2026-12-28,Monday,closed,School closed - Winter Break
+2026-12-29,Tuesday,closed,School closed - Winter Break
+2026-12-30,Wednesday,closed,School closed - Winter Break
+2026-12-31,Thursday,closed,School closed - Winter Break
+2027-01-01,Friday,closed,School closed - New Year's Day
+2027-01-04,Monday,planning,Teacher planning day
+2027-01-05,Tuesday,blue,SAC Meeting 3:30 PM
+2027-01-06,Wednesday,white,
+2027-01-07,Thursday,blue,
+2027-01-08,Friday,white,
+2027-01-11,Monday,blue,
+2027-01-12,Tuesday,white,
+2027-01-13,Wednesday,blue,
+2027-01-14,Thursday,white,
+2027-01-15,Friday,blue,
+2027-01-18,Monday,closed,School closed (MLK Day)
+2027-01-19,Tuesday,white,
+2027-01-20,Wednesday,blue,
+2027-01-21,Thursday,white,Quarter last day
+2027-01-22,Friday,blue,
+2027-01-25,Monday,white,
+2027-01-26,Tuesday,blue,
+2027-01-27,Wednesday,white,
+2027-01-28,Thursday,blue,
+2027-01-29,Friday,white,Report Cards
+2027-02-01,Monday,blue,
+2027-02-02,Tuesday,white,SAC Meeting 3:30 PM
+2027-02-03,Wednesday,blue,
+2027-02-04,Thursday,psd,Professional Study Day - 11:50 release
+2027-02-05,Friday,blue,
+2027-02-08,Monday,white,
+2027-02-09,Tuesday,blue,Interim Reports
+2027-02-10,Wednesday,white,
+2027-02-11,Thursday,blue,
+2027-02-12,Friday,erd,Early Release Day - 12:50 dismissal
+2027-02-15,Monday,closed,School closed (Presidents' Day)
+2027-02-16,Tuesday,blue,
+2027-02-17,Wednesday,white,
+2027-02-18,Thursday,blue,
+2027-02-19,Friday,white,
+2027-02-22,Monday,blue,
+2027-02-23,Tuesday,white,
+2027-02-24,Wednesday,blue,
+2027-02-25,Thursday,white,
+2027-02-26,Friday,blue,
+2027-03-01,Monday,white,
+2027-03-02,Tuesday,blue,SAC Meeting 3:30 PM
+2027-03-03,Wednesday,white,
+2027-03-04,Thursday,blue,
+2027-03-05,Friday,white,
+2027-03-08,Monday,blue,
+2027-03-09,Tuesday,white,
+2027-03-10,Wednesday,closed,School closed
+2027-03-11,Thursday,blue,
+2027-03-12,Friday,white,
+2027-03-15,Monday,blue,
+2027-03-16,Tuesday,white,
+2027-03-17,Wednesday,blue,
+2027-03-18,Thursday,erd,Early Release Day - 12:50 dismissal · Quarter last day
+2027-03-19,Friday,planning,Teacher planning day · Quarter last day
+2027-03-22,Monday,closed,School closed - Spring Break
+2027-03-23,Tuesday,closed,School closed - Spring Break
+2027-03-24,Wednesday,closed,School closed - Spring Break
+2027-03-25,Thursday,closed,School closed - Spring Break
+2027-03-26,Friday,closed,School closed - Spring Break
+2027-03-29,Monday,blue,
+2027-03-30,Tuesday,white,
+2027-03-31,Wednesday,blue,
+2027-04-01,Thursday,psd,Professional Study Day - 11:50 release
+2027-04-02,Friday,blue,
+2027-04-05,Monday,white,Slash mark on PDF — meaning unclear (not green closed / not orange planning)
+2027-04-06,Tuesday,blue,Report Cards · SAC Meeting 3:30 PM
+2027-04-07,Wednesday,white,
+2027-04-08,Thursday,blue,
+2027-04-09,Friday,white,
+2027-04-12,Monday,blue,
+2027-04-13,Tuesday,white,
+2027-04-14,Wednesday,blue,
+2027-04-15,Thursday,white,
+2027-04-16,Friday,blue,
+2027-04-19,Monday,white,
+2027-04-20,Tuesday,blue,
+2027-04-21,Wednesday,white,
+2027-04-22,Thursday,blue,
+2027-04-23,Friday,white,
+2027-04-26,Monday,blue,
+2027-04-27,Tuesday,white,Interim Reports
+2027-04-28,Wednesday,blue,
+2027-04-29,Thursday,white,
+2027-04-30,Friday,erd,Early Release Day - 12:50 dismissal
+2027-05-03,Monday,white,
+2027-05-04,Tuesday,blue,SAC Meeting 3:30 PM
+2027-05-05,Wednesday,white,
+2027-05-06,Thursday,blue,
+2027-05-07,Friday,white,
+2027-05-10,Monday,blue,
+2027-05-11,Tuesday,white,
+2027-05-12,Wednesday,blue,
+2027-05-13,Thursday,white,
+2027-05-14,Friday,blue,
+2027-05-17,Monday,white,
+2027-05-18,Tuesday,blue,
+2027-05-19,Wednesday,white,
+2027-05-20,Thursday,blue,
+2027-05-21,Friday,white,
+2027-05-24,Monday,blue,
+2027-05-25,Tuesday,white,Exams
+2027-05-26,Wednesday,blue,Exams
+2027-05-27,Thursday,white,Exams
+2027-05-28,Friday,erd,Early Release Day - 12:50 dismissal · Exams · Last day of school
+2027-05-31,Monday,closed,School closed (Memorial Day)
+2027-06-01,Tuesday,planning,Teacher planning day
+2027-06-29,Tuesday,closed,Report cards mailed
