@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="FLHS Homeroom Locator — find your White Day and Blue Day homeroom by student number." />
-  <meta name="theme-color" content="#eef5ff" />
+  <meta name="theme-color" content="#9eb8dc" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="FLHS Help" />
@@ -19,22 +19,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --sky-50: #f7faff;
-      --sky-100: #eef5ff;
-      --sky-200: #d9e8ff;
+      --sky-50: #e8f0fa;
+      --sky-100: #c5d6ef;
+      --sky-200: #9eb8dc;
       --navy: #002366;
-      --blue-500: #2f6fed;
-      --blue-600: #1d5bd6;
-      --blue-700: #1447b8;
+      --royal: #0056b3;
+      --blue-500: #0056b3;
+      --blue-600: #004a9c;
+      --blue-700: #003d82;
       --ink-900: #002366;
       --ink-700: #1a3a6e;
       --ink-500: #3d5680;
       --ink-400: #5a7194;
-      --glass: rgba(255, 255, 255, 0.62);
-      --border: rgba(255, 255, 255, 0.72);
-      --border-soft: rgba(0, 35, 102, 0.14);
-      --shadow: 0 24px 60px rgba(0, 35, 102, 0.12), 0 8px 20px rgba(0, 35, 102, 0.07);
-      --shadow-soft: 0 10px 28px rgba(0, 35, 102, 0.1);
+      --silver: #c5ccd8;
+      --glass: rgba(255, 255, 255, 0.72);
+      --border: rgba(197, 204, 216, 0.65);
+      --border-soft: rgba(0, 35, 102, 0.16);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
+      --shadow-soft: 0 12px 30px rgba(0, 35, 102, 0.14);
       --radius-xl: 1.75rem;
       --radius-lg: 1.25rem;
       --radius-md: 1rem;
@@ -59,7 +61,7 @@
       min-height: 100%;
       font-family: "Plus Jakarta Sans", system-ui, sans-serif;
       color: var(--ink-900);
-      background: var(--sky-100);
+      background: var(--sky-200);
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
@@ -71,10 +73,11 @@
       flex-direction: column;
       overflow-x: hidden;
       background:
-        radial-gradient(ellipse 90% 70% at 12% -8%, rgba(147, 197, 253, 0.55), transparent 55%),
-        radial-gradient(ellipse 70% 55% at 92% 8%, rgba(191, 219, 254, 0.5), transparent 52%),
-        radial-gradient(ellipse 55% 40% at 50% 100%, rgba(219, 234, 254, 0.7), transparent 60%),
-        linear-gradient(180deg, #f8fbff 0%, #eaf2ff 48%, #e4efff 100%);
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.38), transparent 58%),
+        radial-gradient(ellipse 80% 60% at 98% 0%, rgba(0, 35, 102, 0.32), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 48% 108%, rgba(0, 86, 179, 0.28), transparent 62%),
+        radial-gradient(ellipse 45% 35% at 78% 42%, rgba(197, 204, 216, 0.35), transparent 70%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 42%, #7fa3d0 78%, #6d94c4 100%);
     }
 
     .page::before {
@@ -82,10 +85,10 @@
       position: absolute;
       inset: 0;
       background-image:
-        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.55) 0 1px, transparent 1.5px),
-        radial-gradient(circle at 80% 60%, rgba(255, 255, 255, 0.4) 0 1px, transparent 1.5px);
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.42) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 80% 60%, rgba(197, 204, 216, 0.5) 0 1px, transparent 1.5px);
       background-size: 48px 48px, 64px 64px;
-      opacity: 0.45;
+      opacity: 0.4;
       pointer-events: none;
       animation: drift 36s linear infinite;
     }
@@ -93,13 +96,15 @@
     .page::after {
       content: "";
       position: absolute;
-      width: min(42rem, 90vw);
-      height: min(42rem, 90vw);
+      width: min(46rem, 94vw);
+      height: min(46rem, 94vw);
       left: 50%;
       top: 42%;
       translate: -50% -50%;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.55), transparent 68%);
+      background:
+        radial-gradient(circle at 40% 35%, rgba(255, 255, 255, 0.38), transparent 52%),
+        radial-gradient(circle, rgba(0, 86, 179, 0.12), transparent 70%);
       pointer-events: none;
       animation: soft-pulse 8s ease-in-out infinite;
     }
@@ -132,11 +137,11 @@
       border-radius: 50%;
       background: radial-gradient(
         ellipse 70% 55% at 50% 40%,
-        rgba(80, 120, 190, 0.22) 0%,
-        rgba(80, 120, 190, 0.08) 45%,
+        rgba(0, 35, 102, 0.35) 0%,
+        rgba(0, 86, 179, 0.16) 45%,
         transparent 72%
       );
-      filter: blur(10px);
+      filter: blur(12px);
       transform: scaleY(0.5);
     }
 
@@ -149,13 +154,19 @@
       border-radius: var(--radius-xl);
       border: 1px solid var(--border);
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.55) 100%);
+        linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.88) 0%,
+          rgba(244, 248, 255, 0.78) 48%,
+          rgba(232, 240, 250, 0.7) 100%
+        );
       box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        inset 0 -1px 0 rgba(120, 160, 220, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.98),
+        inset 0 -1px 0 rgba(0, 35, 102, 0.05),
+        0 0 0 1px rgba(197, 204, 216, 0.28),
         var(--shadow);
-      backdrop-filter: blur(28px) saturate(1.4);
-      -webkit-backdrop-filter: blur(28px) saturate(1.4);
+      backdrop-filter: blur(28px) saturate(1.25);
+      -webkit-backdrop-filter: blur(28px) saturate(1.25);
       text-align: center;
     }
 
@@ -487,7 +498,7 @@
       text-align: center;
       font-size: 0.8rem;
       font-weight: 500;
-      color: var(--ink-500);
+      color: rgba(0, 35, 102, 0.78);
       animation: rise-in 0.8s ease-out 0.28s both;
     }
 
@@ -511,7 +522,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      color: var(--ink-500);
+      color: rgba(0, 35, 102, 0.78);
       font-weight: 600;
       text-decoration: none;
     }
