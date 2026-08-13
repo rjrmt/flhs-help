@@ -1,0 +1,44 @@
+{
+  "title": "Media Center",
+  "locationHint": "Near the cafeteria · check Building 18 area on the map",
+  "mapHref": "map.html",
+  "contactEmail": "",
+  "contactName": "Media Center",
+  "updatedNote": "Student walk-in: before school + lunch. Class periods closed. Study hall only with teacher pass for academic purposes. After school closed for now.",
+  "walkIn": {
+    "beforeSchool": {
+      "id": "before",
+      "label": "Before school",
+      "start": "07:00",
+      "end": "07:40",
+      "blurb": "Walk in until first period · also laptop pickup"
+    },
+    "afterSchool": {
+      "id": "after",
+      "label": "After school",
+      "start": "15:00",
+      "end": "15:45",
+      "blurb": "Closed after school for now",
+      "closed": true
+    },
+    "lunchBlurb": "Walk in during your lunch · Lunch A or Lunch B"
+  },
+  "duringClass": {
+    "label": "During class periods",
+    "blurb": "Closed — no walk-ins during class",
+    "closed": true
+  },
+  "studyHall": {
+    "label": "Study hall",
+    "blurb": "Academic purposes only · bring a real pass from your teacher"
+  },
+  "laptopPickup": {
+    "label": "Laptop pickup",
+    "blurb": "7:00–7:40 AM or study hall (with teacher pass) · Canvas approval message required",
+    "href": "resources.html#laptops"
+  },
+  "teacherRequest": {
+    "enabled": false
+  },
+  "reservations": []
+}

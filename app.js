@@ -13,6 +13,8 @@
 
   /** @type {Map<string, { date: string, dayOfWeek: string, dayType: string, notes: string }>} */
   let calendarByDate = new Map();
+  /** False until the calendar CSV has been parsed into calendarByDate. */
+  let calendarReady = false;
 
   /**
    * @typedef {{ dayType: string, block: string, period: string, label: string, startMin: number, endMin: number, lunchTrack: string, buildings: string, notes: string }} BellRow
@@ -27,6 +29,20 @@
   /** @type {Element | null} */
   let bellModalReturnFocus = null;
   let lastModalHighlightMin = -1;
+
+  /** Normalize any Y-M-D / M/D/Y-ish value to zero-padded ISO `YYYY-MM-DD`. */
+  function toIsoDateKey(value) {
+    const raw = String(value || "").trim();
+    const iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (iso) {
+      return `${iso[1]}-${iso[2].padStart(2, "0")}-${iso[3].padStart(2, "0")}`;
+    }
+    const us = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (us) {
+      return `${us[3]}-${us[1].padStart(2, "0")}-${us[2].padStart(2, "0")}`;
+    }
+    return raw;
+  }
 
   function easternParts(date = new Date()) {
     const fmt = new Intl.DateTimeFormat("en-US", {
@@ -47,7 +63,8 @@
     );
 
     return {
-      isoDate: `${parts.year}-${parts.month}-${parts.day}`,
+      // Always pad — some engines omit leading zeros even with month/day "2-digit".
+      isoDate: toIsoDateKey(`${parts.year}-${parts.month}-${parts.day}`),
       weekday: parts.weekday,
       hour: parts.hour,
       minute: parts.minute,
@@ -77,6 +94,25 @@
     // Some engines emit "24" for midnight with hour12:false — normalize to 0.
     const hour = Number(parts.hour) % 24;
     return hour * 60 + Number(parts.minute);
+  }
+
+  /** After this Eastern minute-of-day, the day-type bubble shows tomorrow. */
+  const DAY_BUBBLE_TOMORROW_AFTER_MIN = 16 * 60; // 4:00 PM
+
+  function dayBubbleShowsTomorrow(date = new Date()) {
+    return easternMinutesNow(date) >= DAY_BUBBLE_TOMORROW_AFTER_MIN;
+  }
+
+  /**
+   * Eastern calendar parts for today + dayOffset (calendar days, not 24h wall time).
+   * Uses UTC noon on the shifted Y-M-D so DST transitions don't skip/duplicate a date.
+   */
+  function easternPartsForOffset(dayOffset, date = new Date()) {
+    if (dayOffset === 0) return easternParts(date);
+    const today = easternParts(date);
+    const [y, m, d] = today.isoDate.split("-").map(Number);
+    const shifted = new Date(Date.UTC(y, m - 1, d + dayOffset, 12, 0, 0));
+    return easternParts(shifted);
   }
 
   /** Parse "HH:MM" or "H:MM" (24h) to minutes since midnight. */
@@ -152,12 +188,12 @@
   function loadCalendarRows(text) {
     return parseCsvTable(text)
       .map((r) => ({
-        date: (r.date || "").trim(),
+        date: toIsoDateKey(r.date || ""),
         dayOfWeek: (r.day_of_week || "").trim(),
         dayType: (r.day_type || "").trim().toLowerCase(),
         notes: (r.notes || "").trim(),
       }))
-      .filter((r) => r.date && r.dayType);
+      .filter((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.dayType);
   }
 
   function loadBellRows(text) {
@@ -200,11 +236,11 @@
     return /exam/i.test(notes || "");
   }
 
-  function describeDay(entry, weekday) {
+  function describeDay(entry, weekday, whenLabel = "Today") {
     if (!entry) {
       const weekend = weekday === "Saturday" || weekday === "Sunday";
       return {
-        whenLabel: "Today",
+        whenLabel,
         letter: "—",
         title: "No School",
         detail: weekend ? "Enjoy your weekend" : "Not on the calendar",
@@ -222,7 +258,7 @@
     const exam = isExamNotes(notes);
 
     const base = {
-      whenLabel: "Today",
+      whenLabel,
       tone: entry.dayType,
       exam,
       dayType: entry.dayType,
@@ -534,10 +570,18 @@
       <p class="bubble-letter" aria-hidden="true">${escapeHtml(info.letter)}</p>
       <p class="bubble-title">${escapeHtml(info.title)}</p>
       <p class="bubble-detail">${escapeHtml(info.detail)}</p>
+      <span class="bubble-open-hint" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M3.5 9.5h17" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M8 3.5v3M16 3.5v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path d="M14.5 14.25 16.75 16.5 20 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
     `;
     dayBubble.setAttribute(
       "aria-label",
-      `${info.whenLabel}: ${info.title}. ${info.detail}`
+      `${info.whenLabel}: ${info.title}. ${info.detail}. Open school calendar`
     );
   }
 
@@ -1109,11 +1153,25 @@
   }
 
   function refreshDay() {
+    // Avoid flashing "Not on the calendar" before the CSV map is ready.
+    if (!calendarReady) return;
+
     const parts = easternParts();
-    const entry = calendarByDate.get(parts.isoDate) || null;
-    const info = describeDay(entry, parts.weekday);
-    currentDayInfo = info;
-    renderDayBubble(info);
+    const todayEntry = calendarByDate.get(parts.isoDate) || null;
+    // Bell / lunch / period status always tracks *today*.
+    const todayInfo = describeDay(todayEntry, parts.weekday, "Today");
+    currentDayInfo = todayInfo;
+
+    // Day-type bubble flips to tomorrow at/after 4:00 PM Eastern.
+    if (dayBubbleShowsTomorrow()) {
+      const tomorrowParts = easternPartsForOffset(1);
+      const tomorrowEntry = calendarByDate.get(tomorrowParts.isoDate) || null;
+      renderDayBubble(
+        describeDay(tomorrowEntry, tomorrowParts.weekday, "Tomorrow")
+      );
+    } else {
+      renderDayBubble(todayInfo);
+    }
     refreshBellStatus();
   }
 
@@ -1151,6 +1209,7 @@
       const calText = await calRes.text();
       const calRows = loadCalendarRows(calText);
       calendarByDate = new Map(calRows.map((r) => [r.date, r]));
+      calendarReady = true;
 
       if (bellRes.ok) {
         const bellText = await bellRes.text();
@@ -1163,6 +1222,7 @@
       if (bellModalOpen) renderBellModalBody();
     } catch (err) {
       console.error("Schedule load failed:", err);
+      calendarReady = false;
       currentDayInfo = {
         tone: "error",
         exam: false,
@@ -1171,7 +1231,7 @@
         status: "Calendar unavailable",
       };
       renderDayBubble({
-        whenLabel: "Today",
+        whenLabel: dayBubbleShowsTomorrow() ? "Tomorrow" : "Today",
         letter: "?",
         title: "Calendar unavailable",
         detail: "Check back shortly",
@@ -1185,7 +1245,6 @@
   function start() {
     wireBellModal();
     tickClock();
-    refreshDay();
     loadData();
 
     const clockTimer = setInterval(tickClock, 1000);

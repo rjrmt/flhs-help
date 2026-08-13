@@ -275,6 +275,55 @@
       z-index: 1;
     }
 
+    a.bubble-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    a.bubble-link:hover {
+      transform: translateY(-2px);
+    }
+
+    a.bubble-link:focus-visible {
+      outline: 3px solid rgba(0, 35, 102, 0.4);
+      outline-offset: 3px;
+    }
+
+    .bubble-open-hint {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0.45rem;
+      opacity: 0.55;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .bubble-open-hint svg {
+      width: 0.95rem;
+      height: 0.95rem;
+    }
+
+    a.bubble-link:hover .bubble-open-hint {
+      opacity: 0.9;
+      transform: translateX(2px);
+    }
+
+    #day-bubble[data-tone="white"] .bubble-open-hint { color: var(--cal-white-ink); }
+    #day-bubble[data-tone="blue"] .bubble-open-hint { color: #fff; }
+    #day-bubble[data-tone="planning"] .bubble-open-hint,
+    #day-bubble[data-tone="psd"] .bubble-open-hint,
+    #day-bubble[data-tone="closed"] .bubble-open-hint { color: #fff; }
+    #day-bubble[data-tone="erd"] .bubble-open-hint { color: var(--cal-erd-ink); }
+    #day-bubble[data-tone="weekend"] .bubble-open-hint,
+    #day-bubble[data-tone="error"] .bubble-open-hint { color: var(--navy); }
+    #day-bubble[data-tone="white"][data-exam="true"] .bubble-open-hint { color: var(--cal-white-ink); }
+    #day-bubble[data-tone="blue"][data-exam="true"] .bubble-open-hint { color: #fff; }
+    #day-bubble[data-tone="erd"][data-exam="true"] .bubble-open-hint { color: #5c3b00; }
+
     .bubble-eyebrow {
       font-size: 0.68rem;
       font-weight: 700;
@@ -1546,12 +1595,26 @@
               <p class="bubble-detail">America/New_York</p>
             </article>
 
-            <article id="day-bubble" class="bubble" data-tone="weekend">
+            <a
+              id="day-bubble"
+              class="bubble bubble-link"
+              href="calendar.html"
+              data-tone="weekend"
+              aria-label="School day. Open school calendar"
+            >
               <p class="bubble-eyebrow">Today</p>
               <p class="bubble-letter" aria-hidden="true">—</p>
               <p class="bubble-title">Loading…</p>
               <p class="bubble-detail">Checking school calendar</p>
-            </article>
+              <span class="bubble-open-hint" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+                  <path d="M3.5 9.5h17" stroke="currentColor" stroke-width="1.7"/>
+                  <path d="M8 3.5v3M16 3.5v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                  <path d="M14.5 14.25 16.75 16.5 20 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </a>
           </div>
 
           <div
@@ -1603,14 +1666,15 @@
               <span class="shortcut-label">Teacher IT Ticket</span>
             </a>
 
-            <a class="shortcut" href="homeroom.html">
+            <a class="shortcut" href="resources.html">
               <span class="shortcut-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M12 21s6.5-5.2 6.5-10.2A6.5 6.5 0 0 0 12 4.3a6.5 6.5 0 0 0-6.5 6.5C5.5 15.8 12 21 12 21Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                  <circle cx="12" cy="10.8" r="2.2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M4.5 19.5V8.75L12 4.5l7.5 4.25V19.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="M9 19.5V12h6v7.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="M4.5 19.5h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
               </span>
-              <span class="shortcut-label">Home Room Locator</span>
+              <span class="shortcut-label">Student Hub</span>
             </a>
           </nav>
         </section>

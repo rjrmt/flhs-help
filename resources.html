@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS Student Hub — find your room, Media Center hours, campus map, White/Blue day, get a laptop, get IT help." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="FLHS Help" />
+  <title>Student Hub | FLHSHelp</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky-200: #9eb8dc;
+      --navy: #002366;
+      --royal: #0056b3;
+      --ink-900: #002366;
+      --ink-500: #3d5680;
+      --ink-400: #5a7194;
+      --border-soft: rgba(0, 35, 102, 0.16);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
+      --radius-xl: 1.75rem;
+      --radius-md: 1rem;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; scroll-behavior: smooth; }
+    body {
+      min-height: 100%;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      color: var(--ink-900);
+      background: var(--sky-200);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.38), transparent 58%),
+        radial-gradient(ellipse 80% 60% at 98% 0%, rgba(0, 35, 102, 0.3), transparent 55%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 45%, #7fa3d0 100%);
+    }
+    main {
+      flex: 1;
+      width: min(44rem, 100%);
+      margin: 0 auto;
+      padding: 1rem 0.85rem 1.75rem;
+    }
+    .board {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.82) 0%, rgba(236, 244, 255, 0.66) 100%);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(28px) saturate(1.25);
+      -webkit-backdrop-filter: blur(28px) saturate(1.25);
+      padding: 1.1rem 1rem 1.35rem;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+    }
+    .brand-lockup { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+    .logo { width: 2.5rem; height: 2.5rem; object-fit: contain; }
+    .brand-kicker {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--navy); opacity: 0.55;
+    }
+    h1 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(1.35rem, 4vw, 1.7rem);
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+    }
+    .home-btn {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.48rem 0.75rem; border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--navy); font-size: 0.8rem; font-weight: 700; text-decoration: none;
+    }
+    .home-btn svg { width: 1rem; height: 1rem; }
+
+    .hero-line {
+      font-size: 0.95rem;
+      color: var(--ink-500);
+      font-weight: 500;
+      margin-bottom: 0.85rem;
+    }
+
+    .live-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1.1rem;
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(0, 35, 102, 0.12);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-decoration: none;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .live-pill:hover { transform: translateY(-1px); border-color: rgba(0, 86, 179, 0.35); }
+    .live-pill .dot {
+      width: 0.55rem; height: 0.55rem; border-radius: 50%;
+      background: var(--royal);
+      box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.18);
+    }
+    .live-pill.is-white .dot { background: #c5d0de; box-shadow: 0 0 0 3px rgba(0, 35, 102, 0.08); }
+    .live-pill.is-blue {
+      background: linear-gradient(135deg, #1e4d9c, #2a62b8);
+      color: #fff;
+      border-color: transparent;
+    }
+    .live-pill.is-blue .dot { background: #fff; box-shadow: none; }
+    .live-pill.is-closed .dot { background: #b45309; box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.18); }
+
+    .ask { margin-bottom: 1.15rem; }
+    .ask-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-400);
+      margin-bottom: 0.45rem;
+    }
+    .ask-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .ask-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid rgba(0, 35, 102, 0.14);
+      background: #fff;
+      color: var(--navy);
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+    }
+    .ask-chip svg {
+      width: 1.35rem;
+      height: 1.35rem;
+      flex-shrink: 0;
+    }
+    .ask-chip:hover { transform: translateY(-1px); }
+    .ask-chip.is-on {
+      background: var(--navy);
+      color: #fff;
+      border-color: transparent;
+    }
+    .ask-chip:focus-visible {
+      outline: 3px solid rgba(0, 35, 102, 0.35);
+      outline-offset: 2px;
+    }
+
+    .section {
+      margin-bottom: 1.2rem;
+      scroll-margin-top: 1rem;
+    }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.55rem;
+    }
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-400);
+    }
+    .section-hint {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink-400);
+    }
+
+    .tool-grid {
+      display: grid;
+      gap: 0.55rem;
+    }
+    @media (min-width: 560px) {
+      .tool-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .tool-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      padding: 1rem 1rem 0.95rem;
+      border-radius: var(--radius-md);
+      border: 1.5px solid rgba(0, 35, 102, 0.12);
+      background: rgba(255, 255, 255, 0.88);
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      animation: rise 0.45s ease both;
+    }
+    .tool-card:nth-child(1) { animation-delay: 0.04s; }
+    .tool-card:nth-child(2) { animation-delay: 0.1s; }
+    .tool-card:nth-child(3) { animation-delay: 0.16s; }
+    .tool-card:nth-child(4) { animation-delay: 0.22s; }
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0, 86, 179, 0.35);
+      box-shadow: 0 14px 28px rgba(0, 35, 102, 0.12);
+    }
+    .tool-card:focus-visible {
+      outline: 3px solid rgba(0, 35, 102, 0.4);
+      outline-offset: 3px;
+    }
+    .tool-card.is-pulse {
+      border-color: rgba(0, 86, 179, 0.55);
+      box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.16);
+    }
+    .tool-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 6.25rem;
+      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(0, 35, 102, 0.08);
+      margin-bottom: 0.15rem;
+    }
+    .tool-visual svg {
+      width: 4.4rem;
+      height: 4.4rem;
+    }
+    .tool-card.span-2 .tool-visual {
+      min-height: 7rem;
+    }
+    .tool-card.span-2 .tool-visual svg {
+      width: 5.1rem;
+      height: 5.1rem;
+    }
+    .day-split {
+      display: flex;
+      width: 4.6rem;
+      height: 4.6rem;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 3px solid rgba(0, 35, 102, 0.18);
+      box-shadow: 0 8px 18px rgba(0, 35, 102, 0.14);
+    }
+    .day-split span {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .day-split .w {
+      background: #f4f7fb;
+      color: var(--navy);
+    }
+    .day-split .b {
+      background: #1e4d9c;
+      color: #fff;
+    }
+    .tool-card .eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--royal);
+    }
+    .tool-card h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .tool-card p {
+      font-size: 0.8rem;
+      color: var(--ink-500);
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    .tool-card .go {
+      margin-top: 0.2rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .tool-card.map-card {
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(214, 230, 255, 0.55)),
+        rgba(255, 255, 255, 0.9);
+    }
+    .tool-card.room-card {
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(214, 240, 228, 0.5)),
+        rgba(255, 255, 255, 0.9);
+    }
+    .tool-card.day-card {
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 236, 214, 0.5)),
+        rgba(255, 255, 255, 0.9);
+    }
+    .tool-card.map-card .tool-visual { background: rgba(0, 86, 179, 0.08); }
+    .tool-card.room-card .tool-visual { background: rgba(29, 77, 58, 0.08); }
+    .tool-card.day-card .tool-visual { background: rgba(180, 83, 9, 0.08); }
+    .tool-card.media-card {
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(220, 242, 232, 0.55)),
+        rgba(255, 255, 255, 0.9);
+    }
+    .tool-card.media-card .tool-visual { background: rgba(29, 77, 58, 0.1); }
+
+    .quick-lookup {
+      display: flex;
+      gap: 0.45rem;
+      margin-top: 0.55rem;
+    }
+    .quick-lookup input {
+      flex: 1;
+      min-width: 0;
+      border: 1.5px solid rgba(0, 35, 102, 0.16);
+      border-radius: 0.75rem;
+      padding: 0.55rem 0.7rem;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy);
+      background: #fff;
+    }
+    .quick-lookup input:focus {
+      outline: 3px solid rgba(0, 86, 179, 0.28);
+      outline-offset: 1px;
+    }
+    .quick-lookup button {
+      border: 0;
+      border-radius: 0.75rem;
+      padding: 0.55rem 0.85rem;
+      background: var(--navy);
+      color: #fff;
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .laptop-note {
+      margin-bottom: 0.55rem;
+      padding: 0.8rem 0.9rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(0, 86, 179, 0.2);
+      background: linear-gradient(135deg, rgba(232, 241, 255, 0.9), rgba(255, 255, 255, 0.75));
+      font-size: 0.82rem;
+      color: var(--ink-500);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    .laptop-note .note-title {
+      display: block;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.2rem;
+    }
+    .laptop-note em {
+      font-style: normal;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .laptop-stack { display: grid; gap: 0.5rem; }
+    .laptop-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 0.9rem 0.95rem;
+      border-radius: var(--radius-md);
+      border: 1.5px solid rgba(0, 35, 102, 0.12);
+      background: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .laptop-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 86, 179, 0.3);
+    }
+    .laptop-icon {
+      width: 3.1rem;
+      height: 3.1rem;
+      border-radius: 0.85rem;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 86, 179, 0.1);
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+    .laptop-icon svg {
+      width: 1.85rem;
+      height: 1.85rem;
+    }
+    .laptop-card:nth-child(2) .laptop-icon {
+      background: rgba(29, 77, 58, 0.1);
+      color: #1d4d3a;
+    }
+    .help-icon {
+      width: 3.25rem;
+      height: 3.25rem;
+      border-radius: 0.9rem;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 35, 102, 0.08);
+      color: var(--navy);
+      margin-bottom: 0.65rem;
+    }
+    .help-icon svg {
+      width: 1.9rem;
+      height: 1.9rem;
+    }
+    .laptop-copy strong {
+      display: block;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.1rem;
+    }
+    .laptop-copy span {
+      font-size: 0.78rem;
+      color: var(--ink-500);
+      font-weight: 500;
+    }
+    .badge {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--royal);
+      background: rgba(0, 86, 179, 0.1);
+      border-radius: 999px;
+      padding: 0.3rem 0.5rem;
+    }
+
+    .help-panel {
+      margin-top: 0.25rem;
+      padding: 0.95rem 1rem;
+      border-radius: var(--radius-md);
+      background: rgba(0, 35, 102, 0.06);
+      border: 1px solid rgba(0, 35, 102, 0.1);
+    }
+    .help-panel h3 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+    .help-panel p {
+      font-size: 0.82rem;
+      color: var(--ink-500);
+      font-weight: 500;
+      margin-bottom: 0.65rem;
+    }
+    .help-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .help-actions a {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      background: var(--navy);
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+    .help-actions a.secondary {
+      background: #fff;
+      color: var(--navy);
+      border: 1px solid rgba(0, 35, 102, 0.16);
+    }
+
+    footer {
+      padding: 0.65rem 1rem 1.15rem;
+      text-align: center;
+      font-size: 0.76rem;
+      color: rgba(0, 35, 102, 0.7);
+      font-weight: 500;
+    }
+    footer a { color: var(--navy); font-weight: 700; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tool-card { animation: none; }
+      .tool-card:hover, .laptop-card:hover, .live-pill:hover, .ask-chip:hover { transform: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main>
+      <section class="board">
+        <div class="topbar">
+          <div class="brand-lockup">
+            <img class="logo" src="assets/flhs-logo.png" width="80" height="80" alt="Fort Lauderdale High School" />
+            <div>
+              <p class="brand-kicker">Students</p>
+              <h1>Student Hub</h1>
+            </div>
+          </div>
+          <a class="home-btn" href="index.html">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4.5 11.25 12 4.75l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 10.75V19a.75.75 0 0 0 .75.75h3.5v-4.5h2.5v4.5h3.5A.75.75 0 0 0 18 19v-8.25" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Home
+          </a>
+        </div>
+
+        <p class="hero-line">Lost? Media Center? New laptop? Pick a picture — we’ll send you straight there.</p>
+
+        <div class="live-row" aria-live="polite">
+          <a class="live-pill" id="day-pill" href="calendar.html">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="day-pill-text">Checking today’s day…</span>
+          </a>
+          <a class="live-pill" href="map.html">Campus map ready</a>
+        </div>
+
+        <div class="ask">
+          <p class="ask-label">What do you need?</p>
+          <div class="ask-chips" role="group" aria-label="Quick needs">
+            <button type="button" class="ask-chip" data-jump="tools">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="12" height="14" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.7"/><path d="M16.5 14.5s4.5-3.5 4.5-7a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7 4.5 7Z" fill="currentColor"/><circle cx="16.5" cy="7.5" r="1.5" fill="#fff"/></svg>
+              Find my class
+            </button>
+            <button type="button" class="ask-chip" data-jump="tools" data-focus="map">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.6"/><rect x="5.5" y="7" width="5" height="4" rx="1" fill="currentColor" opacity="0.45"/><rect x="12" y="6.5" width="6.5" height="5.5" rx="1" fill="currentColor" opacity="0.25"/><path d="M15 17s3.2-2.5 3.2-5a3.2 3.2 0 1 0-6.4 0c0 2.5 3.2 5 3.2 5Z" fill="currentColor"/><circle cx="15" cy="12" r="1.1" fill="#fff"/></svg>
+              Find a building
+            </button>
+            <button type="button" class="ask-chip" data-jump="tools" data-focus="media">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 19.5V6.8c0-.5.3-.9.8-1.1l7-2.6c.3-.1.6-.1.9 0l7 2.6c.5.2.8.6.8 1.1v12.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8 10h3M8 14h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              Media Center open?
+            </button>
+            <button type="button" class="ask-chip" data-jump="tools" data-focus="day">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 3a9 9 0 0 0 0 18" fill="#1e4d9c"/><path d="M12 3a9 9 0 0 1 0 18" fill="#eef2f7"/></svg>
+              White or Blue?
+            </button>
+            <button type="button" class="ask-chip" data-jump="laptops">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="11" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.7"/><path d="M2 18.5h20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              Get a laptop
+            </button>
+            <button type="button" class="ask-chip" data-jump="help">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.7 6.3a4.1 4.1 0 0 0-5.8 5.8L4 17v3h3l4.9-4.9a4.1 4.1 0 0 0 5.8-5.8l-2.2 2.2-1.8-.6-.6-1.8 2.2-2.2Z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              Fix my device
+            </button>
+          </div>
+        </div>
+
+        <section class="section" id="tools" aria-labelledby="tools-heading">
+          <div class="section-head">
+            <p class="section-label" id="tools-heading">Campus tools</p>
+            <p class="section-hint">Tap a picture</p>
+          </div>
+          <div class="tool-grid">
+            <a class="tool-card room-card" id="tool-room" href="homeroom.html">
+              <div class="tool-visual" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none">
+                  <rect x="10" y="18" width="48" height="50" rx="6" fill="#1d4d3a" opacity="0.12" stroke="#1d4d3a" stroke-width="3"/>
+                  <path d="M22 68V36h24v32" stroke="#1d4d3a" stroke-width="3" stroke-linejoin="round"/>
+                  <rect x="28" y="44" width="12" height="10" rx="1.5" fill="#1d4d3a" opacity="0.25"/>
+                  <circle cx="42" cy="52" r="1.6" fill="#1d4d3a"/>
+                  <path d="M58 46s12-9.5 12-19a12 12 0 1 0-24 0c0 9.5 12 19 12 19Z" fill="#0056b3" opacity="0.9"/>
+                  <circle cx="58" cy="27" r="4.2" fill="#fff"/>
+                </svg>
+              </div>
+              <span class="eyebrow">Most used</span>
+              <h2>Where’s my room?</h2>
+              <p>Type your ID → teacher + room</p>
+              <form class="quick-lookup" id="id-jump" action="homeroom.html" method="get">
+                <input
+                  name="id"
+                  id="quick-id"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="10"
+                  placeholder="Student ID"
+                  autocomplete="off"
+                  aria-label="Student ID"
+                />
+                <button type="submit">Find</button>
+              </form>
+            </a>
+
+            <a class="tool-card media-card" id="tool-media" href="media.html">
+              <div class="tool-visual" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none">
+                  <rect x="12" y="14" width="56" height="52" rx="8" fill="#1d4d3a" opacity="0.12" stroke="#1d4d3a" stroke-width="3"/>
+                  <path d="M24 28h20M24 38h32M24 48h28" stroke="#1d4d3a" stroke-width="3.2" stroke-linecap="round"/>
+                  <circle cx="58" cy="54" r="12" fill="#1d4d3a"/>
+                  <path d="M58 48v8M54 54h8" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <h2>Media Center open?</h2>
+              <p>Walk-in · lunch · study hall pass</p>
+              <span class="go">Check hours →</span>
+            </a>
+
+            <a class="tool-card map-card" id="tool-map" href="map.html">
+              <div class="tool-visual" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none">
+                  <rect x="8" y="14" width="64" height="52" rx="8" fill="#0056b3" opacity="0.1" stroke="#0056b3" stroke-width="2.5"/>
+                  <rect x="16" y="24" width="18" height="14" rx="3" fill="#0056b3" opacity="0.35"/>
+                  <rect x="40" y="22" width="22" height="20" rx="3" fill="#0056b3" opacity="0.22"/>
+                  <rect x="18" y="44" width="28" height="12" rx="3" fill="#0056b3" opacity="0.18"/>
+                  <path d="M52 52s10-8 10-16a10 10 0 1 0-20 0c0 8 10 16 10 16Z" fill="#c2410c"/>
+                  <circle cx="52" cy="36" r="3.4" fill="#fff"/>
+                  <text x="25" y="34" text-anchor="middle" fill="#003366" font-size="9" font-weight="800" font-family="Outfit, sans-serif">17</text>
+                </svg>
+              </div>
+              <h2>Find my building</h2>
+              <p>Map · rooms · Lunch A/B</p>
+              <span class="go">Open map →</span>
+            </a>
+
+            <a class="tool-card day-card" id="tool-day" href="calendar.html">
+              <div class="tool-visual" aria-hidden="true">
+                <div class="day-split">
+                  <span class="w">W</span>
+                  <span class="b">B</span>
+                </div>
+              </div>
+              <h2>White or Blue day?</h2>
+              <p>Today’s color day</p>
+              <span class="go">Open calendar →</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="section" id="laptops" aria-labelledby="laptop-heading">
+          <div class="section-head">
+            <p class="section-label" id="laptop-heading">Laptop setup</p>
+            <p class="section-hint">2 quick guides</p>
+          </div>
+          <p class="laptop-note">
+            <span class="note-title">Pickup hours · Media Center</span>
+            Before school <em>7:00–7:40 AM</em> (until first period), or during <em>study hall with a teacher pass</em>.
+            You need your <em>Canvas approval message</em> to pick up a laptop.
+          </p>
+          <div class="laptop-stack">
+            <a class="laptop-card" href="assets/docs/how-to-get-a-laptop.pdf" target="_blank" rel="noopener noreferrer">
+              <span class="laptop-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="4" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M2 18.5h20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M9 10.5h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="laptop-copy">
+                <strong>Claim your laptop</strong>
+                <span>Parent signs Focus · Canvas approval · Media Center</span>
+              </span>
+              <span class="badge">PDF</span>
+            </a>
+            <a class="laptop-card" href="assets/docs/laptop-welcome-guide.pdf" target="_blank" rel="noopener noreferrer">
+              <span class="laptop-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 3.5 4.5 7v5.2c0 4.3 3.2 7.3 7.5 8.3 4.3-1 7.5-4 7.5-8.3V7L12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="m9.2 12.1 1.9 1.9 3.7-3.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="laptop-copy">
+                <strong>First-week laptop tips</strong>
+                <span>Login · Wi‑Fi · charging · quick fixes</span>
+              </span>
+              <span class="badge">PDF</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="section" id="help" aria-labelledby="help-heading">
+          <div class="help-panel">
+            <div class="help-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M14.7 6.3a4.1 4.1 0 0 0-5.8 5.8L4 17v3h3l4.9-4.9a4.1 4.1 0 0 0 5.8-5.8l-2.2 2.2-1.8-.6-.6-1.8 2.2-2.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 id="help-heading">Device broken or can’t log in?</h3>
+            <p>Don’t wait — send a ticket and IT will help. Or email RJ directly.</p>
+            <div class="help-actions">
+              <a
+                href="https://forms.cloud.microsoft.com/Pages/ResponsePage.aspx?id=y7Ws7nBTWEOpaqN4PJXUIpcibuRyouVNo8_6V-rJg1lUMUFDVUExWjZLTlNSSkVBQ0VQQlhDTkM1TC4u"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Student IT Ticket</a>
+              <a class="secondary" href="mailto:rajesh.ramautar@browardschools.com">Email RJ</a>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <footer>
+      <a href="https://www.linkedin.com/in/rjrmt/" target="_blank" rel="noopener noreferrer">IT Specialist RJ</a>
+      · Fort Lauderdale High School
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const CAL_URL = "data/flhs_calendar_2026_2027.csv";
+      const dayPill = document.getElementById("day-pill");
+      const dayText = document.getElementById("day-pill-text");
+      const idForm = document.getElementById("id-jump");
+      const idInput = document.getElementById("quick-id");
+
+      function toIsoDateKey(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      function parseCsv(text) {
+        const lines = text.trim().split(/\r?\n/);
+        if (lines.length < 2) return [];
+        const headers = lines[0].split(",").map((h) => h.trim());
+        return lines.slice(1).map((line) => {
+          const cols = line.split(",");
+          const row = {};
+          headers.forEach((h, i) => {
+            row[h] = (cols[i] || "").trim();
+          });
+          return row;
+        });
+      }
+
+      function classifyDay(row) {
+        if (!row) return { label: "Calendar", cls: "" };
+        const type = String(row.day_type || row.type || "").toLowerCase();
+        const name = String(row.label || row.name || row.day_type || "").trim();
+        if (type.includes("white") || name.toLowerCase().includes("white")) {
+          return { label: "Today · White Day", cls: "is-white" };
+        }
+        if (type.includes("blue") || name.toLowerCase().includes("blue")) {
+          return { label: "Today · Blue Day", cls: "is-blue" };
+        }
+        if (type.includes("closed") || type.includes("holiday") || /no school|holiday|closed/i.test(name)) {
+          return { label: name || "No school today", cls: "is-closed" };
+        }
+        if (type.includes("erd")) return { label: "Today · ERD", cls: "" };
+        if (type.includes("psd")) return { label: "Today · PSD", cls: "" };
+        return { label: name ? `Today · ${name}` : "Open calendar", cls: "" };
+      }
+
+      async function loadDay() {
+        try {
+          const res = await fetch(CAL_URL, { cache: "no-cache" });
+          if (!res.ok) throw new Error("calendar");
+          const rows = parseCsv(await res.text());
+          const key = toIsoDateKey(new Date());
+          const row =
+            rows.find((r) => (r.date || r.Date || "").slice(0, 10) === key) ||
+            rows.find((r) => (r.date || "").includes(key));
+          const info = classifyDay(row);
+          if (dayText) dayText.textContent = info.label;
+          if (dayPill) {
+            dayPill.classList.remove("is-white", "is-blue", "is-closed");
+            if (info.cls) dayPill.classList.add(info.cls);
+          }
+        } catch (_) {
+          if (dayText) dayText.textContent = "Open calendar";
+        }
+      }
+
+      document.querySelectorAll(".ask-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          document.querySelectorAll(".ask-chip").forEach((c) => c.classList.remove("is-on"));
+          chip.classList.add("is-on");
+          const jump = chip.dataset.jump;
+          const focus = chip.dataset.focus;
+          const section = document.getElementById(jump);
+          section?.scrollIntoView({ behavior: "smooth", block: "start" });
+          document.querySelectorAll(".tool-card").forEach((c) => c.classList.remove("is-pulse"));
+          if (focus === "map") document.getElementById("tool-map")?.classList.add("is-pulse");
+          if (focus === "day") document.getElementById("tool-day")?.classList.add("is-pulse");
+          if (focus === "media") document.getElementById("tool-media")?.classList.add("is-pulse");
+          if (jump === "tools" && !focus) document.getElementById("tool-room")?.classList.add("is-pulse");
+          if (jump === "tools" && !focus) idInput?.focus();
+        });
+      });
+
+      idForm?.addEventListener("submit", (e) => {
+        const raw = (idInput?.value || "").replace(/\D/g, "");
+        if (raw.length === 10) {
+          e.preventDefault();
+          location.href = `homeroom.html?id=${encodeURIComponent(raw)}`;
+        }
+      });
+
+      idInput?.addEventListener("input", () => {
+        idInput.value = idInput.value.replace(/\D/g, "").slice(0, 10);
+      });
+
+      loadDay();
+    })();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

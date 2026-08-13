@@ -378,6 +378,19 @@
       color: var(--ink-700);
     }
 
+    .room-map-link {
+      display: inline-block;
+      margin-top: 0.15rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--royal);
+      text-decoration: none;
+    }
+
+    .room-map-link:hover {
+      text-decoration: underline;
+    }
+
     .result-block {
       margin: 0.55rem 0.65rem 0.65rem;
       padding: 0.75rem 0.85rem 0.85rem;
@@ -840,6 +853,7 @@
           <span class="result-value room-loc" title="${escapeHtml(value)}">
             <span class="room-loc-line room-loc-building">Building ${escapeHtml(parsed.building)}</span>
             <span class="room-loc-line room-loc-room">Room ${escapeHtml(parsed.room)}</span>
+            <a class="room-map-link" href="map.html?b=${encodeURIComponent(parsed.building)}">Show on map</a>
           </span>
         `;
       }
@@ -971,6 +985,15 @@
 
       // Warm the CSV cache so the first search feels instant.
       loadData().catch(() => {});
+
+      // Deep-link from Student Hub: ?id=0618…
+      const params = new URLSearchParams(location.search);
+      const fromQuery = digitsOnly(params.get("id") || params.get("student") || "");
+      if (fromQuery.length === STUDENT_ID_LEN) {
+        input.value = fromQuery;
+        lastAutoSearched = fromQuery;
+        runSearch();
+      }
     })();
   </script>
   <script>

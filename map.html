@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS campus map — find classrooms by building." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="FLHS Help" />
+  <title>Campus Map | FLHSHelp</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky-200: #9eb8dc;
+      --navy: #002366;
+      --royal: #0056b3;
+      --ink-900: #002366;
+      --ink-500: #3d5680;
+      --ink-400: #5a7194;
+      --border-soft: rgba(0, 35, 102, 0.14);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.2), 0 10px 24px rgba(0, 35, 102, 0.1);
+      --radius-xl: 1.75rem;
+      --radius-md: 1rem;
+      --map-select: #007aff;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body {
+      min-height: 100%;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      color: var(--ink-900);
+      background: var(--sky-200);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.34), transparent 58%),
+        radial-gradient(ellipse 80% 60% at 98% 0%, rgba(0, 35, 102, 0.28), transparent 55%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 45%, #7fa3d0 100%);
+    }
+    main {
+      flex: 1;
+      width: min(72rem, 100%);
+      margin: 0 auto;
+      padding: 0.85rem 0.75rem 1.25rem;
+    }
+    .board {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(24px) saturate(1.2);
+      -webkit-backdrop-filter: blur(24px) saturate(1.2);
+      padding: 0.85rem 0.85rem 1rem;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-bottom: 0.45rem;
+    }
+    .brand-lockup { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+    .logo { width: 2.35rem; height: 2.35rem; object-fit: contain; }
+    .brand-kicker {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--navy); opacity: 0.55;
+    }
+    h1 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(1.2rem, 3.2vw, 1.55rem);
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+    }
+    .home-btn {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.48rem 0.75rem; border-radius: 999px;
+      border: 1px solid var(--border-soft); background: #fff;
+      color: var(--navy); font-size: 0.8rem; font-weight: 700; text-decoration: none;
+    }
+    .home-btn svg { width: 1rem; height: 1rem; }
+    .lead {
+      font-size: 0.84rem; color: var(--ink-500); font-weight: 500;
+      margin-bottom: 0.6rem; max-width: 40rem;
+    }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.65rem;
+    }
+    .search {
+      flex: 1 1 12rem;
+      display: flex; align-items: center;
+      padding: 0.52rem 0.72rem;
+      border-radius: 0.85rem;
+      border: 1.5px solid rgba(0, 35, 102, 0.14);
+      background: #fff;
+    }
+    .search input {
+      border: 0; outline: none; width: 100%;
+      font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--ink-900);
+      background: transparent;
+    }
+    .search input::placeholder { color: var(--ink-400); font-weight: 500; }
+    .chip {
+      border: 1px solid rgba(0, 35, 102, 0.12);
+      background: #fff;
+      color: var(--navy);
+      font: inherit; font-size: 0.74rem; font-weight: 700;
+      padding: 0.48rem 0.68rem; border-radius: 999px; cursor: pointer;
+    }
+    .chip.is-on { background: var(--navy); color: #fff; border-color: transparent; }
+    .chip[data-filter="lunch-a"].is-on {
+      background: #0b4f9c;
+      box-shadow: 0 0 0 3px rgba(11, 79, 156, 0.22);
+    }
+    .chip[data-filter="lunch-b"].is-on {
+      background: #1d4d3a;
+      box-shadow: 0 0 0 3px rgba(29, 77, 58, 0.22);
+    }
+    .filter-banner {
+      display: none;
+      align-items: center;
+      gap: 0.45rem;
+      margin: -0.2rem 0 0.65rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .filter-banner.is-visible { display: flex; }
+    .filter-banner.lunch-a {
+      background: rgba(11, 79, 156, 0.12);
+      color: #0b4f9c;
+      border: 1px solid rgba(11, 79, 156, 0.22);
+    }
+    .filter-banner.lunch-b {
+      background: rgba(29, 77, 58, 0.12);
+      color: #1d4d3a;
+      border: 1px solid rgba(29, 77, 58, 0.22);
+    }
+    .filter-banner strong { font-weight: 800; }
+
+    .layout {
+      display: grid;
+      gap: 0.75rem;
+    }
+    @media (min-width: 920px) {
+      .layout { grid-template-columns: 1.25fr minmax(16.5rem, 19.5rem); align-items: start; }
+    }
+
+    .map-shell {
+      position: relative;
+      border-radius: 1.15rem;
+      overflow: auto;
+      background: #dfe8d4;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      max-height: min(70dvh, 42rem);
+      -webkit-overflow-scrolling: touch;
+    }
+    .map-stage {
+      position: relative;
+      width: 100%;
+      line-height: 0;
+    }
+    .map-base {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .map-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hotspot {
+      fill: rgba(0, 122, 255, 0);
+      stroke: transparent;
+      stroke-width: 0.35;
+      cursor: pointer;
+      transition: fill 0.18s ease, stroke 0.18s ease, opacity 0.18s ease;
+    }
+    .hotspot:hover {
+      fill: rgba(0, 122, 255, 0.16);
+      stroke: rgba(0, 122, 255, 0.55);
+    }
+    .hotspot.is-active {
+      fill: rgba(0, 122, 255, 0.22);
+      stroke: var(--map-select);
+      stroke-width: 0.45;
+    }
+    .hotspot.is-lunch-a {
+      fill: rgba(11, 79, 156, 0.42);
+      stroke: #0b4f9c;
+      stroke-width: 0.55;
+    }
+    .hotspot.is-lunch-b {
+      fill: rgba(29, 77, 58, 0.42);
+      stroke: #1d4d3a;
+      stroke-width: 0.55;
+    }
+    .hotspot.is-lunch-a.is-active,
+    .hotspot.is-lunch-b.is-active {
+      fill: rgba(0, 122, 255, 0.38);
+      stroke: var(--map-select);
+      stroke-width: 0.6;
+    }
+    .hotspot.is-dim {
+      fill: rgba(0, 0, 0, 0.28);
+      stroke: transparent;
+      opacity: 1;
+      pointer-events: none;
+    }
+    .pin {
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+    .pin.is-dim {
+      opacity: 0.22;
+    }
+    .pin.is-lunch-a .pin-bubble {
+      fill: #0b4f9c;
+      stroke: #fff;
+    }
+    .pin.is-lunch-a .pin-text {
+      fill: #fff;
+    }
+    .pin.is-lunch-b .pin-bubble {
+      fill: #1d4d3a;
+      stroke: #fff;
+    }
+    .pin.is-lunch-b .pin-text {
+      fill: #fff;
+    }
+    .pin-bubble {
+      fill: rgba(255, 255, 255, 0.96);
+      stroke: rgba(0, 0, 0, 0.08);
+      stroke-width: 0.15;
+      filter: drop-shadow(0 0.5px 1.5px rgba(0, 0, 0, 0.12));
+    }
+    .pin-text {
+      fill: #1c1c1e;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 2.2px;
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+    .pin-text.sm {
+      font-size: 1.8px;
+      fill: #636366;
+    }
+
+    .list {
+      display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.5rem;
+    }
+    .list button {
+      border: 1px solid rgba(0, 35, 102, 0.12);
+      background: #fff; color: var(--navy);
+      font: inherit; font-size: 0.76rem; font-weight: 700;
+      padding: 0.4rem 0.55rem; border-radius: 0.6rem; cursor: pointer;
+    }
+    .list button.is-focus {
+      border-color: rgba(0, 122, 255, 0.35);
+      background: rgba(0, 122, 255, 0.07);
+    }
+    .list button.is-active { background: var(--navy); color: #fff; border-color: transparent; }
+    .list button.is-dim {
+      opacity: 0.28;
+      pointer-events: none;
+    }
+    .list button.lunch-a-on {
+      border-color: rgba(11, 79, 156, 0.45);
+      background: rgba(11, 79, 156, 0.12);
+      color: #0b4f9c;
+    }
+    .list button.lunch-b-on {
+      border-color: rgba(29, 77, 58, 0.45);
+      background: rgba(29, 77, 58, 0.12);
+      color: #1d4d3a;
+    }
+    .list button.lunch-a-on.is-active,
+    .list button.lunch-b-on.is-active {
+      background: var(--navy);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .detail {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(0, 35, 102, 0.1);
+      background: #fff;
+      padding: 0.9rem 0.95rem;
+      min-height: 10rem;
+    }
+    .detail-kicker {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-400); margin-bottom: 0.28rem;
+    }
+    .detail h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 0.28rem;
+    }
+    .detail p { font-size: 0.86rem; color: var(--ink-500); font-weight: 500; line-height: 1.4; }
+    .detail-tags { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.5rem; }
+    .tag {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 0.26rem 0.48rem; border-radius: 999px;
+      background: rgba(0, 86, 179, 0.1); color: var(--royal);
+    }
+    .tag.lunch-a { background: rgba(11, 79, 156, 0.12); color: #0b4f9c; }
+    .tag.lunch-b { background: rgba(29, 77, 58, 0.12); color: #1d4d3a; }
+    .tag.food { background: rgba(154, 52, 18, 0.12); color: #9a3412; }
+    .tag.gym { background: rgba(0, 35, 102, 0.1); color: var(--navy); }
+    .tag.auditorium { background: rgba(88, 28, 135, 0.1); color: #5b21b6; }
+
+    .wing {
+      margin-top: 0.7rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid rgba(0, 35, 102, 0.08);
+    }
+    .wing-title {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.04em;
+      text-transform: uppercase; color: var(--navy); margin-bottom: 0.18rem;
+    }
+    .wing-note {
+      font-size: 0.74rem; color: var(--ink-400); font-weight: 500; margin-bottom: 0.35rem;
+    }
+    .room-chips { display: flex; flex-wrap: wrap; gap: 0.28rem; }
+    .room-chip {
+      font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
+      padding: 0.26rem 0.42rem; border-radius: 0.4rem;
+      background: rgba(0, 35, 102, 0.06); color: var(--navy); border: 0;
+    }
+    .room-chip.is-hit { background: var(--map-select); color: #fff; }
+
+    .detail-actions { margin-top: 0.8rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .detail-actions a {
+      display: inline-flex; align-items: center;
+      padding: 0.48rem 0.72rem; border-radius: 999px;
+      background: var(--navy); color: #fff; text-decoration: none;
+      font-size: 0.78rem; font-weight: 700;
+    }
+    .detail-actions a.secondary {
+      background: rgba(0, 35, 102, 0.07); color: var(--navy);
+    }
+    footer {
+      padding: 0.55rem 1rem 1rem; text-align: center;
+      font-size: 0.76rem; color: rgba(0, 35, 102, 0.68); font-weight: 500;
+    }
+    footer a { color: var(--navy); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main>
+      <section class="board">
+        <div class="topbar">
+          <div class="brand-lockup">
+            <img class="logo" src="assets/flhs-logo.png" width="80" height="80" alt="Fort Lauderdale High School" />
+            <div>
+              <p class="brand-kicker">Find your way</p>
+              <h1>Campus Map</h1>
+            </div>
+          </div>
+          <a class="home-btn" href="index.html">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4.5 11.25 12 4.75l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 10.75V19a.75.75 0 0 0 .75.75h3.5v-4.5h2.5v4.5h3.5A.75.75 0 0 0 18 19v-8.25" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Home
+          </a>
+        </div>
+
+        <p class="lead">Tap a numbered building for room lists (ex. 17-1754).</p>
+
+        <div class="toolbar">
+          <label class="search">
+            <input id="map-search" type="search" inputmode="text" placeholder="Building or room (17 / 1754 / 17-1754)" autocomplete="off" />
+          </label>
+          <button type="button" class="chip is-on" data-filter="all">All</button>
+          <button type="button" class="chip" data-filter="lunch-a">Lunch A</button>
+          <button type="button" class="chip" data-filter="lunch-b">Lunch B</button>
+        </div>
+        <div id="filter-banner" class="filter-banner" aria-live="polite"></div>
+
+        <div class="layout">
+          <div>
+            <div class="map-shell" id="map-shell">
+              <div class="map-stage">
+                <img
+                  class="map-base"
+                  src="assets/maps/flhs-campus-clean.png"
+                  width="934"
+                  height="1024"
+                  alt="Fort Lauderdale High School campus map"
+                />
+                <svg
+                  class="map-overlay"
+                  id="campus-svg"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                  role="img"
+                  aria-label="FLHS campus building overlays"
+                ></svg>
+              </div>
+            </div>
+            <div class="list" id="building-list" aria-label="Buildings"></div>
+          </div>
+
+          <aside class="detail" id="map-detail" aria-live="polite">
+            <p class="detail-kicker">Select a building</p>
+            <h2>Classroom core</h2>
+            <p>Focus: <strong>20, 21, 5, 9, 17, 8</strong> and Auditorium <strong>6</strong>. Tap for room groups.</p>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <footer>
+      Campus map with building overlays ·
+      <a href="resources.html">Resources</a>
+    </footer>
+  </div>
+  <script src="map.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
