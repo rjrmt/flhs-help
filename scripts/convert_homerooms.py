@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert an FLHS Advanced Report Excel export into data/flhs_homerooms.csv.
+"""Convert an FLHS Advanced Report Excel export into data/homerooms.csv.
 
 Expected columns (order may vary; matched by header name):
   - Last First M  (or similar name column)
@@ -14,7 +14,7 @@ left-padded back to 10 digits.
 
 Usage:
   python3 scripts/convert_homerooms.py "/path/to/Advanced Report.xlsx"
-  python3 scripts/convert_homerooms.py "/path/to/report.xlsx" -o data/flhs_homerooms.csv
+  python3 scripts/convert_homerooms.py "/path/to/report.xlsx" -o data/homerooms.csv
 """
 
 from __future__ import annotations
@@ -161,8 +161,8 @@ def main() -> None:
         "-o",
         "--output",
         type=Path,
-        default=root / "data" / "flhs_homerooms.csv",
-        help="Output CSV path (default: data/flhs_homerooms.csv)",
+        default=root / "data" / "homerooms.csv",
+        help="Output CSV path (default: data/homerooms.csv)",
     )
     args = parser.parse_args()
 

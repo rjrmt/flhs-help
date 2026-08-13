@@ -1,7 +1,7 @@
 (() => {
   const TZ = "America/New_York";
-  const CALENDAR_CSV_URL = "data/flhs_calendar_2026_2027.csv";
-  const BELL_CSV_URL = "data/flhs_bell_schedule.csv";
+  const CALENDAR_CSV_URL = "data/calendar-2026-2027.csv";
+  const BELL_CSV_URL = "data/bell-schedule.csv";
 
   const dayBubble = document.getElementById("day-bubble");
   const clockBubble = document.getElementById("clock-bubble");
@@ -133,6 +133,38 @@
     const period = h24 >= 12 ? "PM" : "AM";
     const h12 = h24 % 12 || 12;
     return `${h12}:${String(min).padStart(2, "0")} ${period}`;
+  }
+
+  /**
+   * Earliest bell start after `now` (next period / lunch / block).
+   * @param {string} dayType
+   * @param {number} now
+   * @returns {number | null}
+   */
+  function nextPeriodStartAfter(dayType, now) {
+    const rows = bellByDayType.get(dayType);
+    if (!rows?.length) return null;
+    const starts = [
+      ...new Set(
+        rows.filter((r) => r.endMin > r.startMin).map((r) => r.startMin)
+      ),
+    ]
+      .filter((start) => start > now)
+      .sort((a, b) => a - b);
+    return starts.length ? starts[0] : null;
+  }
+
+  /**
+   * @param {string} line
+   * @param {string} dayType
+   * @param {number} now
+   */
+  function withUntilNext(line, dayType, now) {
+    const nextStart = nextPeriodStartAfter(dayType, now);
+    if (nextStart == null) return line;
+    const mins = nextStart - now;
+    if (mins <= 0) return line;
+    return `${line} (${mins} min until next)`;
   }
 
   function parseCsvTable(text) {
@@ -424,7 +456,11 @@
 
     if (now < firstStarts) {
       const first = timedRows.find((r) => r.startMin === firstStarts);
-      return `${prefix}Before school · ${first?.label || "First bell"} at ${formatMinutes(firstStarts)}`;
+      return withUntilNext(
+        `${prefix}Before school · ${first?.label || "First bell"} at ${formatMinutes(firstStarts)}`,
+        dayType,
+        now
+      );
     }
 
     if (now >= lastEnds) {
@@ -438,9 +474,17 @@
     if (activeSimple.length === 1) {
       const r = activeSimple[0];
       if (r.endMin === r.startMin) {
-        return `${prefix}${r.label} · ${formatMinutes(r.startMin)}`;
+        return withUntilNext(
+          `${prefix}${r.label} · ${formatMinutes(r.startMin)}`,
+          dayType,
+          now
+        );
       }
-      return `${prefix}${r.label} · ends ${formatMinutes(r.endMin)}`;
+      return withUntilNext(
+        `${prefix}${r.label} · ends ${formatMinutes(r.endMin)}`,
+        dayType,
+        now
+      );
     }
 
     // Block 3 / lunch window: two clear building groups (A then B).
@@ -452,9 +496,13 @@
         const midPeriod = dayType === "blue" ? "Period 7" : "Period 3";
         const trackA = lunchRows.filter((r) => r.lunchTrack === "A");
         const trackB = lunchRows.filter((r) => r.lunchTrack === "B");
+        const nextStart = nextPeriodStartAfter(dayType, now);
+        const untilNextMin =
+          nextStart != null && nextStart > now ? nextStart - now : null;
         return {
           kind: "lunch-groups",
           prefix: exam ? "Exam" : "",
+          untilNextMin,
           groups: [
             lunchTrackGroup("A", trackA, now, midPeriod),
             lunchTrackGroup("B", trackB, now, midPeriod),
@@ -477,14 +525,22 @@
         const next =
           timedRows.find((r) => r.block === blockB && !r.lunchTrack) ||
           timedRows.find((r) => r.block === blockB);
-        return `${prefix}Passing · ${next?.label || "Next"} at ${formatMinutes(startB)}`;
+        return withUntilNext(
+          `${prefix}Passing · ${next?.label || "Next"} at ${formatMinutes(startB)}`,
+          dayType,
+          now
+        );
       }
     }
 
     // Fallback: first row that covers now (any track).
     const any = timedRows.find((r) => now >= r.startMin && now < r.endMin);
     if (any) {
-      return `${prefix}${any.label} · ends ${formatMinutes(any.endMin)}`;
+      return withUntilNext(
+        `${prefix}${any.label} · ends ${formatMinutes(any.endMin)}`,
+        dayType,
+        now
+      );
     }
 
     if (dayType === "erd") return `${prefix}Early release schedule`;
@@ -620,7 +676,7 @@
   }
 
   /**
-   * @param {string | { kind: "lunch-groups", prefix: string, groups: LunchGroupStatus[] }} text
+   * @param {string | { kind: "lunch-groups", prefix: string, untilNextMin?: number|null, groups: LunchGroupStatus[] }} text
    */
   function renderStatus(text) {
     if (!statusLine) return;
@@ -635,9 +691,16 @@
 
     if (label) {
       if (isLunchGroups) {
-        const prefixBit = text.prefix
-          ? `<p class="lunch-groups-prefix">${escapeHtml(text.prefix)}</p>`
-          : "";
+        const untilBit =
+          typeof text.untilNextMin === "number" && text.untilNextMin > 0
+            ? `<span class="status-remaining">(${text.untilNextMin} min until next)</span>`
+            : "";
+        const prefixBit =
+          text.prefix || untilBit
+            ? `<p class="lunch-groups-prefix">${
+                text.prefix ? escapeHtml(text.prefix) : ""
+              }${text.prefix && untilBit ? " " : ""}${untilBit}</p>`
+            : "";
         label.innerHTML = `<div class="lunch-groups">${prefixBit}${text.groups
           .map(lunchGroupMarkup)
           .join("")}</div>`;
@@ -658,10 +721,19 @@
             }`;
           })
           .join(". ");
+        if (typeof text.untilNextMin === "number" && text.untilNextMin > 0) {
+          spoken += `. ${text.untilNextMin} minutes until next period`;
+        }
       } else {
         const line = typeof text === "string" ? text : "No bell schedule";
-        label.textContent = line || "No bell schedule";
-        spoken = line || "No bell schedule";
+        const match = line.match(/^(.*)\s+(\((\d+) min until next\))$/);
+        if (match) {
+          label.innerHTML = `${escapeHtml(match[1])} <span class="status-remaining">${escapeHtml(match[2])}</span>`;
+          spoken = `${match[1]}. ${match[3]} minutes until next period`;
+        } else {
+          label.textContent = line || "No bell schedule";
+          spoken = line || "No bell schedule";
+        }
       }
     }
 

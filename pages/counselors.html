@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS student counselors by last name — office hours and phone numbers." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="FLHS Help" />
+  <title>Counselors | FLHSHelp</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky-200: #9eb8dc;
+      --navy: #002366;
+      --royal: #0056b3;
+      --ink-900: #002366;
+      --ink-500: #3d5680;
+      --ink-400: #5a7194;
+      --border-soft: rgba(0, 35, 102, 0.16);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
+      --radius-xl: 1.75rem;
+      --radius-md: 1rem;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body {
+      min-height: 100%;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      color: var(--ink-900);
+      background: var(--sky-200);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.38), transparent 58%),
+        radial-gradient(ellipse 80% 60% at 98% 0%, rgba(0, 35, 102, 0.3), transparent 55%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 45%, #7fa3d0 100%);
+    }
+    main {
+      flex: 1;
+      width: min(28rem, 100%);
+      margin: 0 auto;
+      padding: 1rem 0.85rem 1.75rem;
+    }
+    .board {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.84) 0%, rgba(236, 244, 255, 0.68) 100%);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(28px) saturate(1.25);
+      -webkit-backdrop-filter: blur(28px) saturate(1.25);
+      padding: 1rem 0.95rem 1.2rem;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+    }
+    .brand-lockup { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+    .logo { width: 2.35rem; height: 2.35rem; object-fit: contain; }
+    .brand-kicker {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--navy); opacity: 0.55;
+    }
+    h1 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+    }
+    .nav-btns { display: flex; gap: 0.35rem; }
+    .home-btn, .hub-btn {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.42rem 0.7rem; border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--navy); font-size: 0.76rem; font-weight: 700; text-decoration: none;
+    }
+    .home-btn svg { width: 0.95rem; height: 0.95rem; }
+
+    .lead {
+      font-size: 0.88rem;
+      color: var(--ink-500);
+      font-weight: 500;
+      line-height: 1.4;
+      margin-bottom: 0.9rem;
+    }
+    .lead strong { color: var(--navy); font-weight: 800; }
+
+    .finder {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+    .finder input {
+      flex: 1;
+      min-width: 0;
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(0, 35, 102, 0.16);
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: #fff;
+      color: var(--navy);
+    }
+    .finder input::placeholder { font-weight: 500; color: var(--ink-400); }
+
+    .counselor-list {
+      display: grid;
+      gap: 0.55rem;
+    }
+    .counselor {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem 0.85rem;
+      align-items: start;
+      padding: 0.9rem 0.95rem;
+      border-radius: var(--radius-md);
+      border: 1.5px solid rgba(0, 35, 102, 0.1);
+      background: rgba(255, 255, 255, 0.92);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+    .counselor.is-match {
+      border-color: rgba(0, 86, 179, 0.45);
+      box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.14);
+      background: linear-gradient(145deg, rgba(232, 241, 255, 0.95), #fff);
+    }
+    .counselor.is-dim { opacity: 0.42; }
+    .photo-wrap {
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #e8eef6;
+      border: 2.5px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 6px 14px rgba(0, 35, 102, 0.14);
+    }
+    .photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      /* Crop past white padding around circular headshots */
+      transform: scale(1.18);
+      transform-origin: center;
+    }
+    .counselor-body { min-width: 0; }
+    .range {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--royal);
+      margin-bottom: 0.25rem;
+    }
+    .range-badge {
+      display: inline-grid;
+      place-items: center;
+      min-width: 2.6rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 999px;
+      background: rgba(0, 86, 179, 0.12);
+      color: var(--navy);
+      font-size: 0.72rem;
+    }
+    .counselor h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.15rem;
+    }
+    .meta {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--ink-400);
+      margin-bottom: 0.55rem;
+    }
+    .details {
+      display: grid;
+      gap: 0.35rem;
+    }
+    .detail {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.82rem;
+      font-weight: 550;
+      color: var(--ink-500);
+    }
+    .detail svg {
+      width: 1.05rem;
+      height: 1.05rem;
+      flex-shrink: 0;
+      color: var(--navy);
+    }
+    .detail a {
+      color: var(--navy);
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .detail a:hover { text-decoration: underline; }
+
+    .hint {
+      margin-top: 0.85rem;
+      font-size: 0.74rem;
+      color: var(--ink-400);
+      font-weight: 550;
+      line-height: 1.35;
+    }
+
+    footer {
+      padding: 0.65rem 1rem 1.15rem;
+      text-align: center;
+      font-size: 0.76rem;
+      color: rgba(0, 35, 102, 0.7);
+      font-weight: 500;
+    }
+    footer a { color: var(--navy); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main>
+      <section class="board">
+        <div class="topbar">
+          <div class="brand-lockup">
+            <img class="logo" src="../assets/brand/logo.png" width="80" height="80" alt="Fort Lauderdale High School" />
+            <div>
+              <p class="brand-kicker">Students</p>
+              <h1>Counselors</h1>
+            </div>
+          </div>
+          <div class="nav-btns">
+            <a class="hub-btn" href="resources.html">Resources</a>
+            <a class="home-btn" href="../index.html" aria-label="Home">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4.5 11.25 12 4.75l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 10.75V19a.75.75 0 0 0 .75.75h3.5v-4.5h2.5v4.5h3.5A.75.75 0 0 0 18 19v-8.25" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <p class="lead">Find your counselor by the <strong>first letter of your last name</strong>. Grades 9–12.</p>
+
+        <div class="finder">
+          <input
+            id="last-letter"
+            type="text"
+            maxlength="1"
+            inputmode="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Type first letter of last name"
+            aria-label="First letter of your last name"
+          />
+        </div>
+
+        <div class="counselor-list" id="counselor-list">
+          <article class="counselor" data-from="A" data-to="E">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/counselors/jackson.png" width="320" height="320" alt="Kathleen Jackson" loading="lazy" decoding="async" />
+            </div>
+            <div class="counselor-body">
+              <p class="range"><span class="range-badge">A–E</span> Last names</p>
+              <h2>Kathleen Jackson</h2>
+              <p class="meta">Counselor · 9th–12th</p>
+              <div class="details">
+                <p class="detail">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.8v4.6l2.8 1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                  Office hours <strong>7:20 AM – 2:50 PM</strong>
+                </p>
+                <p class="detail">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.2 4.8h3.1l1.2 3.1-1.6 1.1a11.5 11.5 0 0 0 5.1 5.1l1.1-1.6 3.1 1.2v3.1c0 .7-.6 1.3-1.3 1.3A14.7 14.7 0 0 1 4.5 6.1c0-.7.6-1.3 1.3-1.3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                  <a href="tel:7543221143">754-322-1143</a>
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article class="counselor" data-from="F" data-to="L">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/counselors/montrose.png" width="320" height="320" alt="Rachel Montrose" loading="lazy" decoding="async" />
+            </div>
+            <div class="counselor-body">
+              <p class="range"><span class="range-badge">F–L</span> Last names</p>
+              <h2>Rachel Montrose</h2>
+              <p class="meta">Counselor · 9th–12th</p>
+              <div class="details">
+                <p class="detail">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.8v4.6l2.8 1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                  Office hours <strong>7:20 AM – 2:50 PM</strong>
+                </p>
+                <p class="detail">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.2 4.8h3.1l1.2 3.1-1.6 1.1a11.5 11.5 0 0 0 5.1 5.1l1.1-1.6 3.1 1.2v3.1c0 .7-.6 1.3-1.3 1.3A14.7 14.7 0 0 1 4.5 6.1c0-.7.6-1.3 1.3-1.3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                  <a href="tel:7543221145">754-322-1145</a>
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article class="counselor" data-from="M" data-to="R">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/counselors/abreu.png" width="320" height="320" alt="Taraneh Abreu" loading="lazy" decoding="async" />
+            </div>
+            <div class="counselor-body">
+              <p class="range"><span class="range-badge">M–R</span> Last names</p>
+              <h2>Taraneh Abreu</h2>
+              <p class="meta">Counselor · 9th–12th</p>
+              <div class="details">
+                <p class="detail">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.8v4.6l2.8 1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                  Office hours <strong>7:20 AM – 2:50 PM</strong>
+                </p>
+                <p class="detail">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.2 4.8h3.1l1.2 3.1-1.6 1.1a11.5 11.5 0 0 0 5.1 5.1l1.1-1.6 3.1 1.2v3.1c0 .7-.6 1.3-1.3 1.3A14.7 14.7 0 0 1 4.5 6.1c0-.7.6-1.3 1.3-1.3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                  <a href="tel:7543221154">754-322-1154</a>
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article class="counselor" data-from="S" data-to="Z">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/counselors/amison.png" width="320" height="320" alt="Andrea Amison" loading="lazy" decoding="async" />
+            </div>
+            <div class="counselor-body">
+              <p class="range"><span class="range-badge">S–Z</span> Last names</p>
+              <h2>Andrea Amison</h2>
+              <p class="meta">Counselor · 9th–12th</p>
+              <div class="details">
+                <p class="detail">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.8v4.6l2.8 1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                  Office hours <strong>7:20 AM – 2:50 PM</strong>
+                </p>
+                <p class="detail">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.2 4.8h3.1l1.2 3.1-1.6 1.1a11.5 11.5 0 0 0 5.1 5.1l1.1-1.6 3.1 1.2v3.1c0 .7-.6 1.3-1.3 1.3A14.7 14.7 0 0 1 4.5 6.1c0-.7.6-1.3 1.3-1.3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                  <a href="tel:7543221162">754-322-1162</a>
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <p class="hint">Tap a phone number to call. Office hours are the same for all counselors: 7:20 AM – 2:50 PM.</p>
+      </section>
+    </main>
+    <footer>
+      <a href="https://www.linkedin.com/in/rjrmt/" target="_blank" rel="noopener noreferrer">IT Specialist RJ</a>
+      · Fort Lauderdale High School
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const input = document.getElementById("last-letter");
+      const cards = [...document.querySelectorAll(".counselor")];
+
+      function inRange(letter, from, to) {
+        return letter >= from && letter <= to;
+      }
+
+      function update() {
+        const raw = (input?.value || "").trim().toUpperCase();
+        const letter = raw.replace(/[^A-Z]/g, "").slice(0, 1);
+        if (input && input.value !== letter) input.value = letter;
+
+        cards.forEach((card) => {
+          card.classList.remove("is-match", "is-dim");
+          if (!letter) return;
+          const from = card.dataset.from || "";
+          const to = card.dataset.to || "";
+          if (inRange(letter, from, to)) card.classList.add("is-match");
+          else card.classList.add("is-dim");
+        });
+      }
+
+      input?.addEventListener("input", update);
+      update();
+    })();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("../sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,8 +1,8 @@
 (() => {
   const TZ = "America/New_York";
-  const CAL_URL = "data/flhs_calendar_2026_2027.csv";
-  const BELL_URL = "data/flhs_bell_schedule.csv";
-  const MEDIA_URL = "data/media_center.json";
+  const CAL_URL = "../data/calendar-2026-2027.csv";
+  const BELL_URL = "../data/bell-schedule.csv";
+  const MEDIA_URL = "../data/media-center.json";
 
   const statusEl = document.getElementById("status-board");
   const statusKicker = document.getElementById("status-kicker");
@@ -456,7 +456,7 @@
     if (!email) {
       if (teacherNote) {
         teacherNote.textContent =
-          "Ask Media Center staff to reserve a class (at least 2 school days ahead when you can). Add a contact email in data/media_center.json to enable one-tap email requests.";
+          "Ask Media Center staff to reserve a class (at least 2 school days ahead when you can). Add a contact email in data/media-center.json to enable one-tap email requests.";
       }
       teacherForm.querySelectorAll("input, select, textarea, button[type=submit]").forEach((el) => {
         if (el instanceof HTMLElement && el.id !== "teacher-toggle") {

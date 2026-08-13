@@ -9,9 +9,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="FLHS Help" />
   <title>Campus Map | FLHSHelp</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -367,13 +367,13 @@
       <section class="board">
         <div class="topbar">
           <div class="brand-lockup">
-            <img class="logo" src="assets/flhs-logo.png" width="80" height="80" alt="Fort Lauderdale High School" />
+            <img class="logo" src="../assets/brand/logo.png" width="80" height="80" alt="Fort Lauderdale High School" />
             <div>
               <p class="brand-kicker">Find your way</p>
               <h1>Campus Map</h1>
             </div>
           </div>
-          <a class="home-btn" href="index.html">
+          <a class="home-btn" href="../index.html">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M4.5 11.25 12 4.75l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M7 10.75V19a.75.75 0 0 0 .75.75h3.5v-4.5h2.5v4.5h3.5A.75.75 0 0 0 18 19v-8.25" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
@@ -400,7 +400,7 @@
               <div class="map-stage">
                 <img
                   class="map-base"
-                  src="assets/maps/flhs-campus-clean.png"
+                  src="../assets/maps/campus.png"
                   width="934"
                   height="1024"
                   alt="Fort Lauderdale High School campus map"
@@ -431,11 +431,11 @@
       <a href="resources.html">Resources</a>
     </footer>
   </div>
-  <script src="map.js"></script>
+  <script src="../js/map.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(() => {});
+        navigator.serviceWorker.register("../sw.js").catch(() => {});
       });
     }
   </script>

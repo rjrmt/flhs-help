@@ -474,7 +474,7 @@
 
   async function init() {
     try {
-      const res = await fetch("assets/maps/hotspots.json", { cache: "no-cache" });
+      const res = await fetch("../assets/maps/hotspots.json", { cache: "no-cache" });
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data.buildings) && data.buildings.length) {

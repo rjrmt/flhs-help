@@ -1,5 +1,5 @@
 # FLHS White/Blue, Early Release (ERD), and Professional Study Day (PSD) bell schedules.
-# ERD/PSD dates are driven by data/flhs_calendar_2026_2027.csv (day_type) — not this file.
+# ERD/PSD dates are driven by data/calendar-2026-2027.csv (day_type) — not this file.
 # Times are Eastern (America/New_York), 24-hour HH:MM.
 # lunch_track: A = lunch then class; B = class then lunch; empty for non-lunch blocks and ERD/PSD.
 day_type,block,period,label,start_time,end_time,lunch_track,buildings,notes

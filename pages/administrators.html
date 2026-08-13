@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS grade-level assistant principals — find your administrator by grade." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="FLHS Help" />
+  <title>Administrators | FLHSHelp</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky-200: #9eb8dc;
+      --navy: #002366;
+      --royal: #0056b3;
+      --ink-900: #002366;
+      --ink-500: #3d5680;
+      --ink-400: #5a7194;
+      --border-soft: rgba(0, 35, 102, 0.16);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
+      --radius-xl: 1.75rem;
+      --radius-md: 1rem;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body {
+      min-height: 100%;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      color: var(--ink-900);
+      background: var(--sky-200);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.38), transparent 58%),
+        radial-gradient(ellipse 80% 60% at 98% 0%, rgba(0, 35, 102, 0.3), transparent 55%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 45%, #7fa3d0 100%);
+    }
+    main {
+      flex: 1;
+      width: min(28rem, 100%);
+      margin: 0 auto;
+      padding: 1rem 0.85rem 1.75rem;
+    }
+    .board {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.84) 0%, rgba(236, 244, 255, 0.68) 100%);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(28px) saturate(1.25);
+      -webkit-backdrop-filter: blur(28px) saturate(1.25);
+      padding: 1rem 0.95rem 1.2rem;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+    }
+    .brand-lockup { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+    .logo { width: 2.35rem; height: 2.35rem; object-fit: contain; }
+    .brand-kicker {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--navy); opacity: 0.55;
+    }
+    h1 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+    }
+    .nav-btns { display: flex; gap: 0.35rem; }
+    .home-btn, .hub-btn {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.42rem 0.7rem; border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--navy); font-size: 0.76rem; font-weight: 700; text-decoration: none;
+    }
+    .home-btn svg { width: 0.95rem; height: 0.95rem; }
+
+    .lead {
+      font-size: 0.88rem;
+      color: var(--ink-500);
+      font-weight: 500;
+      line-height: 1.4;
+      margin-bottom: 0.9rem;
+    }
+    .lead strong { color: var(--navy); font-weight: 800; }
+
+    .grade-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.95rem;
+    }
+    .grade-chip {
+      border: 1px solid rgba(0, 35, 102, 0.14);
+      background: #fff;
+      color: var(--navy);
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 0.42rem 0.7rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .grade-chip.is-on {
+      background: var(--navy);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .admin-list {
+      display: grid;
+      gap: 0.55rem;
+    }
+    .admin {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem 0.85rem;
+      align-items: start;
+      padding: 0.9rem 0.95rem;
+      border-radius: var(--radius-md);
+      border: 1.5px solid rgba(0, 35, 102, 0.1);
+      background: rgba(255, 255, 255, 0.92);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+    .admin.is-match {
+      border-color: rgba(0, 86, 179, 0.45);
+      box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.14);
+      background: linear-gradient(145deg, rgba(232, 241, 255, 0.95), #fff);
+    }
+    .admin.is-dim { opacity: 0.42; }
+    .photo-wrap {
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #e8eef6;
+      border: 2.5px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 6px 14px rgba(0, 35, 102, 0.14);
+    }
+    .photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      transform: scale(1.18);
+      transform-origin: center;
+    }
+    .admin-body { min-width: 0; }
+    .grade {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--royal);
+      margin-bottom: 0.25rem;
+    }
+    .grade-badge {
+      display: inline-grid;
+      place-items: center;
+      min-width: 2.4rem;
+      padding: 0.2rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(0, 86, 179, 0.12);
+      color: var(--navy);
+      font-size: 0.72rem;
+    }
+    .admin h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.15rem;
+    }
+    .meta {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink-500);
+      line-height: 1.3;
+    }
+
+    .hint {
+      margin-top: 0.85rem;
+      font-size: 0.74rem;
+      color: var(--ink-400);
+      font-weight: 550;
+      line-height: 1.35;
+    }
+
+    footer {
+      padding: 0.65rem 1rem 1.15rem;
+      text-align: center;
+      font-size: 0.76rem;
+      color: rgba(0, 35, 102, 0.7);
+      font-weight: 500;
+    }
+    footer a { color: var(--navy); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main>
+      <section class="board">
+        <div class="topbar">
+          <div class="brand-lockup">
+            <img class="logo" src="../assets/brand/logo.png" width="80" height="80" alt="Fort Lauderdale High School" />
+            <div>
+              <p class="brand-kicker">Students</p>
+              <h1>Administrators</h1>
+            </div>
+          </div>
+          <div class="nav-btns">
+            <a class="hub-btn" href="resources.html">Resources</a>
+            <a class="home-btn" href="../index.html" aria-label="Home">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4.5 11.25 12 4.75l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 10.75V19a.75.75 0 0 0 .75.75h3.5v-4.5h2.5v4.5h3.5A.75.75 0 0 0 18 19v-8.25" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <p class="lead">Meet the <strong>principal</strong> and your <strong>grade-level assistant principal</strong>.</p>
+
+        <div class="grade-chips" role="group" aria-label="Filter by role">
+          <button type="button" class="grade-chip is-on" data-grade="all">All</button>
+          <button type="button" class="grade-chip" data-grade="principal">Principal</button>
+          <button type="button" class="grade-chip" data-grade="9">9th</button>
+          <button type="button" class="grade-chip" data-grade="10">10th</button>
+          <button type="button" class="grade-chip" data-grade="11">11th</button>
+          <button type="button" class="grade-chip" data-grade="12">12th</button>
+        </div>
+
+        <div class="admin-list" id="admin-list">
+          <article class="admin" data-grade="principal">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/administrators/brown.png" width="320" height="320" alt="Erin Brown" loading="lazy" decoding="async" />
+            </div>
+            <div class="admin-body">
+              <p class="grade"><span class="grade-badge">Principal</span></p>
+              <h2>Ms. Erin Brown</h2>
+              <p class="meta">Principal</p>
+            </div>
+          </article>
+
+          <article class="admin" data-grade="9">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/administrators/shannon.png" width="320" height="320" alt="Andre Shannon" loading="lazy" decoding="async" />
+            </div>
+            <div class="admin-body">
+              <p class="grade"><span class="grade-badge">9th</span> Grade</p>
+              <h2>Andre Shannon</h2>
+              <p class="meta">9th Grade Assistant Principal</p>
+            </div>
+          </article>
+
+          <article class="admin" data-grade="10">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/administrators/latimer.png" width="320" height="320" alt="Tracie K. Latimer" loading="lazy" decoding="async" />
+            </div>
+            <div class="admin-body">
+              <p class="grade"><span class="grade-badge">10th</span> Grade</p>
+              <h2>Tracie K. Latimer</h2>
+              <p class="meta">10th Grade Assistant Principal</p>
+            </div>
+          </article>
+
+          <article class="admin" data-grade="11">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/administrators/thompson.png" width="320" height="320" alt="Karleen Thompson" loading="lazy" decoding="async" />
+            </div>
+            <div class="admin-body">
+              <p class="grade"><span class="grade-badge">11th</span> Grade</p>
+              <h2>Karleen Thompson</h2>
+              <p class="meta">11th Grade Assistant Principal</p>
+            </div>
+          </article>
+
+          <article class="admin" data-grade="12">
+            <div class="photo-wrap">
+              <img class="photo" src="../assets/images/staff/administrators/rodriguez.png" width="320" height="320" alt="Edward Rodriguez" loading="lazy" decoding="async" />
+            </div>
+            <div class="admin-body">
+              <p class="grade"><span class="grade-badge">12th</span> Grade</p>
+              <h2>Edward Rodriguez</h2>
+              <p class="meta">12th Grade Assistant Principal</p>
+            </div>
+          </article>
+        </div>
+
+        <p class="hint">Tap a chip to highlight who you need.</p>
+      </section>
+    </main>
+    <footer>
+      <a href="https://www.linkedin.com/in/rjrmt/" target="_blank" rel="noopener noreferrer">IT Specialist RJ</a>
+      · Fort Lauderdale High School
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const chips = [...document.querySelectorAll(".grade-chip")];
+      const cards = [...document.querySelectorAll(".admin")];
+
+      function setGrade(grade) {
+        chips.forEach((chip) => {
+          chip.classList.toggle("is-on", chip.dataset.grade === grade);
+        });
+        cards.forEach((card) => {
+          card.classList.remove("is-match", "is-dim");
+          if (grade === "all") return;
+          if (card.dataset.grade === grade) card.classList.add("is-match");
+          else card.classList.add("is-dim");
+        });
+      }
+
+      chips.forEach((chip) => {
+        chip.addEventListener("click", () => setGrade(chip.dataset.grade || "all"));
+      });
+    })();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("../sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
