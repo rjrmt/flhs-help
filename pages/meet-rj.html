@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Meet RJ Ramautar — IT Specialist at Fort Lauderdale High School. The builder behind FLHS Help." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="FLHS Help" />
+  <title>Meet RJ | FLHSHelp</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky-200: #9eb8dc;
+      --navy: #002366;
+      --royal: #0056b3;
+      --ink-900: #002366;
+      --ink-500: #3d5680;
+      --ink-400: #5a7194;
+      --border-soft: rgba(0, 35, 102, 0.16);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
+      --radius-xl: 1.75rem;
+      --radius-md: 1rem;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; scroll-behavior: smooth; }
+    body {
+      min-height: 100%;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      color: var(--ink-900);
+      background: var(--sky-200);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.42), transparent 58%),
+        radial-gradient(ellipse 80% 60% at 98% 8%, rgba(0, 35, 102, 0.34), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 100%, rgba(255, 255, 255, 0.22), transparent 60%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 45%, #7fa3d0 100%);
+    }
+    main {
+      flex: 1;
+      width: min(42rem, calc(100% - 1.5rem));
+      margin: 0 auto;
+      padding: 1rem 0 2rem;
+    }
+    @media (min-width: 900px) {
+      main { width: min(58rem, calc(100% - 3rem)); padding-top: 1.35rem; }
+    }
+
+    .board {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.86) 0%, rgba(236, 244, 255, 0.7) 100%);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(28px) saturate(1.25);
+      -webkit-backdrop-filter: blur(28px) saturate(1.25);
+      padding: 1.1rem 1rem 1.4rem;
+      overflow: hidden;
+      position: relative;
+    }
+    @media (min-width: 640px) {
+      .board { padding: 1.4rem 1.5rem 1.7rem; }
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-bottom: 1.1rem;
+      position: relative;
+      z-index: 1;
+    }
+    .brand-lockup { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+    .logo { width: 2.35rem; height: 2.35rem; object-fit: contain; }
+    .brand-kicker {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--navy); opacity: 0.55;
+    }
+    .brand-lockup strong {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: block;
+      line-height: 1.1;
+    }
+    .home-btn {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.42rem 0.7rem; border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--navy); font-size: 0.76rem; font-weight: 700; text-decoration: none;
+    }
+    .home-btn svg { width: 0.95rem; height: 0.95rem; }
+
+    .hero {
+      text-align: center;
+      padding: 0.35rem 0.25rem 1.35rem;
+      position: relative;
+      z-index: 1;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -10% 8% auto;
+      height: 70%;
+      background: radial-gradient(ellipse at center, rgba(0, 86, 179, 0.16), transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+      animation: glowPulse 5.5s ease-in-out infinite;
+    }
+    .avatar {
+      width: 6.5rem;
+      height: 6.5rem;
+      margin: 0 auto 0.9rem;
+      border-radius: 1.45rem;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(145deg, #1a4590 0%, #0056b3 45%, #3d7fd4 100%);
+      color: #fff;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 2.35rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      box-shadow:
+        0 18px 40px rgba(0, 55, 140, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      animation: riseIn 0.7s ease both;
+    }
+    .hero-kicker {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--royal);
+      margin-bottom: 0.35rem;
+      animation: riseIn 0.7s ease 0.08s both;
+    }
+    h1 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(2.4rem, 8vw, 3.6rem);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 0.95;
+      color: var(--navy);
+      margin-bottom: 0.45rem;
+      animation: riseIn 0.7s ease 0.14s both;
+    }
+    .hero-role {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink-500);
+      margin-bottom: 0.65rem;
+      animation: riseIn 0.7s ease 0.2s both;
+    }
+    .hero-lead {
+      max-width: 34rem;
+      margin: 0 auto 1.1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      line-height: 1.45;
+      color: var(--ink-500);
+      animation: riseIn 0.7s ease 0.26s both;
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.45rem;
+      animation: riseIn 0.7s ease 0.32s both;
+    }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.05rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 800;
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+    }
+    .cta:hover { transform: translateY(-1px); }
+    .cta.primary {
+      background: linear-gradient(135deg, #002366, #0056b3);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(0, 55, 140, 0.28);
+    }
+    .cta.secondary {
+      background: #fff;
+      color: var(--navy);
+      border: 1.5px solid rgba(0, 35, 102, 0.14);
+    }
+    .cta svg { width: 1rem; height: 1rem; }
+
+    .section {
+      margin-top: 0.35rem;
+      padding-top: 1.15rem;
+      border-top: 1px solid rgba(0, 35, 102, 0.1);
+      position: relative;
+      z-index: 1;
+    }
+    .section-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-400);
+      margin-bottom: 0.55rem;
+    }
+    .section h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.45rem;
+    }
+    .section p {
+      font-size: 0.9rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--ink-500);
+    }
+
+    .highlight-grid {
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 0.85rem;
+    }
+    @media (min-width: 700px) {
+      .highlight-grid { grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+      .story-split {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 1.25rem;
+        align-items: start;
+      }
+    }
+    .chip-card {
+      padding: 0.85rem 0.9rem;
+      border-radius: 0.95rem;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(0, 35, 102, 0.1);
+      box-shadow: 0 8px 20px rgba(0, 35, 102, 0.06);
+    }
+    .chip-card strong {
+      display: block;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 0.2rem;
+      color: var(--navy);
+    }
+    .chip-card p {
+      font-size: 0.8rem;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .timeline {
+      list-style: none;
+      display: grid;
+      gap: 0.65rem;
+      margin-top: 0.75rem;
+    }
+    .timeline li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.7rem;
+      align-items: start;
+      padding: 0.75rem 0.8rem;
+      border-radius: 0.9rem;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(0, 35, 102, 0.08);
+    }
+    .year {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #fff;
+      background: var(--navy);
+      padding: 0.28rem 0.45rem;
+      border-radius: 0.45rem;
+      white-space: nowrap;
+      margin-top: 0.1rem;
+    }
+    .timeline strong {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 0.15rem;
+    }
+    .timeline span {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--ink-500);
+      line-height: 1.4;
+    }
+
+    .edu-list {
+      list-style: none;
+      display: grid;
+      gap: 0.45rem;
+      margin-top: 0.7rem;
+    }
+    .edu-list li {
+      padding: 0.7rem 0.8rem;
+      border-radius: 0.8rem;
+      background: rgba(0, 35, 102, 0.05);
+      border: 1px solid rgba(0, 35, 102, 0.08);
+      font-size: 0.82rem;
+      font-weight: 550;
+      color: var(--ink-500);
+      line-height: 1.35;
+    }
+    .edu-list strong { color: var(--navy); font-weight: 800; }
+
+    .bottom-cta {
+      margin-top: 1.15rem;
+      padding: 1rem 1.05rem;
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(145deg, rgba(0, 35, 102, 0.92), rgba(0, 86, 179, 0.88));
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 16px 36px rgba(0, 35, 102, 0.28);
+    }
+    .bottom-cta h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.3rem;
+    }
+    .bottom-cta p {
+      font-size: 0.84rem;
+      opacity: 0.9;
+      margin-bottom: 0.8rem;
+      color: #fff;
+    }
+    .bottom-cta .cta-row .cta.primary {
+      background: #fff;
+      color: var(--navy);
+      box-shadow: none;
+    }
+    .bottom-cta .cta-row .cta.secondary {
+      background: transparent;
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    footer {
+      padding: 0.65rem 1rem 1.15rem;
+      text-align: center;
+      font-size: 0.76rem;
+      color: rgba(0, 35, 102, 0.7);
+      font-weight: 500;
+    }
+    footer a { color: var(--navy); font-weight: 700; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .avatar, .hero-kicker, h1, .hero-role, .hero-lead, .cta-row { animation: none; }
+      .hero::before { animation: none; }
+      .cta:hover { transform: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main>
+      <section class="board">
+        <div class="topbar">
+          <div class="brand-lockup">
+            <img class="logo" src="../assets/brand/logo.png" width="80" height="80" alt="Fort Lauderdale High School" />
+            <div>
+              <p class="brand-kicker">FLHS Help</p>
+              <strong>Meet RJ</strong>
+            </div>
+          </div>
+          <a class="home-btn" href="../index.html" aria-label="Home">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4.5 11.25 12 4.75l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 10.75V19a.75.75 0 0 0 .75.75h3.5v-4.5h2.5v4.5h3.5A.75.75 0 0 0 18 19v-8.25" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Home
+          </a>
+        </div>
+
+        <header class="hero">
+          <div class="avatar" aria-hidden="true">RJ</div>
+          <p class="hero-kicker">The IT guy behind this site</p>
+          <h1>RJ Ramautar</h1>
+          <p class="hero-role">IT Specialist · Fort Lauderdale High School</p>
+          <p class="hero-lead">
+            Hands-on tech support with a builder’s brain — fixing what’s broken today,
+            and designing tools that make school IT faster, clearer, and way less stressful tomorrow.
+          </p>
+          <div class="cta-row">
+            <a class="cta primary" href="mailto:rajesh.ramautar@browardschools.com">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4.5 7.25A2.25 2.25 0 0 1 6.75 5h10.5A2.25 2.25 0 0 1 19.5 7.25v9.5A2.25 2.25 0 0 1 17.25 19H6.75A2.25 2.25 0 0 1 4.5 16.75v-9.5Z" stroke="currentColor" stroke-width="1.7"/>
+                <path d="m5.25 7.5 6.2 4.65c.33.25.77.25 1.1 0l6.2-4.65" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Email RJ
+            </a>
+            <a class="cta secondary" href="https://www.linkedin.com/in/rjrmt/" target="_blank" rel="noopener noreferrer">
+              LinkedIn
+            </a>
+          </div>
+        </header>
+
+        <div class="story-split">
+          <section class="section" aria-labelledby="about-heading">
+            <p class="section-label">About</p>
+            <h2 id="about-heading">More than tickets and passwords</h2>
+            <p>
+              At FLHS / Broward County Public Schools, RJ doesn’t just clear help-desk queues —
+              he designs better ways to support them. From laptop pickup workflows to live campus tools,
+              the goal is simple: make school tech feel calm, fast, and student-friendly.
+            </p>
+            <p style="margin-top: 0.65rem;">
+              With 11+ years across repair floors, field tech, healthcare IT, and now campus support,
+              he’s the person who’ll reboot your Chromebook and also ship the page that helps you find your room.
+            </p>
+          </section>
+
+          <section class="section" aria-labelledby="builds-heading">
+            <p class="section-label">At FLHS</p>
+            <h2 id="builds-heading">What he’s building</h2>
+            <div class="highlight-grid" style="grid-template-columns: 1fr;">
+              <article class="chip-card">
+                <strong>FLHS Help</strong>
+                <p>This hub — White/Blue day, bell schedule, Student Resources, and more.</p>
+              </article>
+              <article class="chip-card">
+                <strong>Self-help tools</strong>
+                <p>Homeroom finder, Media Center hours, map, counselors, admins — less waiting in line.</p>
+              </article>
+              <article class="chip-card">
+                <strong>Smarter ops</strong>
+                <p>Automations, device tracking, and internal systems so support moves faster.</p>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <section class="section" aria-labelledby="path-heading">
+          <p class="section-label">The path</p>
+          <h2 id="path-heading">How he got here</h2>
+          <ul class="timeline">
+            <li>
+              <span class="year">Now</span>
+              <div>
+                <strong>Technical Support Specialist · BCPS / FLHS</strong>
+                <span>Campus IT, custom tools, Power Automate + Microsoft 365, and support hubs for students &amp; staff.</span>
+              </div>
+            </li>
+            <li>
+              <span class="year">2020–25</span>
+              <div>
+                <strong>IT System Specialist · Lauderdale Lakes Medical Center</strong>
+                <span>Systems, HIPAA-minded setups, staff training, and projects where downtime wasn’t an option.</span>
+              </div>
+            </li>
+            <li>
+              <span class="year">2016–25</span>
+              <div>
+                <strong>Best Buy · Advanced Repair → Sr. Advance Repair → Field Tech</strong>
+                <span>Years on the bench and in the field — mentoring techs, hard repairs, and calm under pressure.</span>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <section class="section" aria-labelledby="edu-heading">
+          <p class="section-label">Education</p>
+          <h2 id="edu-heading">Background</h2>
+          <ul class="edu-list">
+            <li><strong>B.S. Neuroscience and Behavior</strong> · Florida Atlantic University</li>
+            <li><strong>B.A. Psychology</strong> · Florida Atlantic University</li>
+            <li><strong>A.A. General Studies</strong> · Broward College</li>
+            <li>Certificates in Physiology &amp; Immunology · Harvard Medical School (HMX)</li>
+          </ul>
+        </section>
+
+        <div class="bottom-cta">
+          <h2>Need help or want to connect?</h2>
+          <p>Email for school tech support — or check LinkedIn for the full story.</p>
+          <div class="cta-row">
+            <a class="cta primary" href="mailto:rajesh.ramautar@browardschools.com">Email the IT Specialist</a>
+            <a class="cta secondary" href="https://www.linkedin.com/in/rjrmt/" target="_blank" rel="noopener noreferrer">View LinkedIn</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <a href="../index.html">FLHS Help</a>
+      · Fort Lauderdale High School
+    </footer>
+  </div>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("../sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
