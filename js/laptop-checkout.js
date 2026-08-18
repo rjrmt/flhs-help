@@ -18,8 +18,8 @@
   const staffPanel = document.getElementById("staff-panel");
   const logBody = document.getElementById("log-body");
   const emptyLog = document.getElementById("empty-log");
-  const statEligible = document.getElementById("stat-eligible");
-  const statIn = document.getElementById("stat-in");
+  const statWaiting = document.getElementById("stat-waiting");
+  const statDone = document.getElementById("stat-done");
   const statLeft = document.getElementById("stat-left");
   const liveIn = document.getElementById("live-in");
   const liveEligible = document.getElementById("live-eligible");
@@ -29,7 +29,7 @@
   let eligibleById = null;
   /** @type {Map<string, {studentId: string, name: string, grade: string, whiteTeacher: string, whiteRoom: string, blueTeacher: string, blueRoom: string}> | null} */
   let rosterById = null;
-  /** @type {Map<string, {studentId: string, name: string, grade: string, at: string, lastAt: string, scans: number}>} */
+  /** @type {Map<string, {studentId: string, name: string, grade: string, at: string, lastAt: string, scans: number, givenAt: string | null}>} */
   const checkins = new Map();
   /** @type {import("@supabase/supabase-js").SupabaseClient | null} */
   let db = null;
@@ -173,6 +173,7 @@
       at: row.checked_in_at || row.created_at || new Date().toISOString(),
       lastAt: row.last_scan_at || row.checked_in_at || new Date().toISOString(),
       scans: Number(row.scan_count) || 1,
+      givenAt: row.laptop_given_at || null,
     };
   }
 
@@ -203,7 +204,7 @@
   async function loadCheckins() {
     const { data, error } = await db
       .from(TABLE)
-      .select("student_id,name,grade,checked_in_at,last_scan_at,scan_count")
+      .select("student_id,name,grade,checked_in_at,last_scan_at,scan_count,laptop_given_at")
       .order("checked_in_at", { ascending: false });
     if (error) throw error;
     checkins.clear();
@@ -349,9 +350,11 @@
   function updateStats() {
     const eligible = eligibleById ? eligibleById.size : 0;
     const checked = checkins.size;
+    const waiting = [...checkins.values()].filter((row) => !row.givenAt).length;
+    const done = checked - waiting;
     const left = Math.max(0, eligible - checked);
-    if (statEligible) statEligible.textContent = String(eligible);
-    if (statIn) statIn.textContent = String(checked);
+    if (statWaiting) statWaiting.textContent = String(waiting);
+    if (statDone) statDone.textContent = String(done);
     if (statLeft) statLeft.textContent = String(left);
     if (liveIn) liveIn.textContent = String(checked);
     if (liveEligible) liveEligible.textContent = String(eligible);
@@ -360,19 +363,34 @@
 
   function renderLog() {
     if (!logBody) return;
-    const rows = [...checkins.values()].sort((a, b) => (a.at < b.at ? 1 : -1));
+    const rows = [...checkins.values()].sort((a, b) => {
+      const aDone = Boolean(a.givenAt);
+      const bDone = Boolean(b.givenAt);
+      if (aDone !== bDone) return aDone ? 1 : -1;
+      return a.at < b.at ? 1 : -1;
+    });
     if (emptyLog) emptyLog.hidden = rows.length > 0;
     logBody.innerHTML = rows
-      .map(
-        (row) => `
-        <tr>
+      .map((row) => {
+        const given = Boolean(row.givenAt);
+        const laptopCell = given
+          ? `<span class="given-label">Laptop given</span>
+             <button class="undone-btn" type="button" data-undone="${escapeHtml(row.studentId)}">Undo done</button>`
+          : `<button class="done-btn" type="button" data-done="${escapeHtml(row.studentId)}">Done</button>`;
+        return `
+        <tr class="${given ? "is-given" : "is-waiting"}">
           <td>${escapeHtml(formatWhen(row.at))}</td>
           <td>${escapeHtml(titleCaseName(row.name) || row.studentId)}</td>
           <td>${escapeHtml(String(row.grade || "").replace(/^0/, "") || "—")}</td>
           <td class="mono">${escapeHtml(row.studentId)}</td>
-          <td><button class="undo-btn" type="button" data-undo="${escapeHtml(row.studentId)}">Undo</button></td>
-        </tr>`
-      )
+          <td>
+            <div class="row-actions">
+              ${laptopCell}
+              <button class="undo-btn" type="button" data-undo="${escapeHtml(row.studentId)}">Undo</button>
+            </div>
+          </td>
+        </tr>`;
+      })
       .join("");
   }
 
@@ -433,9 +451,9 @@
     const { data, error } = await db.from(TABLE).insert(insert).select().single();
     if (error) {
       if (isDuplicateError(error)) {
-        const { data: again } = await db
+                const { data: again } = await db
           .from(TABLE)
-          .select("student_id,name,grade,checked_in_at,last_scan_at,scan_count")
+          .select("student_id,name,grade,checked_in_at,last_scan_at,scan_count,laptop_given_at")
           .eq("student_id", record.studentId)
           .maybeSingle();
         if (again) {
@@ -480,11 +498,13 @@
         if (result.already) {
           showOverlay({
             tone: "already",
-            kicker: "Already on the list",
-            title: "Already checked in",
+            kicker: result.row.givenAt ? "Laptop already given" : "Already on the list",
+            title: result.row.givenAt ? "Already done" : "Already checked in",
             name,
             detail: [grade, room].filter(Boolean).join(" · "),
-            meta: `First scan ${formatWhen(result.row.at)}`,
+            meta: result.row.givenAt
+              ? `Laptop given ${formatWhen(result.row.givenAt)}`
+              : `Waiting for laptop · first scan ${formatWhen(result.row.at)}`,
           });
         } else {
           showOverlay({
@@ -525,7 +545,7 @@
   function exportLog() {
     const rows = [...checkins.values()].sort((a, b) => (a.at > b.at ? 1 : -1));
     const lines = [
-      ["student_id", "name", "grade", "checked_in_at", "scan_count"].join(","),
+      ["student_id", "name", "grade", "checked_in_at", "scan_count", "laptop_given_at"].join(","),
       ...rows.map((row) =>
         [
           row.studentId,
@@ -533,6 +553,7 @@
           row.grade,
           row.at,
           row.scans || 1,
+          row.givenAt || "",
         ].join(",")
       ),
     ];
@@ -543,6 +564,24 @@
     a.download = `laptop-checkout.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function markLaptopGiven(studentId, given) {
+    const givenAt = given ? new Date().toISOString() : null;
+    const { error } = await db
+      .from(TABLE)
+      .update({ laptop_given_at: givenAt })
+      .eq("student_id", studentId);
+    if (error) {
+      window.alert("Could not update that student. Try again.");
+      return;
+    }
+    const row = checkins.get(studentId);
+    if (row) {
+      row.givenAt = givenAt;
+      checkins.set(studentId, row);
+    }
+    updateStats();
   }
 
   async function undoCheckin(studentId) {
@@ -620,9 +659,18 @@
   document.getElementById("export-log")?.addEventListener("click", exportLog);
   document.getElementById("staff-backdrop")?.addEventListener("click", () => toggleStaff(false));
   logBody?.addEventListener("click", (event) => {
-    const btn = event.target.closest("[data-undo]");
-    if (!btn) return;
-    undoCheckin(btn.getAttribute("data-undo"));
+    const doneBtn = event.target.closest("[data-done]");
+    if (doneBtn) {
+      markLaptopGiven(doneBtn.getAttribute("data-done"), true);
+      return;
+    }
+    const undoneBtn = event.target.closest("[data-undone]");
+    if (undoneBtn) {
+      markLaptopGiven(undoneBtn.getAttribute("data-undone"), false);
+      return;
+    }
+    const undoBtn = event.target.closest("[data-undo]");
+    if (undoBtn) undoCheckin(undoBtn.getAttribute("data-undo"));
   });
 
   document.addEventListener("visibilitychange", () => {

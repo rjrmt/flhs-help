@@ -432,15 +432,42 @@
       color: var(--ink-400);
     }
     .mono { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
-    .undo-btn {
+    .row-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+    .done-btn {
+      border: 0;
+      background: var(--ok);
+      color: #fff;
+      border-radius: 999px;
+      min-height: 2.1rem;
+      padding: 0.45rem 1rem;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .done-btn:active { transform: translateY(1px); }
+    .given-label {
+      color: var(--ok-deep);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+    .undo-btn, .undone-btn {
       border: 0;
       background: transparent;
-      color: var(--deny);
       font: inherit;
       font-size: 0.75rem;
       font-weight: 800;
       cursor: pointer;
     }
+    .undo-btn { color: var(--deny); }
+    .undone-btn { color: var(--ink-400); }
+    tr.is-given td { opacity: 0.72; }
     .empty { padding: 1rem 0.2rem; color: var(--ink-400); font-weight: 600; }
     .sr-only {
       position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -530,10 +557,10 @@
           <button type="button" id="staff-close">Close</button>
         </div>
       </div>
-      <p class="staff-sub">Same list on every kiosk laptop. Check-ins stay for the whole 4-day checkout — they are not cleared overnight.</p>
+      <p class="staff-sub">Press Done when you hand them a laptop. Same list on every kiosk — it is not cleared overnight.</p>
       <div class="stats-row">
-        <div class="stat"><b id="stat-eligible">—</b><span>Opt-In forms</span></div>
-        <div class="stat"><b id="stat-in">0</b><span>Checked in</span></div>
+        <div class="stat"><b id="stat-waiting">0</b><span>Need laptop</span></div>
+        <div class="stat"><b id="stat-done">0</b><span>Done</span></div>
         <div class="stat"><b id="stat-left">—</b><span>Still out</span></div>
       </div>
       <p class="empty" id="empty-log">No check-ins yet.</p>
@@ -544,7 +571,7 @@
             <th>Name</th>
             <th>Gr</th>
             <th>Student ID</th>
-            <th></th>
+            <th>Laptop</th>
           </tr>
         </thead>
         <tbody id="log-body"></tbody>
