@@ -302,6 +302,7 @@
     .app-tile.counselor { background: linear-gradient(160deg, #7b6bc4, #4b3d8f); color: #fff; }
     .app-tile.admin { background: linear-gradient(160deg, #5a7194, #002366); color: #fff; }
     .app-tile.testing { background: linear-gradient(160deg, #2a9d8f, #1a6b63); color: #fff; }
+    .app-tile.laptop { background: linear-gradient(160deg, #1d4ed8, #002366); color: #fff; }
     .app-label {
       font-size: 0.64rem;
       font-weight: 700;
@@ -454,6 +455,10 @@
                 <em>study hall with a teacher pass</em>.
               </p>
               <div class="pdf-row">
+                <a class="pdf-btn" href="laptop-checkout.html">
+                  <strong>Laptop Checkout Kiosk</strong>
+                  <span>Scan ID · check in</span>
+                </a>
                 <a class="pdf-btn" href="../assets/docs/laptops/how-to-get-a-laptop.pdf" target="_blank" rel="noopener noreferrer">
                   <strong>Claim your laptop</strong>
                   <span>PDF guide</span>
@@ -469,6 +474,22 @@
           <section class="section" id="tools" aria-labelledby="tools-heading">
             <p class="section-label" id="tools-heading">Campus tools</p>
             <div class="app-groups">
+              <div class="app-group">
+                <p class="app-cat">Devices</p>
+                <nav class="app-grid" aria-label="Devices">
+                  <a class="app-icon" href="laptop-checkout.html">
+                    <span class="app-tile laptop" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <span class="app-label">Laptop Checkout Kiosk</span>
+                  </a>
+                </nav>
+              </div>
+
               <div class="app-group">
                 <p class="app-cat">Find your way</p>
                 <nav class="app-grid" aria-label="Find your way">

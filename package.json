@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "npx --yes serve .",
-    "convert:homerooms": "python3 scripts/convert_homerooms.py"
+    "convert:homerooms": "python3 scripts/convert_homerooms.py",
+    "convert:laptops": "python3 scripts/convert_laptop_checkout.py"
   }
 }
