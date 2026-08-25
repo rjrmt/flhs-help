@@ -627,6 +627,25 @@
         return last || first || "—";
       }
 
+      function titleCaseName(raw) {
+        const value = String(raw || "").trim();
+        if (!value) return "";
+        return value
+          .toLowerCase()
+          .replace(/(^|[\s,(\-/])([a-z])/g, (match) => match.toUpperCase());
+      }
+
+      function firstNameFromRoster(fullName) {
+        const raw = String(fullName || "").trim();
+        if (!raw) return "there";
+        if (raw.includes(",")) {
+          const after = raw.split(",")[1] || "";
+          const first = after.trim().split(/\s+/)[0];
+          return titleCaseName(first) || "there";
+        }
+        return titleCaseName(raw.split(/\s+/)[0]) || "there";
+      }
+
       async function lookupAssignments(studentId) {
         const db = window.flhsCreateDb();
         const { data, error } = await db.rpc("lookup_test_assignments", {
@@ -634,6 +653,21 @@
         });
         if (error) throw error;
         return Array.isArray(data) ? data : data ? [data] : [];
+      }
+
+      async function lookupRosterStudent(studentId) {
+        const db = window.flhsCreateDb();
+        const { data, error } = await db.rpc("lookup_student", {
+          p_student_id: studentId,
+        });
+        if (error) throw error;
+        const row = Array.isArray(data) ? data[0] : data;
+        if (!row?.student_id) return null;
+        return {
+          studentId: normalizeStudentId(row.student_id),
+          name: titleCaseName(row.name || ""),
+          grade: String(row.grade || "").trim(),
+        };
       }
 
       function renderExams(rows) {
@@ -689,7 +723,18 @@
         assignmentsHeading.hidden = true;
         examCards.innerHTML = "";
         noteMessage.className = "note is-error";
-        noteMessage.textContent = `No testing record for ${studentId}. Check the number and try again.`;
+        noteMessage.textContent = `No school record for ${studentId}. Check the number and try again.`;
+      }
+
+      function showNoTesting(roster) {
+        results.hidden = false;
+        outName.textContent = roster.name || "—";
+        outGrade.textContent = roster.grade || "—";
+        assignmentsHeading.hidden = true;
+        examCards.innerHTML = "";
+        const hello = firstNameFromRoster(roster.name);
+        noteMessage.className = "note is-warn";
+        noteMessage.textContent = `Hey ${hello} — you don’t have any testing scheduled right now. Check back later or ask your teacher.`;
       }
 
       function showStudent(rows) {
@@ -722,6 +767,13 @@
           const rows = await lookupAssignments(studentId);
           if (rows.length) {
             showStudent(rows);
+            setStatus("");
+            return;
+          }
+
+          const roster = await lookupRosterStudent(studentId);
+          if (roster) {
+            showNoTesting(roster);
             setStatus("");
           } else {
             showNotFound(studentId);

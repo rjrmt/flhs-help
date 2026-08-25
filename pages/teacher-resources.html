@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="FLHS Teacher Resources — campus tools, Media Center, map, calendar, IT help, and staff support links." />
+  <meta name="description" content="FLHS Teacher Resources — tools to help students with laptops and testing, plus campus links for your school day." />
   <meta name="theme-color" content="#9eb8dc" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="FLHS Help" />
-  <title>Teacher Resources | FLHSHelp</title>
+  <title>Teacher Resources | FLHS Help Hub</title>
   <link rel="manifest" href="../manifest.webmanifest" />
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
@@ -138,6 +138,7 @@
       text-transform: uppercase;
       color: var(--ink-400);
       margin-bottom: 0.5rem;
+      text-align: center;
     }
 
     /* Laptop first */
@@ -154,6 +155,7 @@
       font-weight: 800;
       letter-spacing: -0.02em;
       margin-bottom: 0.5rem;
+      text-align: center;
     }
     /* Laptop actions: compact pickup chip + two CTAs */
     .laptop-actions {
@@ -411,6 +413,7 @@
       text-transform: uppercase;
       color: var(--ink-400);
       margin-bottom: 0.55rem;
+      text-align: center;
     }
     /* Shared tracks across groups: 2-up on phones, max 4-up on larger screens */
     .app-grid {
@@ -522,17 +525,20 @@
       font-size: 0.95rem;
       font-weight: 800;
       margin-bottom: 0.2rem;
+      text-align: center;
     }
     .help-panel p {
       font-size: 0.78rem;
       color: var(--ink-500);
       font-weight: 500;
       margin-bottom: 0.55rem;
+      text-align: center;
     }
     .help-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 0.35rem;
+      justify-content: center;
     }
     .help-actions a {
       display: inline-flex;
@@ -591,25 +597,25 @@
 
         <div class="wide-split">
           <section class="section" id="laptops" aria-labelledby="laptop-heading">
-            <p class="section-label" id="laptop-heading">Most asked</p>
+            <p class="section-label" id="laptop-heading">Helping students</p>
             <div class="laptop-hero">
-              <h2>How do I get a laptop?</h2>
-              <div class="laptop-actions" role="group" aria-label="Laptop help actions">
+              <h2>Student needs a take-home laptop?</h2>
+              <div class="laptop-actions" role="group" aria-label="Laptop help for teachers">
                 <div
                   class="laptop-action laptop-action-pickup"
                   role="note"
-                  aria-label="Laptop pickup: Media Center — before school or study hall with a teacher pass"
+                  aria-label="Send students to Media Center pickup — before school or study hall with your pass"
                 >
-                  <span class="laptop-action-kicker">Pickup · Media Center</span>
+                  <span class="laptop-action-kicker">Send them to · Media Center</span>
                   <p class="pickup-line">
                     <span><em>7:00–7:40 AM</em> before school</span>
                     <span class="pickup-or" aria-hidden="true">OR</span>
-                    <span>Study hall <em>with a teacher pass</em></span>
+                    <span>Study hall <em>with your teacher pass</em></span>
                   </p>
                 </div>
                 <a class="laptop-action laptop-action-primary" href="laptop-checkout.html">
-                  <strong class="laptop-action-title">Check laptop eligibility</strong>
-                  <span class="laptop-action-sub">Scan your ID · tap here</span>
+                  <strong class="laptop-action-title">Check a student’s eligibility</strong>
+                  <span class="laptop-action-sub">Scan their ID · confirm Opt-In</span>
                 </a>
                 <a
                   class="laptop-action laptop-action-guide"
@@ -617,9 +623,9 @@
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <span class="laptop-action-kicker">PDF guide</span>
-                  <strong class="laptop-action-title">How to get laptop guide</strong>
-                  <span class="laptop-action-sub">Step-by-step instructions</span>
+                  <span class="laptop-action-kicker">Share with families</span>
+                  <strong class="laptop-action-title">Laptop pickup guide (PDF)</strong>
+                  <span class="laptop-action-sub">Steps parents and students follow</span>
                 </a>
               </div>
               <a
@@ -627,39 +633,39 @@
                 href="../assets/docs/laptops/laptop-welcome-guide.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-              >Laptop troubleshooting tips · Login · Wi‑Fi · care</a>
+              >Device tips you can share · Login · Wi‑Fi · care</a>
               <ol class="steps">
                 <li>
                   <span class="step-num" aria-hidden="true">1</span>
-                  <span><strong>Parent signs</strong> 1:1 in Focus Parent Portal</span>
+                  <span>Remind families: <strong>parent signs</strong> the 1:1 in Focus Parent Portal</span>
                 </li>
                 <li>
                   <span class="step-num" aria-hidden="true">2</span>
-                  <span>Wait for <strong>Canvas approval</strong></span>
+                  <span>Student waits for the <strong>Canvas approval</strong> message</span>
                 </li>
                 <li>
                   <span class="step-num" aria-hidden="true">3</span>
-                  <span>Pick up at the <strong>Media Center</strong></span>
+                  <span>Direct them to the <strong>Media Center</strong> during pickup hours (pass needed for study hall)</span>
                 </li>
               </ol>
             </div>
           </section>
 
           <section class="section" id="tools" aria-labelledby="tools-heading">
-            <p class="section-label" id="tools-heading">Campus tools</p>
+            <p class="section-label" id="tools-heading">Teacher toolkit</p>
             <div class="app-groups">
               <div class="app-group">
-                <p class="app-cat">Student Tools</p>
-                <nav class="app-grid" aria-label="Student tools">
-                  <a class="app-icon" href="laptop-checkout.html">
-                    <span class="app-tile laptop" aria-hidden="true">
+                <p class="app-cat">Staff tools</p>
+                <nav class="app-grid" aria-label="Staff tools">
+                  <a class="app-icon" href="upload.html">
+                    <span class="app-tile admin" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
-                        <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
-                        <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                        <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M12 4.5v9.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="m8.8 8.2 3.2-3.2 3.2 3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5 14.5v3.2A1.8 1.8 0 0 0 6.8 19.5h10.4a1.8 1.8 0 0 0 1.8-1.8v-3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                       </svg>
                     </span>
-                    <span class="app-label">Check laptop eligibility</span>
+                    <span class="app-label">Upload testing roster</span>
                   </a>
                   <a class="app-icon" href="student-locator.html">
                     <span class="app-tile testing" aria-hidden="true">
@@ -669,14 +675,24 @@
                         <path d="m14.2 15.2 1.4 1.4 2.6-2.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </span>
-                    <span class="app-label">Test Room Locator</span>
+                    <span class="app-label">Student test rooms</span>
                   </a>
                 </nav>
               </div>
 
               <div class="app-group">
-                <p class="app-cat">Find your way</p>
-                <nav class="app-grid" aria-label="Find your way">
+                <p class="app-cat">Assist a student</p>
+                <nav class="app-grid" aria-label="Assist a student">
+                  <a class="app-icon" href="laptop-checkout.html">
+                    <span class="app-tile laptop" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <span class="app-label">Laptop eligibility</span>
+                  </a>
                   <a class="app-icon" href="homeroom.html">
                     <span class="app-tile room" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
@@ -685,8 +701,14 @@
                         <circle cx="15.2" cy="15.2" r="1.2" fill="currentColor"/>
                       </svg>
                     </span>
-                    <span class="app-label">Homeroom Finder</span>
+                    <span class="app-label">Find their homeroom</span>
                   </a>
+                </nav>
+              </div>
+
+              <div class="app-group">
+                <p class="app-cat">Your school day</p>
+                <nav class="app-grid" aria-label="Your school day">
                   <a class="app-icon" href="media.html">
                     <span class="app-tile media" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
@@ -715,12 +737,23 @@
                     </span>
                     <span class="app-label">School Calendar</span>
                   </a>
+                  <a class="app-icon" href="https://forms.cloud.microsoft.com/Pages/ResponsePage.aspx?id=y7Ws7nBTWEOpaqN4PJXUIpcibuRyouVNo8_6V-rJg1lURjM4S1kyRE1YTzZCUkJPSFgxNlcyWlFDRS4u" target="_blank" rel="noopener noreferrer">
+                    <span class="app-tile laptop" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <rect x="3.5" y="4" width="13" height="11" rx="1.2" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M5.5 15h9M10 15v2.5M7 20h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="19" cy="11.5" r="2" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M16.2 20c.5-2.2 1.6-3.3 2.8-3.3s2.3 1.1 2.8 3.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <span class="app-label">Teacher IT Ticket</span>
+                  </a>
                 </nav>
               </div>
 
               <div class="app-group">
-                <p class="app-cat">Support team</p>
-                <nav class="app-grid" aria-label="Support team">
+                <p class="app-cat">Who to contact</p>
+                <nav class="app-grid" aria-label="Who to contact">
                   <a class="app-icon" href="counselors.html">
                     <span class="app-tile counselor" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
@@ -744,7 +777,7 @@
             </div>
 
             <div class="room-box">
-              <p>Find your room fast — enter your student ID</p>
+              <p>Look up a student fast — enter their student ID</p>
               <form class="quick-lookup" id="id-jump" action="homeroom.html" method="get">
                 <input
                   name="id"
@@ -764,14 +797,14 @@
 
         <section class="section" id="help" aria-labelledby="help-heading">
           <div class="help-panel">
-            <h3 id="help-heading">Laptop broken or can’t log in?</h3>
-            <p>Send a ticket — IT will help. Or email RJ.</p>
+            <h3 id="help-heading">Classroom device or login issue?</h3>
+            <p>Submit a Teacher IT Ticket, or email RJ for campus tech support.</p>
             <div class="help-actions">
               <a
-                href="https://forms.cloud.microsoft.com/Pages/ResponsePage.aspx?id=y7Ws7nBTWEOpaqN4PJXUIpcibuRyouVNo8_6V-rJg1lUMUFDVUExWjZLTlNSSkVBQ0VQQlhDTkM1TC4u"
+                href="https://forms.cloud.microsoft.com/Pages/ResponsePage.aspx?id=y7Ws7nBTWEOpaqN4PJXUIpcibuRyouVNo8_6V-rJg1lURjM4S1kyRE1YTzZCUkJPSFgxNlcyWlFDRS4u"
                 target="_blank"
                 rel="noopener noreferrer"
-              >Student IT Ticket</a>
+              >Teacher IT Ticket</a>
               <a class="secondary" href="mailto:rajesh.ramautar@browardschools.com">Email RJ</a>
             </div>
           </div>

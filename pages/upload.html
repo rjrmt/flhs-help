@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS staff upload — replace the Test Room Locator roster from Excel or CSV." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Upload Testing Roster | FLHS Help Hub</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky-200: #9eb8dc;
+      --navy: #002366;
+      --royal: #0056b3;
+      --ink-900: #002366;
+      --ink-500: #3d5680;
+      --ink-400: #5a7194;
+      --ok: #15803d;
+      --err: #be123c;
+      --border-soft: rgba(0, 35, 102, 0.16);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
+      --radius-xl: 1.75rem;
+      --radius-lg: 1.25rem;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100dvh;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      color: var(--ink-900);
+      background:
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.38), transparent 58%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 45%, #7fa3d0 100%);
+    }
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+    main { flex: 1; display: grid; place-items: center; }
+    .board {
+      width: min(100%, 34rem);
+      padding: clamp(1.35rem, 4vw, 2rem);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(197, 204, 216, 0.65);
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(236,244,255,0.78));
+      box-shadow: inset 0 1px 0 #fff, var(--shadow);
+      backdrop-filter: blur(24px);
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1.1rem;
+    }
+    .brand { display: flex; align-items: center; gap: 0.7rem; }
+    .brand img { width: 2.8rem; height: 2.8rem; }
+    .kicker {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--royal);
+    }
+    h1 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .home {
+      display: inline-flex;
+      align-items: center;
+      height: 2.4rem;
+      padding: 0 0.9rem;
+      border-radius: 0.75rem;
+      background: linear-gradient(180deg, #1a4bb8, var(--navy));
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+    .lead {
+      font-size: 0.9rem;
+      color: var(--ink-500);
+      line-height: 1.45;
+      margin-bottom: 1rem;
+    }
+    .note {
+      margin-bottom: 1rem;
+      padding: 0.75rem 0.85rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(0, 86, 179, 0.2);
+      background: rgba(0, 86, 179, 0.08);
+      font-size: 0.8rem;
+      color: var(--ink-500);
+      line-height: 1.4;
+    }
+    label.field {
+      display: grid;
+      gap: 0.35rem;
+      margin-bottom: 0.85rem;
+      text-align: left;
+    }
+    label.field span {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+    input[type="password"],
+    input[type="file"] {
+      width: 100%;
+      border-radius: 0.85rem;
+      border: 1.5px solid rgba(0, 35, 102, 0.28);
+      background: rgba(255,255,255,0.95);
+      font: inherit;
+    }
+    input[type="password"] {
+      height: 2.85rem;
+      padding: 0 0.9rem;
+      font-weight: 600;
+    }
+    input[type="file"] {
+      padding: 0.7rem 0.75rem;
+    }
+    .drop {
+      border: 1.5px dashed rgba(0, 35, 102, 0.28);
+      border-radius: 1rem;
+      padding: 1.1rem;
+      background: rgba(255,255,255,0.55);
+      text-align: center;
+      margin-bottom: 0.85rem;
+    }
+    .drop strong {
+      display: block;
+      font-family: "Outfit", system-ui, sans-serif;
+      margin-bottom: 0.25rem;
+    }
+    .drop p { font-size: 0.82rem; color: var(--ink-500); }
+    .preview {
+      margin-bottom: 0.85rem;
+      padding: 0.75rem 0.85rem;
+      border-radius: 0.85rem;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.7);
+      font-size: 0.84rem;
+      line-height: 1.4;
+      display: none;
+    }
+    .preview.show { display: block; }
+    .preview b { color: var(--navy); }
+    .actions {
+      display: grid;
+      gap: 0.55rem;
+    }
+    button {
+      height: 2.95rem;
+      border: none;
+      border-radius: 0.85rem;
+      background: linear-gradient(180deg, #1a4bb8, var(--navy));
+      color: #fff;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+    button.secondary {
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--navy);
+      border: 1.5px solid rgba(0, 35, 102, 0.28);
+      box-shadow: inset 0 1px 0 #fff;
+    }
+    .status {
+      min-height: 1.3rem;
+      margin-top: 0.75rem;
+      font-size: 0.86rem;
+      font-weight: 650;
+      color: var(--ink-400);
+    }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--err); }
+    .cols {
+      margin-top: 0.85rem;
+      font-size: 0.78rem;
+      color: var(--ink-500);
+      line-height: 1.45;
+    }
+    .cols code {
+      font-size: 0.74rem;
+      color: var(--navy);
+      font-weight: 700;
+    }
+    footer {
+      text-align: center;
+      padding-top: 1rem;
+      font-size: 0.78rem;
+      color: rgba(0, 35, 102, 0.75);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main>
+      <section class="board" aria-labelledby="upload-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../assets/brand/logo.png" width="80" height="80" alt="" />
+            <div>
+              <p class="kicker">Staff only</p>
+              <h1 id="upload-title">Upload testing roster</h1>
+            </div>
+          </div>
+          <a class="home" href="teacher-resources.html">Back</a>
+        </div>
+
+        <p class="lead">
+          Upload an Excel or CSV file to replace the live Student Locator testing list.
+          This overwrites the current testing assignments for every student.
+        </p>
+
+        <p class="note">
+          Use the staff upload key (saved on this computer as <strong>.flhs-upload-secret</strong>).
+          The website never stores your service-role database key.
+        </p>
+
+        <form id="upload-form">
+          <label class="field">
+            <span>Staff upload key</span>
+            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+          </label>
+
+          <div class="drop">
+            <strong>Excel (.xlsx) or CSV</strong>
+            <p>Same columns as the September testing export</p>
+            <label class="field" style="margin: 0.85rem 0 0">
+              <span>File</span>
+              <input id="file-input" type="file" accept=".xlsx,.xlsm,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" required />
+            </label>
+          </div>
+
+          <div class="preview" id="preview" aria-live="polite"></div>
+
+          <div class="actions">
+            <button type="button" class="secondary" id="template-btn">Download template</button>
+            <button type="submit" id="upload-btn">Replace student locator data</button>
+          </div>
+          <p class="status" id="status" role="status"></p>
+        </form>
+
+        <p class="cols">
+          Expected columns:
+          <code>Local ID, Last, First, Grade, EXAM, DAY, DATE, AM/PM, ROOM</code>
+        </p>
+      </section>
+    </main>
+    <footer>FLHS Help Hub · staff upload tool</footer>
+  </div>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script>
+    (() => {
+      const STUDENT_ID_LEN = 10;
+      const KEY_STORAGE = "flhs-upload-key";
+      const FUNCTION_URL =
+        "https://lharxnpvcprthgabklwo.supabase.co/functions/v1/replace-test-assignments";
+
+      const form = document.getElementById("upload-form");
+      const keyInput = document.getElementById("upload-key");
+      const fileInput = document.getElementById("file-input");
+      const preview = document.getElementById("preview");
+      const statusEl = document.getElementById("status");
+      const uploadBtn = document.getElementById("upload-btn");
+      const templateBtn = document.getElementById("template-btn");
+
+      /** @type {Array<Record<string, string|null>>} */
+      let pendingRows = [];
+
+      const TEMPLATE_HEADERS = [
+        "Local ID",
+        "Last",
+        "First",
+        "Grade",
+        "EXAM",
+        "DAY",
+        "DATE",
+        "AM/PM",
+        "ROOM",
+      ];
+      const TEMPLATE_SAMPLE = [
+        "0600000001",
+        "Lancer",
+        "Flying",
+        "10",
+        "PM1",
+        "TUESDAY",
+        "9/1/2026",
+        "AM",
+        "522",
+      ];
+
+      function downloadTemplate() {
+        const lines = [
+          TEMPLATE_HEADERS.join(","),
+          TEMPLATE_SAMPLE.map((cell) => {
+            const text = String(cell);
+            return /["\n,]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+          }).join(","),
+        ];
+        const blob = new Blob([`${lines.join("\n")}\n`], {
+          type: "text/csv;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "student-locator-template.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+        setStatus("Template downloaded — fill it in, then upload the finished file.", "ok");
+      }
+
+      templateBtn?.addEventListener("click", downloadTemplate);
+
+      try {
+        const saved = sessionStorage.getItem(KEY_STORAGE);
+        if (saved) keyInput.value = saved;
+      } catch {
+        /* ignore */
+      }
+
+      function setStatus(message, tone = "") {
+        statusEl.textContent = message || "";
+        statusEl.className = `status${tone ? ` ${tone}` : ""}`;
+      }
+
+      function cleanHeader(value) {
+        return String(value || "")
+          .replace(/^\uFEFF/, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function normalizeStudentId(val) {
+        const digits = String(val || "").replace(/\D/g, "");
+        if (!digits) return "";
+        return digits.length < STUDENT_ID_LEN ? digits.padStart(STUDENT_ID_LEN, "0") : digits;
+      }
+
+      function pick(row, names) {
+        const map = {};
+        Object.keys(row || {}).forEach((key) => {
+          map[cleanHeader(key).toLowerCase()] = row[key];
+        });
+        for (const name of names) {
+          const value = map[name.toLowerCase()];
+          if (value != null && String(value).trim() !== "") return String(value).trim();
+        }
+        return "";
+      }
+
+      function excelDateToIso(value) {
+        if (value == null || value === "") return null;
+        if (value instanceof Date && !Number.isNaN(value.getTime())) {
+          return value.toISOString().slice(0, 10);
+        }
+        if (typeof value === "number" && window.XLSX?.SSF) {
+          try {
+            const parsed = window.XLSX.SSF.parse_date_code(value);
+            if (parsed) {
+              const mm = String(parsed.m).padStart(2, "0");
+              const dd = String(parsed.d).padStart(2, "0");
+              return `${parsed.y}-${mm}-${dd}`;
+            }
+          } catch {
+            /* fall through */
+          }
+        }
+        const text = String(value).trim();
+        const mdy = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+        if (mdy) {
+          let year = Number(mdy[3]);
+          if (year < 100) year += 2000;
+          return `${year}-${String(mdy[1]).padStart(2, "0")}-${String(mdy[2]).padStart(2, "0")}`;
+        }
+        const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        return iso ? `${iso[1]}-${iso[2]}-${iso[3]}` : null;
+      }
+
+      function normalizeRow(raw) {
+        const studentId = normalizeStudentId(
+          pick(raw, ["Local ID", "student_id", "Student ID", "ID"])
+        );
+        if (!studentId) return null;
+        return {
+          student_id: studentId,
+          last_name: pick(raw, ["Last", "LAST", "Last Name"]),
+          first_name: pick(raw, ["First", "FIRST", "First Name"]),
+          grade: pick(raw, ["Grade", "GRADE"]).replace(/\D/g, "") || pick(raw, ["Grade", "GRADE"]),
+          exam: pick(raw, ["EXAM", "Exam", "TEST", "Test"]),
+          day: pick(raw, ["DAY", "Day", "WEEKDAY"]),
+          exam_date: excelDateToIso(
+            raw.DATE ?? raw["DATE "] ?? raw["EXAM DATE"] ?? pick(raw, ["DATE", "Date", "EXAM DATE"])
+          ),
+          session: pick(raw, ["AM/PM", "SESSION", "Session"]).toUpperCase(),
+          room: pick(raw, ["ROOM", "Room", "EXAM ROOM"]),
+        };
+      }
+
+      function parseCsv(text) {
+        const clean = String(text || "").replace(/^\uFEFF/, "");
+        const lines = clean.split(/\r?\n/).filter((line) => line.length);
+        if (lines.length < 2) return [];
+        const parseLine = (line) => {
+          const fields = [];
+          let cur = "";
+          let inQ = false;
+          for (let i = 0; i < line.length; i += 1) {
+            const c = line[i];
+            if (inQ) {
+              if (c === '"') {
+                if (line[i + 1] === '"') {
+                  cur += '"';
+                  i += 1;
+                } else inQ = false;
+              } else cur += c;
+            } else if (c === '"') inQ = true;
+            else if (c === ",") {
+              fields.push(cur);
+              cur = "";
+            } else cur += c;
+          }
+          fields.push(cur);
+          return fields;
+        };
+        const headers = parseLine(lines[0]).map(cleanHeader);
+        const rows = [];
+        for (let i = 1; i < lines.length; i += 1) {
+          const values = parseLine(lines[i]);
+          const obj = {};
+          headers.forEach((header, idx) => {
+            obj[header] = values[idx] != null ? values[idx] : "";
+          });
+          const normalized = normalizeRow(obj);
+          if (normalized) rows.push(normalized);
+        }
+        return rows;
+      }
+
+      function parseWorkbook(buffer) {
+        if (!window.XLSX) throw new Error("Excel parser did not load");
+        const workbook = window.XLSX.read(buffer, { type: "array", cellDates: true });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = window.XLSX.utils.sheet_to_json(sheet, { defval: "", raw: true });
+        return json.map(normalizeRow).filter(Boolean);
+      }
+
+      function showPreview(rows, fileName) {
+        const students = new Set(rows.map((row) => row.student_id)).size;
+        const sample = rows[0];
+        preview.classList.add("show");
+        preview.innerHTML = `
+          <div><b>${rows.length}</b> assignments · <b>${students}</b> students</div>
+          <div>File: ${fileName}</div>
+          ${
+            sample
+              ? `<div>Sample: ${sample.student_id} · ${sample.last_name}, ${sample.first_name} · ${sample.exam} · Room ${sample.room}</div>`
+              : ""
+          }
+        `;
+      }
+
+      async function readFile(file) {
+        const name = file.name.toLowerCase();
+        if (name.endsWith(".csv")) {
+          return parseCsv(await file.text());
+        }
+        if (name.endsWith(".xlsx") || name.endsWith(".xlsm")) {
+          const buffer = await file.arrayBuffer();
+          return parseWorkbook(new Uint8Array(buffer));
+        }
+        throw new Error("Use an .xlsx or .csv file");
+      }
+
+      fileInput.addEventListener("change", async () => {
+        pendingRows = [];
+        preview.classList.remove("show");
+        const file = fileInput.files?.[0];
+        if (!file) return;
+        try {
+          setStatus("Reading file…");
+          pendingRows = await readFile(file);
+          if (!pendingRows.length) throw new Error("No student rows found in that file");
+          showPreview(pendingRows, file.name);
+          setStatus("Ready to upload", "ok");
+        } catch (err) {
+          console.error(err);
+          setStatus(err.message || "Could not read that file", "err");
+        }
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const key = keyInput.value.trim();
+        if (!key) {
+          setStatus("Enter the staff upload key", "err");
+          return;
+        }
+        if (!pendingRows.length) {
+          setStatus("Choose an Excel or CSV file first", "err");
+          return;
+        }
+
+        const cfg = window.FLHS_SUPABASE || {};
+        if (!cfg.anonKey) {
+          setStatus("Missing public Supabase config", "err");
+          return;
+        }
+
+        uploadBtn.disabled = true;
+        setStatus("Uploading and replacing the live student locator list…");
+
+        try {
+          sessionStorage.setItem(KEY_STORAGE, key);
+        } catch {
+          /* ignore */
+        }
+
+        try {
+          const response = await fetch(FUNCTION_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: cfg.anonKey,
+              Authorization: `Bearer ${cfg.anonKey}`,
+              "x-flhs-upload-key": key,
+            },
+            body: JSON.stringify({ rows: pendingRows }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(body.error || `Upload failed (${response.status})`);
+          }
+          setStatus(
+            `Done — ${body.assignments || pendingRows.length} assignments for ${body.students || "?"} students are live.`,
+            "ok"
+          );
+        } catch (err) {
+          console.error(err);
+          setStatus(err.message || "Upload failed", "err");
+        } finally {
+          uploadBtn.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
