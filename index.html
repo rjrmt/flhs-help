@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="FLHSHelp — Fort Lauderdale High School IT Help hub for students and staff." />
+  <meta name="description" content="FLHS Help Hub — Fort Lauderdale High School IT help for students and staff." />
   <meta name="theme-color" content="#9eb8dc" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="FLHS Help" />
+  <meta name="apple-mobile-web-app-title" content="FLHS Help Hub" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>FLHSHelp | Fort Lauderdale High School IT Help</title>
+  <title>FLHS Help Hub | Fort Lauderdale High School</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/icon-512.png" />
@@ -942,6 +942,77 @@
       height: 1.45rem;
     }
 
+    /* Color-coded tiles so kids can tell them apart at a glance */
+    .shortcut--student-ticket {
+      border-color: rgba(0, 35, 102, 0.4);
+      background: linear-gradient(180deg, #ffffff 0%, #e8effc 100%);
+    }
+    .shortcut--student-ticket .shortcut-icon {
+      color: #fff;
+      border-color: rgba(0, 35, 102, 0.35);
+      background: linear-gradient(160deg, #1a4bb8 0%, #002366 100%);
+    }
+
+    .shortcut--teacher-ticket {
+      border-color: rgba(0, 86, 179, 0.42);
+      background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%);
+    }
+    .shortcut--teacher-ticket .shortcut-icon {
+      color: #fff;
+      border-color: rgba(0, 86, 179, 0.35);
+      background: linear-gradient(160deg, #2f7fe0 0%, #0056b3 100%);
+    }
+
+    .shortcut--laptop {
+      border-color: rgba(14, 116, 144, 0.4);
+      background: linear-gradient(180deg, #ffffff 0%, #e6f7f8 100%);
+    }
+    .shortcut--laptop .shortcut-icon {
+      color: #fff;
+      border-color: rgba(14, 116, 144, 0.35);
+      background: linear-gradient(160deg, #22a6b5 0%, #0e7490 100%);
+    }
+
+    .shortcut--testing {
+      border-color: rgba(194, 65, 12, 0.38);
+      background: linear-gradient(180deg, #ffffff 0%, #fff4eb 100%);
+    }
+    .shortcut--testing .shortcut-icon {
+      color: #fff;
+      border-color: rgba(194, 65, 12, 0.35);
+      background: linear-gradient(160deg, #f0893a 0%, #c2410c 100%);
+    }
+
+    .shortcut--homeroom {
+      border-color: rgba(21, 128, 61, 0.38);
+      background: linear-gradient(180deg, #ffffff 0%, #eefbf2 100%);
+    }
+    .shortcut--homeroom .shortcut-icon {
+      color: #fff;
+      border-color: rgba(21, 128, 61, 0.35);
+      background: linear-gradient(160deg, #34b36a 0%, #15803d 100%);
+    }
+
+    .shortcut--resources {
+      border-color: rgba(100, 116, 139, 0.42);
+      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    }
+    .shortcut--resources .shortcut-icon {
+      color: #fff;
+      border-color: rgba(71, 85, 105, 0.35);
+      background: linear-gradient(160deg, #94a3b8 0%, #475569 100%);
+    }
+
+    .shortcut--teacher-resources {
+      border-color: rgba(180, 83, 9, 0.4);
+      background: linear-gradient(180deg, #ffffff 0%, #fff8eb 100%);
+    }
+    .shortcut--teacher-resources .shortcut-icon {
+      color: #fff;
+      border-color: rgba(146, 64, 14, 0.35);
+      background: linear-gradient(160deg, #d97706 0%, #92400e 100%);
+    }
+
     .shortcut-label {
       font-family: "Outfit", system-ui, sans-serif;
       font-size: 0.88rem;
@@ -1577,7 +1648,7 @@
     <main>
       <div class="board-stage">
         <div class="board-floor" aria-hidden="true"></div>
-        <section class="board" aria-label="FLHSHelp home">
+        <section class="board" aria-label="FLHS Help Hub home">
           <header class="brand">
             <img
               class="logo"
@@ -1586,8 +1657,8 @@
               height="640"
               alt="Fort Lauderdale High School — Leading the Launch"
             />
-            <h1 class="brand-name">FLHSHelp</h1>
-            <p class="brand-sub">FLHS IT Support — your one-stop tech shop</p>
+            <h1 class="brand-name">FLHS Help Hub</h1>
+            <p class="brand-sub">Fort Lauderdale High · your one-stop tech shop</p>
           </header>
 
           <div class="bubbles" aria-live="polite">
@@ -1647,8 +1718,8 @@
             </span>
           </div>
 
-          <nav class="shortcuts" aria-label="IT help shortcuts">
-            <a class="shortcut" href="https://forms.cloud.microsoft.com/Pages/ResponsePage.aspx?id=y7Ws7nBTWEOpaqN4PJXUIpcibuRyouVNo8_6V-rJg1lUMUFDVUExWjZLTlNSSkVBQ0VQQlhDTkM1TC4u" target="_blank" rel="noopener noreferrer">
+          <nav class="shortcuts" aria-label="Quick access tools">
+            <a class="shortcut shortcut--student-ticket" href="https://forms.cloud.microsoft.com/Pages/ResponsePage.aspx?id=y7Ws7nBTWEOpaqN4PJXUIpcibuRyouVNo8_6V-rJg1lUMUFDVUExWjZLTlNSSkVBQ0VQQlhDTkM1TC4u" target="_blank" rel="noopener noreferrer">
               <span class="shortcut-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
                   <path d="M3.5 9.2 12 5l8.5 4.2L12 13.4 3.5 9.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -1660,7 +1731,29 @@
               <span class="shortcut-label">Student IT Ticket</span>
             </a>
 
-            <a class="shortcut" href="https://forms.cloud.microsoft.com/Pages/ResponsePage.aspx?id=y7Ws7nBTWEOpaqN4PJXUIpcibuRyouVNo8_6V-rJg1lURjM4S1kyRE1YTzZCUkJPSFgxNlcyWlFDRS4u" target="_blank" rel="noopener noreferrer">
+            <a class="shortcut shortcut--testing" href="pages/laptop-checkout.html">
+              <span class="shortcut-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="shortcut-label">Check laptop eligibility</span>
+            </a>
+
+            <a class="shortcut shortcut--teacher-resources" href="pages/resources.html">
+              <span class="shortcut-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M5 5.5h9.5a2 2 0 0 1 2 2V19l-4.2-2.2L8.1 19V7.5A2 2 0 0 0 6.1 5.5H5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 5.5A2 2 0 0 0 3 7.5V19l4.2-2.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.5 9.5h4M10.5 12.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="shortcut-label">Student Resources</span>
+            </a>
+
+            <a class="shortcut shortcut--teacher-ticket" href="https://forms.cloud.microsoft.com/Pages/ResponsePage.aspx?id=y7Ws7nBTWEOpaqN4PJXUIpcibuRyouVNo8_6V-rJg1lURjM4S1kyRE1YTzZCUkJPSFgxNlcyWlFDRS4u" target="_blank" rel="noopener noreferrer">
               <span class="shortcut-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
                   <rect x="3.5" y="4" width="13" height="11" rx="1.2" stroke="currentColor" stroke-width="1.8"/>
@@ -1672,15 +1765,26 @@
               <span class="shortcut-label">Teacher IT Ticket</span>
             </a>
 
-            <a class="shortcut" href="pages/resources.html">
+            <a class="shortcut shortcut--laptop" href="pages/student-locator.html">
               <span class="shortcut-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M5 5.5h9.5a2 2 0 0 1 2 2V19l-4.2-2.2L8.1 19V7.5A2 2 0 0 0 6.1 5.5H5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M5 5.5A2 2 0 0 0 3 7.5V19l4.2-2.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M10.5 9.5h4M10.5 12.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <rect x="5" y="3.5" width="14" height="17" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M8.5 8h7M8.5 12h7M8.5 16h4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="m14.2 15.2 1.4 1.4 2.6-2.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </span>
-              <span class="shortcut-label">Student Resources</span>
+              <span class="shortcut-label">Test Room Locator</span>
+            </a>
+
+            <a class="shortcut shortcut--resources" href="pages/teacher-resources.html">
+              <span class="shortcut-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M4.5 6.5h9.5a2 2 0 0 1 2 2V19l-3.8-1.9L8.4 19V8.5A2 2 0 0 0 6.4 6.5H4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M4.5 6.5A2 2 0 0 0 2.5 8.5V19l3.8-1.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14.5 8.2h5a2 2 0 0 1 2 2V19l-3.5-1.7L14.5 19V8.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="shortcut-label">Teacher Resources</span>
             </a>
           </nav>
         </section>

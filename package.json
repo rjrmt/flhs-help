@@ -6,5 +6,8 @@
     "convert:homerooms": "python3 scripts/convert_homerooms.py",
     "convert:laptops": "python3 scripts/convert_laptop_checkout.py",
     "upload:students": "python3 scripts/upload_students.py --api"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
   }
 }

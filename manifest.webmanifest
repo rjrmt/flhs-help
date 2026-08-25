@@ -1,7 +1,7 @@
 {
-  "name": "FLHS Help",
-  "short_name": "FLHS Help",
-  "description": "Fort Lauderdale High School IT Help hub for students and staff.",
+  "name": "FLHS Help Hub",
+  "short_name": "Help Hub",
+  "description": "Fort Lauderdale High School IT help hub for students and staff.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
