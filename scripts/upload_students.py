@@ -48,7 +48,29 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def opt_in_rows(eligible_path: Path) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for row in read_csv(eligible_path):
+        student_id = normalize_student_id(row.get("student_id"))
+        if not student_id or student_id in seen:
+            continue
+        choice = (row.get("choice") or "").strip()
+        if not re.search(r"opt-?\s*in", choice, re.I):
+            continue
+        seen.add(student_id)
+        rows.append(row)
+    return rows
+
+
 def merge_students(homeroom_path: Path, eligible_path: Path) -> list[dict[str, object]]:
+    """Build roster rows whose laptop_opt_in matches THIS eligible file.
+
+    Homeroom students start false. Only current Portal Opt-In IDs are true.
+    Students who dropped off Opt-In are written false (not OR'd with old flags).
+    """
+    eligible = opt_in_rows(eligible_path)
+    opt_in_ids = {normalize_student_id(row.get("student_id")) for row in eligible}
     by_id: dict[str, dict[str, object]] = {}
     for row in read_csv(homeroom_path):
         student_id = normalize_student_id(row.get("student_id"))
@@ -62,15 +84,10 @@ def merge_students(homeroom_path: Path, eligible_path: Path) -> list[dict[str, o
             "white_room": (row.get("white_room") or "").strip(),
             "blue_teacher": (row.get("blue_teacher") or "").strip(),
             "blue_room": (row.get("blue_room") or "").strip(),
-            "laptop_opt_in": False,
+            "laptop_opt_in": student_id in opt_in_ids,
         }
-    for row in read_csv(eligible_path):
+    for row in eligible:
         student_id = normalize_student_id(row.get("student_id"))
-        if not student_id:
-            continue
-        choice = (row.get("choice") or "").strip()
-        if not re.search(r"opt-?\s*in", choice, re.I):
-            continue
         current = by_id.get(student_id)
         if current is None:
             by_id[student_id] = {
@@ -101,6 +118,21 @@ def values_sql(row: dict[str, object]) -> str:
     )
 
 
+def opt_in_ids_from_rows(rows: list[dict[str, object]]) -> list[str]:
+    return [str(row["student_id"]) for row in rows if row["laptop_opt_in"]]
+
+
+def clear_stale_opt_in_sql(opt_in_ids: list[str]) -> str:
+    if opt_in_ids:
+        keep = ", ".join(sql_str(student_id) for student_id in opt_in_ids)
+        where = f"student_id not in ({keep})"
+    else:
+        where = "true"
+    return f"""update private.students
+set laptop_opt_in = false, updated_at = now()
+where laptop_opt_in and {where};"""
+
+
 def upsert_sql(rows: list[dict[str, object]], batch_size: int = 250) -> list[str]:
     statements: list[str] = []
     for start in range(0, len(rows), batch_size):
@@ -121,14 +153,14 @@ on conflict (student_id) do update set
   laptop_opt_in = excluded.laptop_opt_in,
   updated_at = now();"""
         )
+    statements.append(clear_stale_opt_in_sql(opt_in_ids_from_rows(rows)))
     return statements
 
 
-def post_batch(url: str, service_key: str, rows: list[dict[str, object]]) -> int:
-    payload = json.dumps({"p_rows": rows}).encode("utf-8")
+def post_rpc(url: str, service_key: str, fn: str, payload: dict) -> object:
     request = urllib.request.Request(
-        f"{url.rstrip('/')}/rest/v1/rpc/admin_upsert_students",
-        data=payload,
+        f"{url.rstrip('/')}/rest/v1/rpc/{fn}",
+        data=json.dumps(payload).encode("utf-8"),
         method="POST",
         headers={
             "apikey": service_key,
@@ -143,7 +175,7 @@ def post_batch(url: str, service_key: str, rows: list[dict[str, object]]) -> int
     except urllib.error.HTTPError as err:
         detail = err.read().decode("utf-8", errors="replace")
         raise SystemExit(f"Upload failed ({err.code}): {detail}") from err
-    return int(json.loads(body))
+    return json.loads(body)
 
 
 def upload_via_api(rows: list[dict[str, object]], batch_size: int = 200) -> int:
@@ -157,8 +189,17 @@ def upload_via_api(rows: list[dict[str, object]], batch_size: int = 200) -> int:
     total = 0
     for start in range(0, len(rows), batch_size):
         chunk = rows[start : start + batch_size]
-        total += post_batch(url, key, chunk)
+        total += int(post_rpc(url, key, "admin_upsert_students", {"p_rows": chunk}))
         print(f"Uploaded {min(start + batch_size, len(rows))} / {len(rows)}", file=sys.stderr)
+    cleared = int(
+        post_rpc(
+            url,
+            key,
+            "admin_sync_laptop_opt_in",
+            {"p_ids": opt_in_ids_from_rows(rows)},
+        )
+    )
+    print(f"Synced Opt-In flags ({cleared} rows changed)", file=sys.stderr)
     return total
 
 
