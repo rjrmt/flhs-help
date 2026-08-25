@@ -3,3 +3,5 @@ node_modules/
 .env
 .env.*
 !.env.example
+data/homerooms.csv
+data/laptop-eligible.csv

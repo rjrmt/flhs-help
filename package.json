@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "npx --yes serve .",
     "convert:homerooms": "python3 scripts/convert_homerooms.py",
-    "convert:laptops": "python3 scripts/convert_laptop_checkout.py"
+    "convert:laptops": "python3 scripts/convert_laptop_checkout.py",
+    "upload:students": "python3 scripts/upload_students.py --api"
   }
 }

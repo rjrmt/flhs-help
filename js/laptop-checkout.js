@@ -1,6 +1,4 @@
 (() => {
-  const ELIGIBLE_URL = "../data/laptop-eligible.csv";
-  const ROSTER_URL = "../data/homerooms.csv";
   const TABLE = "laptop_checkins";
   const STUDENT_ID_LEN = 10;
   const AUTO_SEARCH_MS = 120;
@@ -25,16 +23,11 @@
   const liveEligible = document.getElementById("live-eligible");
   const syncNote = document.getElementById("sync-note");
 
-  /** @type {Map<string, {studentId: string, name: string, grade: string, choice: string}> | null} */
-  let eligibleById = null;
-  /** @type {Map<string, {studentId: string, name: string, grade: string, whiteTeacher: string, whiteRoom: string, blueTeacher: string, blueRoom: string}> | null} */
-  let rosterById = null;
   /** @type {Map<string, {studentId: string, name: string, grade: string, at: string, lastAt: string, scans: number, givenAt: string | null}>} */
   const checkins = new Map();
   /** @type {import("@supabase/supabase-js").SupabaseClient | null} */
   let db = null;
-  /** @type {Promise<void> | null} */
-  let loadPromise = null;
+  let eligibleCount = 0;
   let autoSearchTimer = 0;
   let resetTimer = 0;
   let lastAutoSearched = "";
@@ -47,53 +40,6 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
-  }
-
-  function parseCsv(text) {
-    const rows = [];
-    let row = [];
-    let cell = "";
-    let inQuotes = false;
-
-    for (let i = 0; i < text.length; i += 1) {
-      const ch = text[i];
-      const next = text[i + 1];
-
-      if (inQuotes) {
-        if (ch === '"' && next === '"') {
-          cell += '"';
-          i += 1;
-        } else if (ch === '"') {
-          inQuotes = false;
-        } else {
-          cell += ch;
-        }
-        continue;
-      }
-
-      if (ch === '"') {
-        inQuotes = true;
-      } else if (ch === ",") {
-        row.push(cell);
-        cell = "";
-      } else if (ch === "\n") {
-        row.push(cell);
-        rows.push(row);
-        row = [];
-        cell = "";
-      } else if (ch === "\r") {
-        // skip
-      } else {
-        cell += ch;
-      }
-    }
-
-    if (cell.length || row.length) {
-      row.push(cell);
-      rows.push(row);
-    }
-
-    return rows.filter((r) => r.some((c) => String(c).trim() !== ""));
   }
 
   function digitsOnly(value) {
@@ -188,17 +134,33 @@
   }
 
   function connectDb() {
-    const cfg = window.FLHS_SUPABASE || {};
-    if (!cfg.url || !cfg.anonKey) {
-      throw new Error("Missing Supabase config");
-    }
-    if (!window.supabase?.createClient) {
-      throw new Error("Supabase library did not load");
-    }
-    db = window.supabase.createClient(cfg.url, cfg.anonKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
+    db = window.flhsCreateDb();
     return db;
+  }
+
+  async function loadEligibleCount() {
+    const { data, error } = await db.rpc("laptop_opt_in_count");
+    if (error) throw error;
+    eligibleCount = Number(data) || 0;
+  }
+
+  async function lookupLaptopStudent(studentId) {
+    const { data, error } = await db.rpc("lookup_laptop_student", {
+      p_student_id: studentId,
+    });
+    if (error) throw error;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row?.student_id) return null;
+    return {
+      studentId: normalizeStudentId(row.student_id),
+      name: row.name || "",
+      grade: row.grade || "",
+      whiteTeacher: row.white_teacher || "",
+      whiteRoom: row.white_room || "",
+      blueTeacher: row.blue_teacher || "",
+      blueRoom: row.blue_room || "",
+      optIn: Boolean(row.laptop_opt_in),
+    };
   }
 
   async function loadCheckins() {
@@ -233,72 +195,6 @@
           setSync("Live sync paused — refresh if another laptop looks ahead", false);
         }
       });
-  }
-
-  function rowsToMap(text, mapper) {
-    const rows = parseCsv(text);
-    if (rows.length < 2) return new Map();
-    const header = rows[0].map((h) => h.trim());
-    const idx = Object.fromEntries(header.map((h, i) => [h, i]));
-    const map = new Map();
-    for (let i = 1; i < rows.length; i += 1) {
-      const record = mapper(rows[i], idx);
-      if (record?.studentId && !map.has(record.studentId)) {
-        map.set(record.studentId, record);
-      }
-    }
-    return map;
-  }
-
-  async function loadLists() {
-    if (eligibleById && rosterById) return;
-    if (!loadPromise) {
-      loadPromise = (async () => {
-        const [eligibleRes, rosterRes] = await Promise.all([
-          fetch(ELIGIBLE_URL, { cache: "no-cache" }),
-          fetch(ROSTER_URL, { cache: "no-cache" }),
-        ]);
-        if (!eligibleRes.ok) {
-          throw new Error(`Could not load checkout list (${eligibleRes.status})`);
-        }
-        if (!rosterRes.ok) {
-          throw new Error(`Could not load homeroom roster (${rosterRes.status})`);
-        }
-        const [eligibleText, rosterText] = await Promise.all([
-          eligibleRes.text(),
-          rosterRes.text(),
-        ]);
-        eligibleById = rowsToMap(eligibleText, (r, idx) => {
-          const studentId = normalizeStudentId(r[idx.student_id]);
-          const choice = (r[idx.choice] || "").trim();
-          if (!studentId) return null;
-          if (!/opt-?\s*in/i.test(choice)) return null;
-          return {
-            studentId,
-            name: (r[idx.name] || "").trim(),
-            grade: (r[idx.grade] || "").trim(),
-            choice,
-          };
-        });
-        rosterById = rowsToMap(rosterText, (r, idx) => {
-          const studentId = normalizeStudentId(r[idx.student_id]);
-          if (!studentId) return null;
-          return {
-            studentId,
-            name: (r[idx.name] || "").trim(),
-            grade: (r[idx.grade] || "").trim(),
-            whiteTeacher: (r[idx.white_teacher] || "").trim(),
-            whiteRoom: (r[idx.white_room] || "").trim(),
-            blueTeacher: (r[idx.blue_teacher] || "").trim(),
-            blueRoom: (r[idx.blue_room] || "").trim(),
-          };
-        });
-      })().catch((err) => {
-        loadPromise = null;
-        throw err;
-      });
-    }
-    await loadPromise;
   }
 
   function playTone(kind) {
@@ -348,7 +244,7 @@
   }
 
   function updateStats() {
-    const eligible = eligibleById ? eligibleById.size : 0;
+    const eligible = eligibleCount;
     const checked = checkins.size;
     const waiting = [...checkins.values()].filter((row) => !row.givenAt).length;
     const done = checked - waiting;
@@ -479,14 +375,13 @@
     searchBtn.disabled = true;
 
     try {
-      await loadLists();
       if (!db) throw new Error("Database is not connected");
       const studentId = normalizeStudentId(queryDigits);
-      const eligible = eligibleById.get(studentId) || null;
-      const roster = rosterById.get(studentId) || null;
-      const name = titleCaseName(eligible?.name || roster?.name || "");
-      const grade = gradeLabel(eligible?.grade || roster?.grade || "");
-      const room = homeroomLine(roster);
+      const student = await lookupLaptopStudent(studentId);
+      const eligible = student?.optIn ? student : null;
+      const name = titleCaseName(student?.name || "");
+      const grade = gradeLabel(student?.grade || "");
+      const room = homeroomLine(student);
 
       if (eligible) {
         const result = await recordCheckin({
@@ -523,7 +418,7 @@
           title: "FORM NOT COMPLETED PLEASE GO BACK TO CLASS",
           name: name || undefined,
           detail: [grade, room].filter(Boolean).join(" · "),
-          meta: roster
+          meta: student
             ? "No Opt-In form on the checkout list"
             : "No Opt-In form · ID not on the homeroom roster either",
         });
@@ -680,7 +575,7 @@
   (async () => {
     try {
       connectDb();
-      await Promise.all([loadLists(), loadCheckins()]);
+      await Promise.all([loadEligibleCount(), loadCheckins()]);
       subscribeCheckins();
       updateStats();
       document.body.classList.add("is-ready");

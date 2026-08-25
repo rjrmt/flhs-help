@@ -1,5 +1,6 @@
-/* Public Supabase URL + anon key for the laptop kiosk.
-   The anon key is meant for the browser. RLS limits it to laptop_checkins. */
+/* Public Supabase URL + anon key for the site and laptop kiosk.
+   The anon key is meant for the browser. Student rosters live in a private
+   schema; the browser can only look up one student ID through RPCs. */
 window.FLHS_SUPABASE = {
   url: "https://lharxnpvcprthgabklwo.supabase.co",
   anonKey:

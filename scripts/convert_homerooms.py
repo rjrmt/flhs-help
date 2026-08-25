@@ -14,7 +14,10 @@ left-padded back to 10 digits.
 
 Usage:
   python3 scripts/convert_homerooms.py "/path/to/Advanced Report.xlsx"
-  python3 scripts/convert_homerooms.py "/path/to/report.xlsx" -o data/homerooms.csv
+  python3 scripts/upload_students.py --api
+
+The CSV stays on this computer (gitignored). Upload it to the private
+Supabase roster instead of publishing it on the website.
 """
 
 from __future__ import annotations

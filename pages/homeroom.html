@@ -781,9 +781,11 @@
     </footer>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/flhs-db.js"></script>
   <script>
     (() => {
-      const CSV_URL = "../data/homerooms.csv";
       const STUDENT_ID_LEN = 10;
       const AUTO_SEARCH_MS = 120;
       const form = document.getElementById("homeroom-form");
@@ -792,10 +794,6 @@
       const results = document.getElementById("results");
       const statusLine = document.getElementById("status-line");
 
-      /** @type {Map<string, object> | null} */
-      let byId = null;
-      /** @type {Promise<Map<string, object>> | null} */
-      let loadPromise = null;
       let autoSearchTimer = 0;
       let lastAutoSearched = "";
       let searchInFlight = false;
@@ -806,53 +804,6 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
-      }
-
-      function parseCsv(text) {
-        const rows = [];
-        let row = [];
-        let cell = "";
-        let inQuotes = false;
-
-        for (let i = 0; i < text.length; i += 1) {
-          const ch = text[i];
-          const next = text[i + 1];
-
-          if (inQuotes) {
-            if (ch === '"' && next === '"') {
-              cell += '"';
-              i += 1;
-            } else if (ch === '"') {
-              inQuotes = false;
-            } else {
-              cell += ch;
-            }
-            continue;
-          }
-
-          if (ch === '"') {
-            inQuotes = true;
-          } else if (ch === ",") {
-            row.push(cell);
-            cell = "";
-          } else if (ch === "\n") {
-            row.push(cell);
-            rows.push(row);
-            row = [];
-            cell = "";
-          } else if (ch === "\r") {
-            // skip
-          } else {
-            cell += ch;
-          }
-        }
-
-        if (cell.length || row.length) {
-          row.push(cell);
-          rows.push(row);
-        }
-
-        return rows.filter((r) => r.some((c) => String(c).trim() !== ""));
       }
 
       /** Digits only — keeps leading zeros the user typed. */
@@ -871,44 +822,23 @@
         return digits;
       }
 
-      async function loadData() {
-        if (byId) return byId;
-        if (!loadPromise) {
-          loadPromise = (async () => {
-            const res = await fetch(CSV_URL, { cache: "no-cache" });
-            if (!res.ok) throw new Error(`Could not load homeroom data (${res.status})`);
-            const text = await res.text();
-            const rows = parseCsv(text);
-            if (rows.length < 2) throw new Error("Homeroom data file is empty");
-
-            const header = rows[0].map((h) => h.trim());
-            const idx = Object.fromEntries(header.map((h, i) => [h, i]));
-            const map = new Map();
-
-            for (let i = 1; i < rows.length; i += 1) {
-              const r = rows[i];
-              const studentId = normalizeStudentId(r[idx.student_id]);
-              if (!studentId) continue;
-              const record = {
-                studentId,
-                name: (r[idx.name] || "").trim(),
-                grade: (r[idx.grade] || "").trim(),
-                whiteTeacher: (r[idx.white_teacher] || "").trim(),
-                whiteRoom: (r[idx.white_room] || "").trim(),
-                blueTeacher: (r[idx.blue_teacher] || "").trim(),
-                blueRoom: (r[idx.blue_room] || "").trim(),
-              };
-              if (!map.has(studentId)) map.set(studentId, record);
-            }
-
-            byId = map;
-            return map;
-          })().catch((err) => {
-            loadPromise = null;
-            throw err;
-          });
-        }
-        return loadPromise;
+      async function lookupStudent(studentId) {
+        const db = window.flhsCreateDb();
+        const { data, error } = await db.rpc("lookup_student", {
+          p_student_id: studentId,
+        });
+        if (error) throw error;
+        const row = Array.isArray(data) ? data[0] : data;
+        if (!row?.student_id) return null;
+        return {
+          studentId: normalizeStudentId(row.student_id),
+          name: row.name || "",
+          grade: row.grade || "",
+          whiteTeacher: row.white_teacher || "",
+          whiteRoom: row.white_room || "",
+          blueTeacher: row.blue_teacher || "",
+          blueRoom: row.blue_room || "",
+        };
       }
 
       function setStatus(message, tone = "") {
@@ -1169,11 +1099,6 @@
         `;
       }
 
-      function lookup(map, rawQuery) {
-        const key = normalizeStudentId(rawQuery);
-        return key ? map.get(key) || null : null;
-      }
-
       async function runSearch() {
         const queryDigits = digitsOnly(input.value);
         if (!queryDigits) {
@@ -1189,14 +1114,14 @@
         setStatus("Searching…");
 
         try {
-          const map = await loadData();
-          const record = lookup(map, queryDigits);
+          const studentId = normalizeStudentId(queryDigits);
+          const record = studentId ? await lookupStudent(studentId) : null;
           if (record) {
             setStatus("");
             showRecord(record);
           } else {
             setStatus("");
-            showNotFound(normalizeStudentId(queryDigits) || queryDigits);
+            showNotFound(studentId || queryDigits);
           }
         } catch (err) {
           console.error(err);
@@ -1233,9 +1158,6 @@
           }, AUTO_SEARCH_MS);
         }
       });
-
-      // Warm the CSV cache so the first search feels instant.
-      loadData().catch(() => {});
 
       // Deep-link from Student Hub: ?id=0618…
       const params = new URLSearchParams(location.search);

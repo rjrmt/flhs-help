@@ -14,7 +14,10 @@ Student IDs are written as 10-digit strings (school format starts with 06).
 
 Usage:
   python3 scripts/convert_laptop_checkout.py "/path/to/Portal.csv"
-  python3 scripts/convert_laptop_checkout.py "/path/to/export.xlsx" -o data/laptop-eligible.csv
+  python3 scripts/upload_students.py --api
+
+The CSV stays on this computer (gitignored). Upload it to the private
+Supabase roster instead of publishing it on the website.
 """
 
 from __future__ import annotations
