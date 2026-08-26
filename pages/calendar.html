@@ -449,6 +449,12 @@
       gap: 1rem;
     }
 
+    .cal-main {
+      min-width: 0;
+      display: grid;
+      gap: 0.65rem;
+    }
+
     .detail-panel {
       border-radius: var(--radius-lg);
       border: 1px solid rgba(0, 35, 102, 0.12);
@@ -469,54 +475,65 @@
       100% { transform: translateY(0) scale(1); }
     }
 
-    /* Phone / tablet: keep the day info docked in view while scrolling months */
+    /* Phone / tablet: selected day stays on top; swipe one month at a time */
     @media (max-width: 899px) {
       .layout {
-        display: block;
-      }
-
-      .months {
-        padding-bottom: calc(min(40vh, 20rem) + 1.75rem + env(safe-area-inset-bottom, 0px));
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
       }
 
       .detail-panel {
-        position: fixed;
-        left: 0.7rem;
-        right: 0.7rem;
-        bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
-        z-index: 60;
+        order: -1;
+        position: sticky;
+        top: 0.35rem;
+        z-index: 40;
         min-height: 0;
-        max-height: min(40vh, 20rem);
+        max-height: min(42vh, 18.5rem);
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        border: 1px solid rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.7);
         box-shadow:
-          0 18px 40px rgba(0, 35, 102, 0.28),
+          0 12px 28px rgba(0, 35, 102, 0.2),
           0 0 0 1px rgba(0, 35, 102, 0.08);
-        backdrop-filter: blur(18px) saturate(1.2);
-        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        backdrop-filter: blur(16px) saturate(1.15);
+        -webkit-backdrop-filter: blur(16px) saturate(1.15);
       }
 
       .detail-panel[data-mode="filter"] {
-        max-height: min(48vh, 24rem);
+        max-height: min(48vh, 22rem);
       }
 
-      .detail-panel::before {
-        content: "";
-        display: block;
-        width: 2.4rem;
-        height: 0.28rem;
-        border-radius: 999px;
-        background: rgba(0, 35, 102, 0.22);
-        margin: 0 auto 0.7rem;
+      .cal-main {
+        order: 1;
+        gap: 0.45rem;
       }
 
-      .detail-panel[data-tone="blue"]::before,
-      .detail-panel[data-tone="closed"]::before,
-      .detail-panel[data-tone="planning"]::before,
-      .detail-panel[data-tone="psd"]::before,
-      .detail-panel[data-tone^="acat-"]::before {
-        background: rgba(255, 255, 255, 0.45);
+      .months {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 0.7rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 0;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.15rem;
+        scrollbar-width: none;
+      }
+
+      .months::-webkit-scrollbar {
+        display: none;
+      }
+
+      .month-card {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
       }
     }
 
@@ -1107,7 +1124,7 @@
       }
 
       .months {
-        grid-template-columns: 1fr;
+        /* mobile uses flex carousel; keep single column fallback if grid wins */
       }
     }
 
@@ -1177,7 +1194,9 @@
         <div class="legend" id="cal-legend" role="toolbar" aria-label="School calendar legend filters"></div>
 
         <div class="layout">
-          <div id="cal-months" class="months" aria-live="polite"></div>
+          <div class="cal-main">
+            <div id="cal-months" class="months" aria-live="polite"></div>
+          </div>
           <aside
             id="cal-detail"
             class="detail-panel"
@@ -1196,7 +1215,7 @@
     </footer>
   </div>
 
-  <script src="../js/calendar.js?v=81" defer></script>
+  <script src="../js/calendar.js?v=85" defer></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

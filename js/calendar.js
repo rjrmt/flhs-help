@@ -621,6 +621,47 @@
       ?.querySelector(`.cal-day[data-date="${iso}"]`)
       ?.classList.add("is-selected");
     pulseDetailPanel();
+    revealSelectedDay(iso);
+  }
+
+  function isMobileCalendar() {
+    return window.matchMedia("(max-width: 899px)").matches;
+  }
+
+  function monthCards() {
+    return [...(monthsEl?.querySelectorAll(".month-card[data-month]") || [])];
+  }
+
+  function scrollMonthForDate(iso, behavior = "smooth") {
+    if (!iso || !monthsEl) return;
+    const ym = iso.slice(0, 7);
+    const cards = monthCards();
+    const card = cards.find((c) => c.dataset.month === ym);
+    if (!card) return;
+
+    if (isMobileCalendar()) {
+      monthsEl.scrollTo({ left: card.offsetLeft, behavior });
+      return;
+    }
+
+    card.scrollIntoView({ block: "nearest", behavior });
+  }
+
+  function ensureDetailInView() {
+    if (!detailEl || detailEl.hidden || !isMobileCalendar()) return;
+    detailEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function revealSelectedDay(iso) {
+    scrollMonthForDate(iso, "smooth");
+    ensureDetailInView();
+  }
+
+  function afterMonthsRendered(focusIso) {
+    const iso = focusIso || selectedDate || easternIsoToday();
+    requestAnimationFrame(() => {
+      scrollMonthForDate(iso, "auto");
+    });
   }
 
   function monthKeysFromDates(dates) {
@@ -683,7 +724,7 @@
       `);
     }
 
-    return monthCard(title, cells);
+    return monthCard(yearMonth, title, cells);
   }
 
   function renderMonthAcademic(yearMonth, todayIso) {
@@ -732,12 +773,12 @@
       `);
     }
 
-    return monthCard(title, cells);
+    return monthCard(yearMonth, title, cells);
   }
 
-  function monthCard(title, cells) {
+  function monthCard(yearMonth, title, cells) {
     return `
-      <section class="month-card" aria-label="${escapeHtml(title)}">
+      <section class="month-card" data-month="${escapeHtml(yearMonth)}" aria-label="${escapeHtml(title)}">
         <h2 class="month-title">${escapeHtml(title)}</h2>
         <div class="month-weekdays" aria-hidden="true">
           ${WEEKDAYS.map((d) => `<span>${d}</span>`).join("")}
@@ -859,14 +900,7 @@
       initial = (byDate.has(todayIso) && todayIso) || schoolRows[0]?.date || todayIso;
     }
     renderDetail(initial);
-
-    const focusCell =
-      monthsEl?.querySelector(`.cal-day[data-date="${initial}"]`) ||
-      monthsEl?.querySelector(".cal-day.is-today");
-    focusCell?.closest(".month-card")?.scrollIntoView({
-      block: "nearest",
-      behavior: "smooth",
-    });
+    afterMonthsRendered(initial);
   }
 
   function setCalendarMode(mode) {
@@ -880,16 +914,15 @@
   function goToToday() {
     const todayIso = easternIsoToday();
     renderDetail(todayIso);
+    afterMonthsRendered(todayIso);
 
-    const dayBtn = monthsEl?.querySelector(`.cal-day[data-date="${todayIso}"]`);
-    if (dayBtn) {
-      dayBtn.scrollIntoView({
+    if (!isMobileCalendar()) {
+      const dayBtn = monthsEl?.querySelector(`.cal-day[data-date="${todayIso}"]`);
+      dayBtn?.scrollIntoView({
         block: "center",
         behavior: "smooth",
       });
-      dayBtn.focus({ preventScroll: true });
-    } else {
-      detailEl?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      dayBtn?.focus({ preventScroll: true });
     }
   }
 
@@ -1315,10 +1348,9 @@
         if (!iso) return;
         event.preventDefault();
         renderDetail(iso);
-        const dayBtn = monthsEl?.querySelector(`.cal-day[data-date="${iso}"]`);
-        if (dayBtn) {
-          dayBtn.scrollIntoView({ block: "center", behavior: "smooth" });
-          dayBtn.focus({ preventScroll: true });
+        if (!isMobileCalendar()) {
+          const dayBtn = monthsEl?.querySelector(`.cal-day[data-date="${iso}"]`);
+          dayBtn?.focus({ preventScroll: true });
         }
         return;
       }
@@ -1364,7 +1396,12 @@
       window.flhsCalendarMode = setCalendarMode;
       window.flhsCalendarPdf = downloadCalendarPdf;
 
-      refreshView();
+      const params = new URLSearchParams(window.location.search);
+      const modeParam = (params.get("mode") || "").trim().toLowerCase();
+      const dateParam = toIsoDateKey(params.get("date") || "");
+      if (modeParam === MODE_ACADEMIC) calendarMode = MODE_ACADEMIC;
+      const preferredDate = /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : undefined;
+      refreshView(preferredDate);
     } catch (err) {
       console.error(err);
       if (statusEl) statusEl.textContent = "Could not load the school calendar.";

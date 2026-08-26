@@ -293,36 +293,136 @@
       outline-offset: 3px;
     }
 
+    .bubble-testing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.22rem;
+      margin-top: 0.4rem;
+      padding: 0.35rem 0.45rem;
+      width: 100%;
+      max-width: 13.5rem;
+      border-radius: 0.65rem;
+      background: rgba(0, 35, 102, 0.08);
+      border: 1px solid rgba(0, 35, 102, 0.12);
+    }
+    .bubble-testing-cat {
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1.1;
+      opacity: 0.85;
+    }
+    .bubble-testing-text {
+      font-size: 0.72rem;
+      font-weight: 650;
+      line-height: 1.25;
+      text-wrap: pretty;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
     .bubble-open-hint {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      margin-top: 0.45rem;
-      opacity: 0.55;
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      gap: 0.28rem;
+      margin-top: 0.55rem;
+      padding: 0.32rem 0.7rem 0.32rem 0.75rem;
+      border-radius: 999px;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 750;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      background: rgba(0, 35, 102, 0.1);
+      border: 1.5px solid rgba(0, 35, 102, 0.18);
+      box-shadow: 0 1px 4px rgba(0, 35, 102, 0.08);
+      transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .bubble-open-hint svg {
-      width: 0.95rem;
-      height: 0.95rem;
+      width: 0.78rem;
+      height: 0.78rem;
+      flex: 0 0 auto;
     }
 
     a.bubble-link:hover .bubble-open-hint {
-      opacity: 0.9;
       transform: translateX(2px);
+      background: rgba(0, 35, 102, 0.16);
+      border-color: rgba(0, 35, 102, 0.28);
+      box-shadow: 0 2px 8px rgba(0, 35, 102, 0.14);
     }
 
-    #day-bubble[data-tone="white"] .bubble-open-hint { color: var(--cal-white-ink); }
-    #day-bubble[data-tone="blue"] .bubble-open-hint { color: #fff; }
+    #day-bubble[data-tone="white"] .bubble-open-hint {
+      color: var(--cal-white-ink);
+      background: rgba(10, 10, 10, 0.08);
+      border-color: rgba(10, 10, 10, 0.16);
+    }
+    #day-bubble[data-tone="white"] .bubble-testing {
+      color: var(--cal-white-ink);
+      background: rgba(10, 10, 10, 0.06);
+      border-color: rgba(10, 10, 10, 0.12);
+    }
+    #day-bubble[data-tone="blue"] .bubble-open-hint {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    #day-bubble[data-tone="blue"] .bubble-testing {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
     #day-bubble[data-tone="planning"] .bubble-open-hint,
     #day-bubble[data-tone="psd"] .bubble-open-hint,
-    #day-bubble[data-tone="closed"] .bubble-open-hint { color: #fff; }
-    #day-bubble[data-tone="erd"] .bubble-open-hint { color: var(--cal-erd-ink); }
+    #day-bubble[data-tone="closed"] .bubble-open-hint {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    #day-bubble[data-tone="planning"] .bubble-testing,
+    #day-bubble[data-tone="psd"] .bubble-testing,
+    #day-bubble[data-tone="closed"] .bubble-testing {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+    #day-bubble[data-tone="erd"] .bubble-open-hint {
+      color: var(--cal-erd-ink);
+      background: rgba(154, 52, 18, 0.1);
+      border-color: rgba(154, 52, 18, 0.22);
+    }
+    #day-bubble[data-tone="erd"] .bubble-testing {
+      color: var(--cal-erd-ink);
+      background: rgba(154, 52, 18, 0.08);
+      border-color: rgba(154, 52, 18, 0.16);
+    }
     #day-bubble[data-tone="weekend"] .bubble-open-hint,
-    #day-bubble[data-tone="error"] .bubble-open-hint { color: var(--navy); }
-    #day-bubble[data-tone="white"][data-exam="true"] .bubble-open-hint { color: var(--cal-white-ink); }
-    #day-bubble[data-tone="blue"][data-exam="true"] .bubble-open-hint { color: #fff; }
-    #day-bubble[data-tone="erd"][data-exam="true"] .bubble-open-hint { color: #5c3b00; }
+    #day-bubble[data-tone="error"] .bubble-open-hint {
+      color: var(--navy);
+    }
+    #day-bubble[data-tone="white"][data-exam="true"] .bubble-open-hint {
+      color: var(--cal-white-ink);
+      background: rgba(10, 10, 10, 0.08);
+      border-color: rgba(10, 10, 10, 0.16);
+    }
+    #day-bubble[data-tone="blue"][data-exam="true"] .bubble-open-hint {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    #day-bubble[data-tone="erd"][data-exam="true"] .bubble-open-hint {
+      color: #5c3b00;
+      background: rgba(92, 59, 0, 0.1);
+      border-color: rgba(92, 59, 0, 0.22);
+    }
+    #day-bubble[data-testing="true"] {
+      padding-bottom: 0.85rem;
+    }
 
     .bubble-eyebrow {
       font-size: 0.68rem;
@@ -1684,11 +1784,9 @@
               <p class="bubble-title">Loading…</p>
               <p class="bubble-detail">Checking school calendar</p>
               <span class="bubble-open-hint" aria-hidden="true">
+                <span class="bubble-open-label">View calendar</span>
                 <svg viewBox="0 0 24 24" fill="none">
-                  <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
-                  <path d="M3.5 9.5h17" stroke="currentColor" stroke-width="1.7"/>
-                  <path d="M8 3.5v3M16 3.5v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-                  <path d="M14.5 14.25 16.75 16.5 20 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </span>
             </a>

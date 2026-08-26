@@ -2,6 +2,7 @@
   const TZ = "America/New_York";
   const CALENDAR_CSV_URL = "data/calendar-2026-2027.csv";
   const BELL_CSV_URL = "data/bell-schedule.csv";
+  const TESTING_CSV_URL = "data/academic-testing-2026-2027.csv";
 
   const dayBubble = document.getElementById("day-bubble");
   const clockBubble = document.getElementById("clock-bubble");
@@ -13,6 +14,8 @@
 
   /** @type {Map<string, { date: string, dayOfWeek: string, dayType: string, notes: string }>} */
   let calendarByDate = new Map();
+  /** @type {Map<string, Array<{ date: string, category: string, title: string, details: string }>>} */
+  let testingByDate = new Map();
   /** False until the calendar CSV has been parsed into calendarByDate. */
   let calendarReady = false;
 
@@ -226,6 +229,76 @@
         notes: (r.notes || "").trim(),
       }))
       .filter((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.dayType);
+  }
+
+  function loadTestingRows(text) {
+    return parseCsvTable(text)
+      .map((r) => ({
+        date: toIsoDateKey(r.date || ""),
+        category: (r.category || "Testing").trim(),
+        title: (r.title || "").trim(),
+        details: (r.details || "").trim(),
+      }))
+      .filter((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.title);
+  }
+
+  function groupTestingByDate(rows) {
+    /** @type {Map<string, Array<{ date: string, category: string, title: string, details: string }>>} */
+    const map = new Map();
+    for (const row of rows) {
+      const list = map.get(row.date) || [];
+      list.push(row);
+      map.set(row.date, list);
+    }
+    return map;
+  }
+
+  function shortenText(text, max = 46) {
+    const value = String(text || "").trim();
+    if (value.length <= max) return value;
+    return `${value.slice(0, max - 1).trimEnd()}…`;
+  }
+
+  /**
+   * Compact academic-testing summary for the home day bubble.
+   * @param {Array<{ category: string, title: string }> | undefined} events
+   * @returns {{ category: string, text: string } | null}
+   */
+  function testingSummary(events) {
+    if (!events?.length) return null;
+    if (events.length === 1) {
+      return {
+        category: events[0].category,
+        text: shortenText(events[0].title),
+      };
+    }
+    const categories = [...new Set(events.map((e) => e.category))];
+    if (categories.length === 1) {
+      return {
+        category: categories[0],
+        text: shortenText(`${events[0].title} · +${events.length - 1} more`),
+      };
+    }
+    const shown = categories.slice(0, 3).join(" · ");
+    const extra = categories.length > 3 ? ` · +${categories.length - 3}` : "";
+    return {
+      category: "Testing",
+      text: shortenText(`${shown}${extra}`),
+    };
+  }
+
+  /**
+   * @param {ReturnType<typeof describeDay>} info
+   * @param {string} isoDate
+   */
+  function withTesting(info, isoDate) {
+    const testingEvents = testingByDate.get(isoDate) || [];
+    return {
+      ...info,
+      isoDate,
+      testingEvents,
+      testing: testingSummary(testingEvents),
+    };
   }
 
   function loadBellRows(text) {
@@ -620,24 +693,47 @@
     dayBubble.dataset.tone = info.tone;
     if (info.exam) dayBubble.dataset.exam = "true";
     else delete dayBubble.dataset.exam;
+    if (info.testing) dayBubble.dataset.testing = "true";
+    else delete dayBubble.dataset.testing;
+
+    const testingMarkup = info.testing
+      ? `<span class="bubble-testing">
+          <span class="bubble-testing-cat">${escapeHtml(info.testing.category)}</span>
+          <span class="bubble-testing-text">${escapeHtml(info.testing.text)}</span>
+        </span>`
+      : "";
+
+    const openLabel = info.testing ? "View testing calendar" : "View calendar";
 
     dayBubble.innerHTML = `
       <p class="bubble-eyebrow">${escapeHtml(info.whenLabel)}</p>
       <p class="bubble-letter" aria-hidden="true">${escapeHtml(info.letter)}</p>
       <p class="bubble-title">${escapeHtml(info.title)}</p>
       <p class="bubble-detail">${escapeHtml(info.detail)}</p>
+      ${testingMarkup}
       <span class="bubble-open-hint" aria-hidden="true">
+        <span class="bubble-open-label">${escapeHtml(openLabel)}</span>
         <svg viewBox="0 0 24 24" fill="none">
-          <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
-          <path d="M3.5 9.5h17" stroke="currentColor" stroke-width="1.7"/>
-          <path d="M8 3.5v3M16 3.5v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-          <path d="M14.5 14.25 16.75 16.5 20 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
     `;
+
+    const iso = info.isoDate || "";
+    if (info.testing && iso) {
+      dayBubble.href = `pages/calendar.html?mode=academic&date=${encodeURIComponent(iso)}`;
+    } else if (iso) {
+      dayBubble.href = `pages/calendar.html?date=${encodeURIComponent(iso)}`;
+    } else {
+      dayBubble.href = "pages/calendar.html";
+    }
+
+    const testingAria = info.testing
+      ? ` Testing: ${info.testing.category} — ${info.testing.text}.`
+      : "";
     dayBubble.setAttribute(
       "aria-label",
-      `${info.whenLabel}: ${info.title}. ${info.detail}. Open school calendar`
+      `${info.whenLabel}: ${info.title}. ${info.detail}.${testingAria} Open school calendar`
     );
   }
 
@@ -1231,7 +1327,10 @@
     const parts = easternParts();
     const todayEntry = calendarByDate.get(parts.isoDate) || null;
     // Bell / lunch / period status always tracks *today*.
-    const todayInfo = describeDay(todayEntry, parts.weekday, "Today");
+    const todayInfo = withTesting(
+      describeDay(todayEntry, parts.weekday, "Today"),
+      parts.isoDate
+    );
     currentDayInfo = todayInfo;
 
     // Day-type bubble flips to tomorrow at/after 4:00 PM Eastern.
@@ -1239,7 +1338,10 @@
       const tomorrowParts = easternPartsForOffset(1);
       const tomorrowEntry = calendarByDate.get(tomorrowParts.isoDate) || null;
       renderDayBubble(
-        describeDay(tomorrowEntry, tomorrowParts.weekday, "Tomorrow")
+        withTesting(
+          describeDay(tomorrowEntry, tomorrowParts.weekday, "Tomorrow"),
+          tomorrowParts.isoDate
+        )
       );
     } else {
       renderDayBubble(todayInfo);
@@ -1271,9 +1373,10 @@
 
   async function loadData() {
     try {
-      const [calRes, bellRes] = await Promise.all([
+      const [calRes, bellRes, testRes] = await Promise.all([
         fetch(CALENDAR_CSV_URL, { cache: "no-cache" }),
         fetch(BELL_CSV_URL, { cache: "no-cache" }),
+        fetch(TESTING_CSV_URL, { cache: "no-cache" }),
       ]);
 
       if (!calRes.ok) throw new Error(`Calendar CSV ${calRes.status}`);
@@ -1288,6 +1391,13 @@
         bellByDayType = groupBellByDayType(loadBellRows(bellText));
       } else {
         console.warn("Bell schedule CSV unavailable:", bellRes.status);
+      }
+
+      if (testRes.ok) {
+        testingByDate = groupTestingByDate(loadTestingRows(await testRes.text()));
+      } else {
+        console.warn("Academic testing CSV unavailable:", testRes.status);
+        testingByDate = new Map();
       }
 
       refreshDay();
