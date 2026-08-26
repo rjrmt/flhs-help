@@ -551,10 +551,165 @@
     }
     footer a { color: var(--navy); font-weight: 700; }
 
+    /* Guided tour */
+    .tour-fab {
+      position: fixed;
+      right: max(0.85rem, env(safe-area-inset-right));
+      bottom: max(0.85rem, env(safe-area-inset-bottom));
+      z-index: 70;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 2.75rem;
+      padding: 0.65rem 1rem 0.65rem 0.85rem;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(160deg, #003080 0%, var(--navy) 55%, #001a4d 100%);
+      color: #fff;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.88rem;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      box-shadow:
+        0 12px 28px rgba(0, 35, 102, 0.35),
+        0 0 0 2px rgba(255, 255, 255, 0.2);
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .tour-fab:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 16px 32px rgba(0, 35, 102, 0.4),
+        0 0 0 2px rgba(255, 255, 255, 0.28);
+    }
+    .tour-fab:focus-visible {
+      outline: 3px solid rgba(0, 86, 179, 0.55);
+      outline-offset: 3px;
+    }
+    .tour-fab svg {
+      width: 1.15rem;
+      height: 1.15rem;
+      flex-shrink: 0;
+    }
+    .tour-fab-badge {
+      position: absolute;
+      top: -0.35rem;
+      right: -0.15rem;
+      padding: 0.18rem 0.4rem;
+      border-radius: 999px;
+      background: var(--orange);
+      color: #fff;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 10px rgba(232, 93, 4, 0.4);
+    }
+    .tour-fab-badge[hidden] { display: none; }
+
+    .tour-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      pointer-events: none;
+    }
+    .tour-overlay.is-on { pointer-events: auto; }
+    .tour-spot {
+      position: absolute;
+      border-radius: 1rem;
+      box-shadow:
+        0 0 0 9999px rgba(0, 20, 55, 0.58),
+        0 0 0 3px #fff,
+        0 12px 28px rgba(0, 35, 102, 0.35);
+      transition: top 0.22s ease, left 0.22s ease, width 0.22s ease, height 0.22s ease;
+      pointer-events: none;
+    }
+    .tour-card {
+      position: absolute;
+      z-index: 1;
+      width: min(20.5rem, calc(100vw - 1.5rem));
+      padding: 1rem 1.05rem 0.95rem;
+      border-radius: 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(236, 244, 255, 0.94));
+      box-shadow: 0 18px 40px rgba(0, 35, 102, 0.28);
+      color: var(--ink-900);
+      pointer-events: auto;
+    }
+    .tour-kicker {
+      font-size: 0.66rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--royal);
+      margin-bottom: 0.3rem;
+    }
+    .tour-card h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+    }
+    .tour-card p {
+      font-size: 0.88rem;
+      font-weight: 550;
+      color: var(--ink-500);
+      line-height: 1.4;
+      margin-bottom: 0.9rem;
+    }
+    .tour-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .tour-actions button {
+      font: inherit;
+      font-weight: 750;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      cursor: pointer;
+      min-height: 2.2rem;
+      padding: 0.4rem 0.85rem;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tour-skip {
+      margin-right: auto;
+      border: none;
+      background: transparent;
+      color: var(--ink-400);
+    }
+    .tour-back {
+      border: 1.5px solid rgba(0, 35, 102, 0.16);
+      background: #fff;
+      color: var(--navy);
+    }
+    .tour-next {
+      border: none;
+      background: var(--navy);
+      color: #fff;
+    }
+    .tour-next:focus-visible,
+    .tour-back:focus-visible,
+    .tour-skip:focus-visible {
+      outline: 3px solid rgba(0, 86, 179, 0.45);
+      outline-offset: 2px;
+    }
+    [data-tour].tour-target {
+      position: relative;
+      z-index: 91;
+      pointer-events: none;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .laptop-action:hover,
       .laptop-action:active,
-      .app-icon:active .app-tile { transform: none; }
+      .app-icon:active .app-tile,
+      .tour-fab:hover { transform: none; }
+      .tour-spot { transition: none; }
       html { scroll-behavior: auto; }
     }
   </style>
@@ -581,7 +736,7 @@
         </div>
 
         <div class="wide-split">
-          <section class="section" id="laptops" aria-labelledby="laptop-heading">
+          <section class="section" id="laptops" aria-labelledby="laptop-heading" data-tour="laptops">
             <p class="section-label" id="laptop-heading">Helping students</p>
             <div class="laptop-hero">
               <h2>Student needs a laptop?</h2>
@@ -631,7 +786,7 @@
           <section class="section" id="tools" aria-labelledby="tools-heading">
             <p class="section-label" id="tools-heading">Teacher toolkit</p>
             <div class="app-groups">
-              <div class="app-group">
+              <div class="app-group" data-tour="assist">
                 <p class="app-cat">Assist a student</p>
                 <nav class="app-grid" aria-label="Assist a student">
                   <a class="app-icon" href="laptop-checkout.html">
@@ -669,6 +824,7 @@
                     href="https://forms.cloud.microsoft.com/r/8m0jyxMsGN"
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-tour="detentions"
                   >
                     <span class="app-tile detention" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
@@ -681,7 +837,7 @@
                 </nav>
               </div>
 
-              <div class="app-group">
+              <div class="app-group" data-tour="schoolday">
                 <p class="app-cat">Your school day</p>
                 <nav class="app-grid" aria-label="Your school day">
                   <a class="app-icon" href="media.html">
@@ -727,7 +883,7 @@
               </div>
             </div>
 
-            <div class="room-box">
+            <div class="room-box" data-tour="lookup">
               <p>Look up a student fast — enter their student ID</p>
               <form class="quick-lookup" id="id-jump" action="homeroom.html" method="get">
                 <input
@@ -746,7 +902,7 @@
           </section>
         </div>
 
-        <section class="section" id="help" aria-labelledby="help-heading">
+        <section class="section" id="help" aria-labelledby="help-heading" data-tour="help">
           <div class="help-panel">
             <h3 id="help-heading">Classroom device or login issue?</h3>
             <p>Submit a Teacher IT Ticket, or email RJ for campus tech support.</p>
@@ -768,6 +924,36 @@
     </footer>
   </div>
 
+  <button type="button" class="tour-fab" id="tour-start" aria-haspopup="dialog" aria-controls="tour-overlay">
+    <span class="tour-fab-badge" id="tour-badge">New</span>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M12 10.2v5.2M12 7.8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Take a tour
+  </button>
+
+  <div class="tour-overlay" id="tour-overlay" hidden>
+    <div class="tour-spot" id="tour-spot" aria-hidden="true"></div>
+    <div
+      class="tour-card"
+      id="tour-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tour-title"
+      aria-describedby="tour-body"
+    >
+      <p class="tour-kicker" id="tour-step">1 / 7</p>
+      <h2 id="tour-title">Welcome</h2>
+      <p id="tour-body"></p>
+      <div class="tour-actions">
+        <button type="button" class="tour-skip" id="tour-skip">Skip</button>
+        <button type="button" class="tour-back" id="tour-back">Back</button>
+        <button type="button" class="tour-next" id="tour-next">Next</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (() => {
       const idForm = document.getElementById("id-jump");
@@ -784,6 +970,205 @@
       idInput?.addEventListener("input", () => {
         idInput.value = idInput.value.replace(/\D/g, "").slice(0, 10);
       });
+
+      const TOUR_KEY = "flhs-teacher-tour-v1";
+      const steps = [
+        {
+          title: "Built for your school day",
+          body: "Quick tour of Teacher Resources — laptop help, student lookups, testing rooms, detentions, and campus tools so you spend less time hunting links.",
+          selector: null,
+        },
+        {
+          title: "Laptop help, fast",
+          body: "Send kids to the Media Center for pickup, check Opt-In eligibility, or share the family PDF — no scavenger hunt needed.",
+          selector: '[data-tour="laptops"]',
+        },
+        {
+          title: "Assist a student",
+          body: "Eligibility check, find a homeroom, and Test Room Locator — the tools you need when a student is standing at your desk.",
+          selector: '[data-tour="assist"]',
+        },
+        {
+          title: "New · Detentions",
+          body: "Assign a detention in one tap. Opens the school form in a new tab so you can finish it without leaving your flow forever.",
+          selector: '[data-tour="detentions"]',
+        },
+        {
+          title: "Your school day links",
+          body: "Media Center hours, campus map, calendar, and Teacher IT Ticket — the everyday stuff, one grid away.",
+          selector: '[data-tour="schoolday"]',
+        },
+        {
+          title: "Instant student lookup",
+          body: "Type a 10-digit student ID here to jump straight to their homeroom. Handy between bells.",
+          selector: '[data-tour="lookup"]',
+        },
+        {
+          title: "Tech help when you need it",
+          body: "Classroom device or login issue? Submit a Teacher IT Ticket or email RJ. You’re not stuck troubleshooting alone.",
+          selector: '[data-tour="help"]',
+        },
+      ];
+
+      const fab = document.getElementById("tour-start");
+      const badge = document.getElementById("tour-badge");
+      const overlay = document.getElementById("tour-overlay");
+      const spot = document.getElementById("tour-spot");
+      const card = document.getElementById("tour-card");
+      const stepEl = document.getElementById("tour-step");
+      const titleEl = document.getElementById("tour-title");
+      const bodyEl = document.getElementById("tour-body");
+      const skipBtn = document.getElementById("tour-skip");
+      const backBtn = document.getElementById("tour-back");
+      const nextBtn = document.getElementById("tour-next");
+
+      let index = 0;
+      let activeEl = null;
+      let open = false;
+
+      function seenTour() {
+        try {
+          return localStorage.getItem(TOUR_KEY) === "1";
+        } catch {
+          return false;
+        }
+      }
+
+      function markSeen() {
+        try {
+          localStorage.setItem(TOUR_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+        if (badge) badge.hidden = true;
+      }
+
+      if (badge && seenTour()) badge.hidden = true;
+
+      function clearTarget() {
+        activeEl?.classList.remove("tour-target");
+        activeEl = null;
+      }
+
+      function placeCard(rect) {
+        const pad = 12;
+        const cardW = card.offsetWidth || 320;
+        const cardH = card.offsetHeight || 180;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        let left = rect.left + rect.width / 2 - cardW / 2;
+        left = Math.max(pad, Math.min(left, vw - cardW - pad));
+
+        const below = rect.bottom + pad;
+        const above = rect.top - cardH - pad;
+        let top = below + cardH + pad <= vh ? below : Math.max(pad, above);
+        if (top + cardH > vh - pad) top = Math.max(pad, vh - cardH - pad);
+
+        card.style.left = `${left}px`;
+        card.style.top = `${top}px`;
+      }
+
+      function placeSpot(rect) {
+        const pad = 8;
+        spot.style.left = `${Math.max(4, rect.left - pad)}px`;
+        spot.style.top = `${Math.max(4, rect.top - pad)}px`;
+        spot.style.width = `${rect.width + pad * 2}px`;
+        spot.style.height = `${rect.height + pad * 2}px`;
+      }
+
+      function showStep() {
+        const step = steps[index];
+        clearTarget();
+        stepEl.textContent = `${index + 1} / ${steps.length}`;
+        titleEl.textContent = step.title;
+        bodyEl.textContent = step.body;
+        backBtn.disabled = index === 0;
+        nextBtn.textContent = index === steps.length - 1 ? "Done" : "Next";
+
+        const target = step.selector ? document.querySelector(step.selector) : null;
+        if (!target) {
+          spot.style.left = "50%";
+          spot.style.top = "42%";
+          spot.style.width = "0px";
+          spot.style.height = "0px";
+          spot.style.opacity = "1";
+          spot.style.borderRadius = "50%";
+          card.style.left = "50%";
+          card.style.top = "28%";
+          card.style.transform = "translateX(-50%)";
+          return;
+        }
+
+        spot.style.opacity = "1";
+        spot.style.borderRadius = "1rem";
+        card.style.transform = "";
+        activeEl = target;
+        target.classList.add("tour-target");
+        target.scrollIntoView({ block: "center", behavior: "smooth" });
+
+        window.setTimeout(() => {
+          const rect = target.getBoundingClientRect();
+          placeSpot(rect);
+          placeCard(rect);
+        }, 280);
+      }
+
+      function endTour() {
+        open = false;
+        overlay.hidden = true;
+        overlay.classList.remove("is-on");
+        clearTarget();
+        markSeen();
+        fab?.focus();
+      }
+
+      function startTour() {
+        open = true;
+        index = 0;
+        overlay.hidden = false;
+        overlay.classList.add("is-on");
+        showStep();
+        nextBtn.focus();
+      }
+
+      fab?.addEventListener("click", startTour);
+      skipBtn?.addEventListener("click", endTour);
+      backBtn?.addEventListener("click", () => {
+        if (index <= 0) return;
+        index -= 1;
+        showStep();
+      });
+      nextBtn?.addEventListener("click", () => {
+        if (index >= steps.length - 1) {
+          endTour();
+          return;
+        }
+        index += 1;
+        showStep();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (!open) return;
+        if (e.key === "Escape") {
+          e.preventDefault();
+          endTour();
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          nextBtn.click();
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          backBtn.click();
+        }
+      });
+
+      window.addEventListener(
+        "resize",
+        () => {
+          if (open) showStep();
+        },
+        { passive: true }
+      );
     })();
 
     if ("serviceWorker" in navigator) {
