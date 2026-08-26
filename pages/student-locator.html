@@ -442,6 +442,20 @@
 
     footer strong { color: var(--navy); font-weight: 700; }
 
+    .footer-it-link {
+      color: inherit;
+      font-weight: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+
+    .footer-it-link:hover,
+    .footer-it-link:focus-visible {
+      color: var(--navy);
+      border-bottom-color: rgba(0, 35, 102, 0.35);
+      outline: none;
+    }
+
     .footer-credit {
       color: var(--navy);
       font-weight: 700;
@@ -537,7 +551,7 @@
 
     <footer>
       <p>
-        <strong>FLHSHelp.com</strong> · IT Support · Fort Lauderdale High School
+        <strong>FLHSHelp.com</strong> · <a class="footer-it-link" href="it-resources.html">IT Support</a> · Fort Lauderdale High School
         <br />
         <a class="footer-credit" href="meet-rj.html">Designed by IT Specialist RJ</a>
       </p>

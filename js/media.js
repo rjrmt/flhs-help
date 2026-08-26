@@ -5,6 +5,7 @@
   const MEDIA_URL = "../data/media-center.json";
 
   const statusEl = document.getElementById("status-board");
+  const statusAnswer = document.getElementById("status-answer");
   const statusKicker = document.getElementById("status-kicker");
   const statusTitle = document.getElementById("status-title");
   const statusDetail = document.getElementById("status-detail");
@@ -259,17 +260,19 @@
     if (dayType === "closed") {
       return {
         tone: "closed",
+        answer: "No",
         kicker: "No school today",
-        title: "Media Center closed",
-        detail: "Check back on the next school day.",
+        title: "Media Center is closed",
+        detail: "Come back on the next school day.",
       };
     }
     if (dayType === "unknown") {
       return {
         tone: "check",
-        kicker: "Weekend / calendar",
-        title: "Not a school walk-in day",
-        detail: "Walk-in hours are for school days.",
+        answer: "Check",
+        kicker: "Not a school day",
+        title: "Walk-ins are for school days",
+        detail: "Try again Monday–Friday when school is open.",
       };
     }
 
@@ -278,9 +281,10 @@
       const label = activeRes.label || "Class reserved";
       return {
         tone: "reserved",
-        kicker: "Reserved right now",
-        title: "Closed for walk-ins",
-        detail: `${label}. Study hall still needs a teacher pass for academic work.`,
+        answer: "No",
+        kicker: "Not for walk-ins",
+        title: "A class is using it now",
+        detail: `${label}. Study hall still needs a teacher pass.`,
       };
     }
 
@@ -289,8 +293,9 @@
     if (openNow) {
       return {
         tone: "open",
-        kicker: "Walk-in open",
-        title: "Yes — you can go",
+        answer: "Yes",
+        kicker: "You can walk in",
+        title: "Yes — go now!",
         detail: `${openNow.label} · ${formatRange(openNow.startMin, openNow.endMin)}`,
         activeId: openNow.id,
       };
@@ -302,8 +307,9 @@
     if (next) {
       return {
         tone: "soon",
-        kicker: "Not walk-in right now",
-        title: "Come back soon",
+        answer: "Wait",
+        kicker: "Not right now",
+        title: "Come back later",
         detail: `Next open: ${next.label} · ${formatRange(next.startMin, next.endMin)}. Study hall needs a teacher pass.`,
         activeId: null,
       };
@@ -319,23 +325,22 @@
       nowMin >= firstBell.startMin &&
       nowMin < lastBell.endMin
     ) {
-      const studyBlurb =
-        mediaCfg.studyHall?.blurb ||
-        "Academic purposes only · bring a real pass from your teacher";
       return {
         tone: "closed",
-        kicker: "During class",
-        title: "Closed for walk-ins",
-        detail: `Class periods are closed. Study hall only: ${studyBlurb}`,
+        answer: "No",
+        kicker: "Class time",
+        title: "No walk-ins during class",
+        detail: "Only study hall with a real teacher pass (academic work).",
         activeId: "class",
       };
     }
 
     return {
       tone: "closed",
-      kicker: "Outside walk-in hours",
-      title: "Closed for walk-ins",
-      detail: "Come back before school or at lunch. After school is closed for now.",
+      answer: "No",
+      kicker: "Closed right now",
+      title: "Not open for walk-ins",
+      detail: "Come before school (7:00–7:40) or at lunch. After school is closed.",
     };
   }
 
@@ -370,10 +375,17 @@
           w.kind === "walkin"
             ? formatRange(w.startMin, w.endMin)
             : w.kind === "pass"
-              ? "Pass required"
+              ? "Need a teacher pass"
               : w.kind === "closed"
-                ? "Closed"
+                ? "Not allowed"
                 : "Look at door";
+        const badge = isLive
+          ? '<span class="window-badge now">Now</span>'
+          : w.kind === "walkin"
+            ? '<span class="window-badge yes">Yes</span>'
+            : w.kind === "pass"
+              ? '<span class="window-badge pass">Pass</span>'
+              : '<span class="window-badge no">No</span>';
         return `<article class="window-card ${w.kind}${isLive ? " is-live" : ""}" data-id="${w.id}">
           <div class="window-icon">${iconSvg(w.icon)}</div>
           <div class="window-copy">
@@ -381,7 +393,7 @@
             <span class="window-time">${escapeHtml(time)}</span>
             <span class="window-blurb">${escapeHtml(w.blurb)}</span>
           </div>
-          ${isLive ? '<span class="live-tag">Now</span>' : ""}
+          ${badge}
         </article>`;
       })
       .join("");
@@ -432,7 +444,17 @@
     if (statusEl) {
       statusEl.dataset.tone = status.tone;
     }
-    if (statusKicker) statusKicker.textContent = status.kicker;
+    if (statusAnswer) {
+      statusAnswer.textContent =
+        status.tone === "open"
+          ? "Live · open now"
+          : status.tone === "soon"
+            ? "Live · wait"
+            : status.tone === "check"
+              ? "Live · check"
+              : "Live · closed";
+    }
+    if (statusKicker) statusKicker.textContent = status.answer || status.kicker;
     if (statusTitle) statusTitle.textContent = status.title;
     if (statusDetail) statusDetail.textContent = status.detail;
 
