@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="FLHS 2026–2027 school calendar — white/blue days, early release, closed days, and more." />
+  <meta name="description" content="FLHS 2026–2027 school calendar and academic testing calendar — white/blue days, PM/FAST, CTACE, ACT, SAT, AP, and more." />
   <meta name="theme-color" content="#9eb8dc" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="FLHS Help" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>School Calendar | FLHSHelp</title>
+  <title>Calendar | FLHSHelp</title>
   <link rel="manifest" href="../manifest.webmanifest" />
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="../assets/icons/icon-512.png" />
@@ -45,6 +45,22 @@
       --cal-erd-ink: #9a3412;
       --cal-exam-gold: #e6b000;
       --cal-exam-gold-deep: #c99200;
+      --cal-testing: #0e7490;
+      --cal-testing-soft: #ecfeff;
+      --acat-pm-fast: #0e7490;
+      --acat-ctace: #155e75;
+      --acat-ap: #002366;
+      --acat-retakes: #b45309;
+      --acat-wida: #3f6212;
+      --acat-psat: #0056b3;
+      --acat-act: #9f1239;
+      --acat-sat: #1e3a8a;
+      --acat-map: #4d7c0f;
+      --acat-government: #92400e;
+      --acat-training: #64748b;
+      --acat-infrastructure: #475569;
+      --acat-multi-a: #0e7490;
+      --acat-multi-b: #9f1239;
       --radius-xl: 1.75rem;
       --radius-lg: 1.25rem;
       --radius-md: 1rem;
@@ -194,6 +210,116 @@
       box-shadow: 0 8px 18px rgba(0, 35, 102, 0.22);
     }
 
+    .pdf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+      padding: 0.55rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .pdf-btn:hover {
+      background: #fff;
+      border-color: rgba(0, 35, 102, 0.28);
+      transform: translateY(-1px);
+    }
+
+    .pdf-btn:focus-visible {
+      outline: 3px solid rgba(0, 35, 102, 0.35);
+      outline-offset: 2px;
+    }
+
+    .pdf-btn svg {
+      width: 1.05rem;
+      height: 1.05rem;
+    }
+
+    .pdf-btn[disabled] {
+      opacity: 0.55;
+      cursor: wait;
+      transform: none;
+    }
+
+    .mode-toggle {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      gap: 0.15rem;
+    }
+
+    .mode-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--ink-700);
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.45rem 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .mode-btn:hover {
+      background: rgba(0, 35, 102, 0.06);
+    }
+
+    .mode-btn:focus-visible {
+      outline: 3px solid rgba(0, 35, 102, 0.35);
+      outline-offset: 2px;
+    }
+
+    .mode-btn.is-active {
+      background: var(--navy);
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(0, 35, 102, 0.2);
+    }
+
+    .board[data-calendar-mode="academic"] .mode-btn.is-active {
+      background: var(--cal-testing);
+      box-shadow: 0 6px 14px rgba(14, 116, 144, 0.24);
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        flex-wrap: wrap;
+      }
+
+      .topbar-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .mode-toggle {
+        order: -1;
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-btn {
+        flex: 1;
+        text-align: center;
+      }
+    }
+
     .home-btn svg,
     .today-btn svg {
       width: 1.05rem;
@@ -238,6 +364,7 @@
     }
 
     .legend-item {
+      appearance: none;
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
@@ -245,9 +372,36 @@
       border-radius: 999px;
       border: 1px solid var(--border-soft);
       background: rgba(255, 255, 255, 0.55);
+      font: inherit;
       font-size: 0.72rem;
       font-weight: 700;
       color: var(--ink-700);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+    }
+
+    .legend-item:hover {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(0, 35, 102, 0.28);
+      transform: translateY(-1px);
+    }
+
+    .legend-item:focus-visible {
+      outline: 3px solid rgba(0, 35, 102, 0.35);
+      outline-offset: 2px;
+    }
+
+    .legend-item.is-active {
+      background: rgba(0, 35, 102, 0.1);
+      border-color: rgba(0, 35, 102, 0.42);
+      box-shadow: inset 0 0 0 1px rgba(0, 35, 102, 0.12);
+      color: var(--navy);
+    }
+
+    .legend-item[data-filter="testing"].is-active {
+      background: rgba(14, 116, 144, 0.12);
+      border-color: rgba(14, 116, 144, 0.45);
+      color: #0e4f5c;
     }
 
     .swatch {
@@ -268,6 +422,25 @@
     }
     .swatch.exam {
       background: linear-gradient(90deg, var(--cal-exam-gold) 50%, var(--cal-blue-bg) 50%);
+    }
+    .swatch.testing {
+      background: var(--cal-testing);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+    }
+    .swatch.acat-pm-fast { background: var(--acat-pm-fast); }
+    .swatch.acat-ctace { background: var(--acat-ctace); }
+    .swatch.acat-ap { background: var(--acat-ap); }
+    .swatch.acat-retakes { background: var(--acat-retakes); }
+    .swatch.acat-wida { background: var(--acat-wida); }
+    .swatch.acat-psat { background: var(--acat-psat); }
+    .swatch.acat-act { background: var(--acat-act); }
+    .swatch.acat-sat { background: var(--acat-sat); }
+    .swatch.acat-map { background: var(--acat-map); }
+    .swatch.acat-government { background: var(--acat-government); }
+    .swatch.acat-training { background: var(--acat-training); }
+    .swatch.acat-infrastructure { background: var(--acat-infrastructure); }
+    .swatch.acat-multi {
+      background: linear-gradient(135deg, var(--acat-multi-a) 50%, var(--acat-multi-b) 50%);
     }
 
     .layout {
@@ -422,24 +595,142 @@
       );
     }
 
+    .cal-day.has-testing .testing-mark {
+      position: absolute;
+      top: 0.22rem;
+      right: 0.22rem;
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 999px;
+      background: var(--cal-testing);
+      box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.85);
+      z-index: 2;
+    }
+
+    .cal-day.tone-blue.has-testing .testing-mark,
+    .cal-day.tone-closed.has-testing .testing-mark,
+    .cal-day.tone-planning.has-testing .testing-mark,
+    .cal-day.tone-psd.has-testing .testing-mark {
+      box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+      background: #67e8f9;
+    }
+
+    .cal-day.tone-acat-pm-fast { background: var(--acat-pm-fast); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-ctace { background: var(--acat-ctace); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-ap { background: var(--acat-ap); color: #fff; border-color: rgba(0, 0, 0, 0.18); }
+    .cal-day.tone-acat-retakes { background: var(--acat-retakes); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-wida { background: var(--acat-wida); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-psat { background: var(--acat-psat); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-act { background: var(--acat-act); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-sat { background: var(--acat-sat); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-map { background: var(--acat-map); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-government { background: var(--acat-government); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-training { background: var(--acat-training); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-infrastructure { background: var(--acat-infrastructure); color: #fff; border-color: rgba(0, 0, 0, 0.12); }
+    .cal-day.tone-acat-multi {
+      background: linear-gradient(135deg, var(--acat-multi-a) 0 50%, var(--acat-multi-b) 50% 100%);
+      color: #fff;
+      border-color: rgba(0, 0, 0, 0.14);
+    }
+
+    .board[data-calendar-mode="academic"] .cal-day.tone-empty {
+      background: rgba(255, 255, 255, 0.35);
+      color: rgba(0, 35, 102, 0.35);
+      border-color: transparent;
+    }
+
+    .detail-panel[data-tone="acat-pm-fast"],
+    .detail-panel[data-tone="acat-ctace"],
+    .detail-panel[data-tone="acat-ap"],
+    .detail-panel[data-tone="acat-retakes"],
+    .detail-panel[data-tone="acat-wida"],
+    .detail-panel[data-tone="acat-psat"],
+    .detail-panel[data-tone="acat-act"],
+    .detail-panel[data-tone="acat-sat"],
+    .detail-panel[data-tone="acat-map"],
+    .detail-panel[data-tone="acat-government"],
+    .detail-panel[data-tone="acat-training"],
+    .detail-panel[data-tone="acat-infrastructure"] {
+      color: #fff;
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+
+    .detail-panel[data-tone="acat-pm-fast"] { background: linear-gradient(165deg, #1494b5 0%, var(--acat-pm-fast) 100%); }
+    .detail-panel[data-tone="acat-ctace"] { background: linear-gradient(165deg, #1d7a96 0%, var(--acat-ctace) 100%); }
+    .detail-panel[data-tone="acat-ap"] { background: linear-gradient(165deg, #0a4cc4 0%, var(--acat-ap) 100%); }
+    .detail-panel[data-tone="acat-retakes"] { background: linear-gradient(165deg, #d97706 0%, var(--acat-retakes) 100%); }
+    .detail-panel[data-tone="acat-wida"] { background: linear-gradient(165deg, #4d7c0f 0%, var(--acat-wida) 100%); }
+    .detail-panel[data-tone="acat-psat"] { background: linear-gradient(165deg, #1d6fd1 0%, var(--acat-psat) 100%); }
+    .detail-panel[data-tone="acat-act"] { background: linear-gradient(165deg, #be123c 0%, var(--acat-act) 100%); }
+    .detail-panel[data-tone="acat-sat"] { background: linear-gradient(165deg, #2746a8 0%, var(--acat-sat) 100%); }
+    .detail-panel[data-tone="acat-map"] { background: linear-gradient(165deg, #65a30d 0%, var(--acat-map) 100%); }
+    .detail-panel[data-tone="acat-government"] { background: linear-gradient(165deg, #b45309 0%, var(--acat-government) 100%); }
+    .detail-panel[data-tone="acat-training"] { background: linear-gradient(165deg, #94a3b8 0%, var(--acat-training) 100%); }
+    .detail-panel[data-tone="acat-infrastructure"] { background: linear-gradient(165deg, #64748b 0%, var(--acat-infrastructure) 100%); }
+
+    .detail-panel[data-tone^="acat-"] .testing-block {
+      border-top-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .detail-panel[data-tone^="acat-"] .testing-heading,
+    .detail-panel[data-tone^="acat-"] .testing-cat {
+      color: #ecfeff;
+    }
+
+    .detail-panel[data-tone^="acat-"] .testing-item {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .detail-panel[data-tone^="acat-"] .detail-meta {
+      border-top-color: rgba(255, 255, 255, 0.25);
+    }
+
     .cal-day.is-today {
-      outline: 2px solid var(--royal);
-      outline-offset: 1px;
+      outline: 2px dashed rgba(0, 86, 179, 0.75);
+      outline-offset: 2px;
     }
 
     .cal-day.is-selected {
-      transform: scale(1.06);
-      box-shadow: 0 0 0 2px rgba(0, 35, 102, 0.55);
-      z-index: 1;
+      transform: scale(1.14);
+      z-index: 3;
+      box-shadow:
+        0 0 0 3px #ffffff,
+        0 0 0 6px var(--navy),
+        0 10px 22px rgba(0, 35, 102, 0.38);
     }
 
-    .cal-day:hover:not(.is-pad) {
+    .cal-day.is-today.is-selected {
+      outline: 2px solid rgba(0, 86, 179, 0.9);
+      outline-offset: 7px;
+    }
+
+    .cal-day.tone-blue.is-selected,
+    .cal-day.tone-closed.is-selected,
+    .cal-day.tone-planning.is-selected,
+    .cal-day.tone-psd.is-selected,
+    .cal-day[class*="tone-acat-"].is-selected {
+      box-shadow:
+        0 0 0 3px #ffffff,
+        0 0 0 6px #f59e0b,
+        0 10px 22px rgba(0, 35, 102, 0.4);
+    }
+
+    .cal-day:hover:not(.is-pad):not(.is-selected) {
       transform: translateY(-1px);
+    }
+
+    .cal-day.is-selected:hover {
+      transform: scale(1.14);
     }
 
     .cal-day:focus-visible {
       outline: 3px solid rgba(0, 35, 102, 0.45);
       outline-offset: 2px;
+    }
+
+    .cal-day.is-selected:focus-visible {
+      outline-offset: 8px;
     }
 
     .detail-panel {
@@ -527,9 +818,18 @@
       display: grid;
       gap: 0.15rem;
       font-size: 0.82rem;
+      line-height: 1.35;
       margin-top: 0.45rem;
       padding-top: 0.45rem;
       border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-meta span {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.7;
     }
 
     .detail-panel[data-tone="blue"] .detail-meta,
@@ -539,12 +839,153 @@
       border-top-color: rgba(255, 255, 255, 0.25);
     }
 
-    .detail-meta span {
-      font-size: 0.65rem;
-      font-weight: 700;
+    .testing-block {
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(14, 116, 144, 0.28);
+    }
+
+    .detail-panel[data-tone="blue"] .testing-block,
+    .detail-panel[data-tone="closed"] .testing-block,
+    .detail-panel[data-tone="planning"] .testing-block,
+    .detail-panel[data-tone="psd"] .testing-block {
+      border-top-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .testing-heading {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cal-testing);
+      margin-bottom: 0.45rem;
+    }
+
+    .detail-panel[data-tone="blue"] .testing-heading,
+    .detail-panel[data-tone="closed"] .testing-heading,
+    .detail-panel[data-tone="planning"] .testing-heading,
+    .detail-panel[data-tone="psd"] .testing-heading {
+      color: #a5f3fc;
+    }
+
+    .testing-list {
+      list-style: none;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .testing-item {
+      display: grid;
+      gap: 0.12rem;
+      padding: 0.45rem 0.55rem;
+      border-radius: 0.65rem;
+      background: var(--cal-testing-soft);
+      border: 1px solid rgba(14, 116, 144, 0.18);
+    }
+
+    .detail-panel[data-tone="blue"] .testing-item,
+    .detail-panel[data-tone="closed"] .testing-item,
+    .detail-panel[data-tone="planning"] .testing-item,
+    .detail-panel[data-tone="psd"] .testing-item {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .testing-cat {
+      font-size: 0.62rem;
+      font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      opacity: 0.7;
+      color: var(--cal-testing);
+    }
+
+    .detail-panel[data-tone="blue"] .testing-cat,
+    .detail-panel[data-tone="closed"] .testing-cat,
+    .detail-panel[data-tone="planning"] .testing-cat,
+    .detail-panel[data-tone="psd"] .testing-cat {
+      color: #cffafe;
+    }
+
+    .testing-item-title {
+      font-size: 0.86rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .testing-item-detail {
+      font-size: 0.78rem;
+      line-height: 1.35;
+      opacity: 0.88;
+    }
+
+    .detail-panel[data-mode="filter"] {
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink-900);
+      border-color: rgba(0, 35, 102, 0.14);
+      max-height: min(70vh, 36rem);
+      overflow: auto;
+    }
+
+    .upcoming-list {
+      list-style: none;
+      display: grid;
+      gap: 0.4rem;
+      margin-top: 0.65rem;
+    }
+
+    .upcoming-item {
+      appearance: none;
+      width: 100%;
+      text-align: left;
+      display: grid;
+      gap: 0.15rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 0.7rem;
+      border: 1px solid rgba(0, 35, 102, 0.12);
+      background: rgba(248, 251, 255, 0.95);
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+    }
+
+    .upcoming-item:hover {
+      border-color: rgba(0, 35, 102, 0.32);
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .upcoming-item:focus-visible {
+      outline: 3px solid rgba(0, 35, 102, 0.35);
+      outline-offset: 2px;
+    }
+
+    .upcoming-date {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+
+    .upcoming-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--ink-900);
+    }
+
+    .upcoming-meta {
+      font-size: 0.76rem;
+      line-height: 1.35;
+      color: var(--ink-500);
+    }
+
+    .upcoming-empty {
+      margin-top: 0.55rem;
+      font-size: 0.88rem;
+      color: var(--ink-500);
+      line-height: 1.4;
     }
 
     .cal-error {
@@ -621,6 +1062,22 @@
             </div>
           </div>
           <div class="topbar-actions">
+            <div class="mode-toggle" id="cal-mode-toggle" role="group" aria-label="Calendar mode">
+              <button type="button" class="mode-btn is-active" data-mode="school" aria-pressed="true">
+                School
+              </button>
+              <button type="button" class="mode-btn" data-mode="academic" aria-pressed="false">
+                Academic Testing
+              </button>
+            </div>
+            <button type="button" class="pdf-btn" id="cal-pdf-btn" aria-label="Download PDF of the current calendar view">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3v11.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                <path d="m8.5 11.5 3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 19.25h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+              </svg>
+              PDF
+            </button>
             <button type="button" class="today-btn" id="cal-today-btn" aria-label="Jump to today">
               Today
             </button>
@@ -634,19 +1091,12 @@
           </div>
         </div>
 
-        <p class="lead">
-          2026–2027 FLHS days colored to match the official calendar legend. Tap a date for type, periods, and notes.
+        <p class="lead" id="cal-lead">
+          2026–2027 FLHS days colored to match the official calendar legend. Tap a legend chip for upcoming dates from today, or tap a day for schedule details.
         </p>
         <p class="status-line" id="cal-status" role="status">Loading calendar…</p>
 
-        <div class="legend" aria-label="Calendar legend">
-          <span class="legend-item"><span class="swatch white" aria-hidden="true"></span>White</span>
-          <span class="legend-item"><span class="swatch blue" aria-hidden="true"></span>Blue</span>
-          <span class="legend-item"><span class="swatch closed" aria-hidden="true"></span>Closed</span>
-          <span class="legend-item"><span class="swatch planning" aria-hidden="true"></span>Planning / PSD</span>
-          <span class="legend-item"><span class="swatch erd" aria-hidden="true"></span>Early Release</span>
-          <span class="legend-item"><span class="swatch exam" aria-hidden="true"></span>Exam</span>
-        </div>
+        <div class="legend" id="cal-legend" role="toolbar" aria-label="School calendar legend filters"></div>
 
         <div class="layout">
           <div id="cal-months" class="months" aria-live="polite"></div>
@@ -668,7 +1118,7 @@
     </footer>
   </div>
 
-  <script src="../js/calendar.js" defer></script>
+  <script src="../js/calendar.js?v=79" defer></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

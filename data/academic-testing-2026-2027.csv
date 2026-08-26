@@ -1,0 +1,69 @@
+# Academic testing overlay for 2026–2027 (kept separate from day-type calendar CSV).
+# Source: FLHS Testing Calendar Word document. Day colors still come from calendar-2026-2027.csv.
+date,category,title,details
+2026-08-20,MAP,MAP Testing: Newton Main Media (1-2),
+2026-08-21,MAP,MAP Testing: Newton Main Lab (5 - 7),
+2026-08-27,PM/FAST,PM1 Training,
+2026-08-28,PM/FAST,PM1 Training,
+2026-09-01,PM/FAST,FAST PM1: 9th & 10th Grade,
+2026-09-02,PM/FAST,FAST PM1: 9th & 10th Grade,11:00 Blecker at Training
+2026-09-04,PM/FAST,FAST PM1: 9th & 10th Grade,
+2026-09-08,Retakes,Retakes — AM: 11th & 12th Grade Retakes Reading,
+2026-09-09,CTACE,CTACE Testing,Media Center PM
+2026-09-09,Retakes,Retakes — AM: 11th & 12th Grade Retakes Math (Algebra),
+2026-09-10,Retakes,Retakes — AM: 12th Grade US History,PM: 12th Grade Biology
+2026-09-16,PM/FAST,Make-ups — FAST PM1,9th & 10th Grade
+2026-09-17,PM/FAST,Make-ups — FAST PM1,9th & 10th Grade
+2026-09-18,PM/FAST,ESE 504 Make-ups,FAST PM1: 9th & 10th Grade · & RETAKES 11th-12th Grade
+2026-09-22,Retakes,Retakes: Make-Up — AM: 11th & 12th Grade Retakes Math,PM: 12th Grade US History and 12th Grade Biology
+2026-09-23,CTACE,CTACE Testing,Media Center PM
+2026-09-23,Retakes,Retakes: Make-Up — AM: 11th & 12th Grade Retakes Reading,
+2026-09-29,Training,11:00 Blecker at Training,
+2026-10-01,Infrastructure,Infrastructure Test (P2),
+2026-10-08,CTACE,CTACE Testing,Media Center PM
+2026-10-09,PSAT,PSAT Staff Training,Teacher and staff PSAT training
+2026-10-14,PSAT,PSAT,"All 9th, 10th, 11th & 12th · grade students"
+2026-10-16,PSAT,PSAT Make-Up,11th and 12th grade students who missed the PSAT
+2026-10-20,ACT,NCR ACT — English,12th grade graduation ACT
+2026-10-21,ACT,NCR ACT — Math,12th grade graduation ACT
+2026-10-22,ACT,NCR ACT — Reading,12th grade graduation ACT
+2026-10-23,CTACE,CTACE Testing,Media Center PM
+2026-11-18,Government,12th Grade Government Test,(tentative)
+2026-11-19,CTACE,CTACE Testing,Media Center PM
+2026-12-01,Government,12th Grade Government Test,
+2026-12-02,PM/FAST,Retakes — AM: 12th and 11th,FAST Reading · 7:40-10:50 Media Center
+2026-12-03,PM/FAST,Retakes — AM: 12th and 11th,BEST Math · 7:40-10:50 Media Center
+2026-12-04,Retakes,12th Grade Retakes,AM: Biology · PM: US History
+2026-12-08,PM/FAST,FAST PM2: 9th & 10th Grade,Make-Up: All Retake Exams for 12th Grade
+2026-12-09,PM/FAST,FAST PM2: 9th & 10th Grade,Make-Up: All Retake Exams for 12th Grade
+2026-12-11,CTACE,CTACE Testing,Media Center PM
+2027-01-13,CTACE,CTACE Testing,Media Center PM
+2027-01-13,PM/FAST,PM2 Make-Ups,Main Lab
+2027-01-14,PM/FAST,PM2 Make-Ups,Main Lab
+2027-01-20,WIDA,WIDA Testing,
+2027-01-21,WIDA,WIDA Testing,
+2027-01-28,CTACE,CTACE Testing,Media Center PM
+2027-02-02,WIDA,WIDA Testing,
+2027-02-03,WIDA,WIDA Testing,
+2027-02-10,CTACE,CTACE Testing (SurvSafe),Media Center PM
+2027-02-11,CTACE,CTACE Testing,Media Center PM
+2027-02-26,CTACE,CTACE Testing,Media Center PM
+2027-03-12,CTACE,CTACE Testing,Media Center PM
+2027-03-17,CTACE,CTACE Testing (DUCKS),Media Center PM
+2027-03-30,PM/FAST,FAST Writing,9th and 10th grade · One day only
+2027-03-30,SAT,11th Grade SAT,School-day SAT for 11th grade
+2027-03-31,CTACE,CTACE Testing,Media Center PM
+2027-03-31,PM/FAST,FAST Writing,9th and 10th grade · One day only
+2027-03-31,SAT,11th Grade SAT,School-day SAT for 11th grade
+2027-04-09,CTACE,CTACE Testing,Media Center PM
+2027-04-16,CTACE,CTACE Testing,Media Center PM
+2027-05-03,AP,AP Exams,"AM: AP Human Geography, AP Physics C: Mechanics · PM: AP Biology"
+2027-05-04,AP,AP Exams,AM: AP United States Government and Politics
+2027-05-05,AP,AP Exams,"AM: AP English Literature and Composition · PM: AP Physics 1: Algebra-Based, AP Physics C: Electricity and Magnetism"
+2027-05-06,AP,AP Exams,"AM: AP French Language and Culture, AP Physics 2: Algebra-Based · PM: AP Chemistry"
+2027-05-07,AP,AP Exams,AM: AP United States History · PM: AP Macroeconomics
+2027-05-10,AP,AP Exams,"AM: AP Calculus AB, AP Calculus BC · PM: AP Seminar"
+2027-05-11,AP,AP Exams,AM: AP Precalculus · PM: AP Statistics
+2027-05-12,AP,AP Exams,"AM: AP English Language and Composition · PM: AP Art History, AP Computer Science A"
+2027-05-13,AP,AP Exams,AM: AP Spanish Language and Culture · PM: AP Environmental Science
+2027-05-14,AP,AP Exams,AM: AP Computer Science Principles · PM: AP Psychology
