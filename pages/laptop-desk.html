@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS Media Center laptop desk — check students in, mark Done, and track Opt-In pickup progress." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="robots" content="noindex" />
+  <title>Laptop Desk | FLHSHelp</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky-200: #9eb8dc;
+      --navy: #002366;
+      --royal: #0056b3;
+      --ink-900: #002366;
+      --ink-500: #3d5680;
+      --ink-400: #5a7194;
+      --border-soft: rgba(0, 35, 102, 0.16);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
+      --shadow-soft: 0 12px 30px rgba(0, 35, 102, 0.14);
+      --radius-xl: 1.75rem;
+      --ok: #157a4b;
+      --ok-deep: #0d5a36;
+      --deny: #c1121f;
+      --deny-deep: #7f0711;
+      --already: #b45309;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body {
+      min-height: 100%;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      color: var(--ink-900);
+      background: var(--sky-200);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      position: relative;
+      min-height: 100dvh;
+      overflow-x: clip;
+      background:
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.38), transparent 58%),
+        radial-gradient(ellipse 80% 60% at 98% 0%, rgba(0, 35, 102, 0.32), transparent 55%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 45%, #7fa3d0 100%);
+    }
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.42) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 80% 60%, rgba(197, 204, 216, 0.5) 0 1px, transparent 1.5px);
+      background-size: 48px 48px, 64px 64px;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: min(72rem, 100%);
+      margin: 0 auto;
+      padding: 1rem 1rem 2rem;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .brand img {
+      width: 2.85rem;
+      height: 2.85rem;
+      object-fit: contain;
+    }
+    .brand-kicker {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--navy);
+      opacity: 0.55;
+    }
+    .brand-name {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .top-actions {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      height: 2.5rem;
+      padding: 0 0.95rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--navy);
+      font: inherit;
+      font-size: 0.84rem;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn-primary {
+      border: none;
+      background: linear-gradient(180deg, #1a4bb8 0%, var(--navy) 100%);
+      color: #fff;
+    }
+    .layout {
+      display: grid;
+      gap: 1rem;
+    }
+    @media (min-width: 960px) {
+      .layout {
+        grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+        align-items: start;
+      }
+    }
+    .panel {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.88), rgba(236, 244, 255, 0.72));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(24px) saturate(1.2);
+      -webkit-backdrop-filter: blur(24px) saturate(1.2);
+      padding: 1.1rem 1rem 1.2rem;
+    }
+    .panel h1, .panel h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      letter-spacing: -0.02em;
+      color: var(--navy);
+    }
+    .panel h1 { font-size: 1.45rem; margin-bottom: 0.35rem; }
+    .panel h2 { font-size: 1.15rem; }
+    .lead {
+      color: var(--ink-500);
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 1rem;
+    }
+    .search-form { display: grid; gap: 0.55rem; }
+    .search-input {
+      height: 3.2rem;
+      padding: 0 1rem;
+      border-radius: 0.85rem;
+      border: 1.5px solid rgba(0, 35, 102, 0.28);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--navy);
+      font: inherit;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--royal);
+      box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.22);
+    }
+    .search-btn {
+      height: 3.1rem;
+      border: none;
+      border-radius: 0.85rem;
+      background: linear-gradient(180deg, #1a4bb8 0%, var(--navy) 100%);
+      color: #fff;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .search-btn:disabled { opacity: 0.65; cursor: wait; }
+    .hint {
+      margin-top: 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ink-400);
+    }
+    .sync-note {
+      margin-top: 0.75rem;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--ink-400);
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin: 0.85rem 0 1rem;
+    }
+    .stat {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 0.9rem;
+      padding: 0.7rem 0.45rem;
+      text-align: center;
+      border: 1px solid var(--border-soft);
+    }
+    .stat b {
+      display: block;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.45rem;
+      color: var(--navy);
+    }
+    .stat span {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--ink-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .log-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.35rem;
+    }
+    .staff-sub {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ink-400);
+      margin-bottom: 0.75rem;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    th, td {
+      text-align: left;
+      padding: 0.55rem 0.4rem;
+      border-bottom: 1px solid rgba(0, 35, 102, 0.08);
+      vertical-align: middle;
+    }
+    th {
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-400);
+    }
+    .mono { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+    .row-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+    .done-btn {
+      border: 0;
+      background: var(--ok);
+      color: #fff;
+      border-radius: 999px;
+      min-height: 2.1rem;
+      padding: 0.45rem 1rem;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .given-label {
+      color: var(--ok-deep);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+    .undo-btn, .undone-btn {
+      border: 0;
+      background: transparent;
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .undo-btn { color: var(--deny); }
+    .undone-btn { color: var(--ink-400); }
+    tr.is-given td { opacity: 0.72; }
+    .empty { padding: 1rem 0.2rem; color: var(--ink-400); font-weight: 600; }
+    .table-wrap { overflow-x: auto; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      cursor: pointer;
+    }
+    .overlay[hidden] { display: none; }
+    .overlay-card {
+      width: min(42rem, 100%);
+      padding: clamp(1.2rem, 4vw, 2rem);
+      border-radius: 1.4rem;
+      text-align: center;
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+    .overlay-kicker {
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0.82;
+      margin-bottom: 0.45rem;
+    }
+    .overlay-card h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+    }
+    .overlay-name { margin-top: 0.7rem; font-size: 1.2rem; font-weight: 800; }
+    .overlay-detail, .overlay-meta { margin-top: 0.3rem; font-weight: 600; }
+    .overlay-hint {
+      margin-top: 1rem;
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.75;
+    }
+    .overlay.is-ok { background: rgba(13, 90, 54, 0.78); }
+    .overlay.is-ok .overlay-card { background: linear-gradient(160deg, #1aa05d, var(--ok-deep)); }
+    .overlay.is-already { background: rgba(120, 53, 15, 0.72); }
+    .overlay.is-already .overlay-card { background: linear-gradient(160deg, #d97706, #92400e); }
+    .overlay.is-deny { background: rgba(127, 7, 17, 0.8); }
+    .overlay.is-deny .overlay-card { background: linear-gradient(160deg, #e11d2e, var(--deny-deep)); }
+    .overlay.is-missing { background: rgba(0, 35, 102, 0.7); }
+    .overlay.is-missing .overlay-card { background: linear-gradient(160deg, #1d4ed8, var(--navy)); }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <img src="../assets/brand/logo.png" width="72" height="72" alt="" />
+          <div>
+            <p class="brand-kicker">Media Center staff</p>
+            <p class="brand-name">Laptop Desk</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <a class="btn" href="laptop-checkout.html">Student eligibility</a>
+          <a class="btn btn-primary" href="teacher-resources.html">Teacher Resources</a>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="panel" aria-labelledby="scan-title">
+          <h1 id="scan-title">Scan student</h1>
+          <p class="lead">Check Opt-In, add them to the pickup list, then press <strong>Done</strong> when you hand over a laptop.</p>
+          <form class="search-form" id="checkout-form" autocomplete="off">
+            <label class="sr-only" for="student-number">Student number</label>
+            <input
+              class="search-input"
+              id="student-number"
+              name="studentNumber"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="10"
+              placeholder="Student Number"
+              required
+              autofocus
+              autocapitalize="off"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="search-btn" type="submit" id="search-btn">Check in</button>
+          </form>
+          <p class="hint">Parent Opt-In required · Grades 9–12</p>
+          <p class="sync-note" id="sync-note">Connecting…</p>
+        </section>
+
+        <section class="panel" aria-labelledby="log-title">
+          <div class="log-head">
+            <h2 id="log-title">Pickup log</h2>
+            <button class="btn" type="button" id="export-log">Export CSV</button>
+          </div>
+          <p class="staff-sub">Shared live list across Media Center stations. Not cleared overnight.</p>
+          <div class="stats-row" aria-live="polite">
+            <div class="stat"><b id="stat-waiting">0</b><span>Need laptop</span></div>
+            <div class="stat"><b id="stat-done">0</b><span>Done</span></div>
+            <div class="stat"><b id="stat-left">—</b><span>Still out</span></div>
+          </div>
+          <p class="empty" id="empty-log">No check-ins yet.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>When</th>
+                  <th>Name</th>
+                  <th>Gr</th>
+                  <th>ID</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="log-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="result-overlay" hidden></div>
+
+  <!-- Keep these IDs for desk JS compatibility (hidden live pills) -->
+  <span id="live-in" hidden>0</span>
+  <span id="live-eligible" hidden>—</span>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/flhs-db.js"></script>
+  <script src="../js/laptop-desk.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("../sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
