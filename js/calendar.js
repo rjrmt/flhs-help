@@ -429,6 +429,14 @@
     };
   }
 
+  function pulseDetailPanel() {
+    if (!detailEl) return;
+    detailEl.classList.remove("is-updating");
+    // Restart the attention animation when the selected day changes.
+    void detailEl.offsetWidth;
+    detailEl.classList.add("is-updating");
+  }
+
   function renderFilterList(filter) {
     if (!detailEl) return;
     const labels = filterLabels();
@@ -484,7 +492,7 @@
       ${items}
     `;
 
-    detailEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    pulseDetailPanel();
   }
 
   function renderTestingBlock(events, heading = "Academic testing") {
@@ -612,6 +620,7 @@
     monthsEl
       ?.querySelector(`.cal-day[data-date="${iso}"]`)
       ?.classList.add("is-selected");
+    pulseDetailPanel();
   }
 
   function monthKeysFromDates(dates) {
@@ -1190,60 +1199,81 @@
 <body>
   <h1>${escapeHtml(title)}</h1>
   <p class="meta">${escapeHtml(subtitle)} · Generated ${escapeHtml(generated)} · FLHSHelp.com</p>
-  <p class="hint">To download: in the print dialog choose <strong>Save as PDF</strong> (or Microsoft Print to PDF), then save.</p>
+  <p class="hint">In the print dialog, choose <strong>Save as PDF</strong> (or Microsoft Print to PDF), then save the file.</p>
   <div class="legend">${buildPdfLegend()}</div>
   <div class="months">${months}</div>
   <h3>${isAcademic ? "Testing schedule reference" : "School-year notes reference"}</h3>
   ${buildPdfSchedule()}
   <p class="footer">Fort Lauderdale High School · Source data matches the interactive calendar on FLHSHelp.com</p>
-  <script>
-    window.addEventListener("load", function () {
-      setTimeout(function () { window.focus(); window.print(); }, 250);
-    });
-  </script>
 </body>
 </html>`;
   }
 
+  function restorePdfButton() {
+    if (!pdfBtnEl) return;
+    pdfBtnEl.disabled = false;
+    pdfBtnEl.removeAttribute("aria-busy");
+  }
+
   function downloadCalendarPdf() {
     if (!schoolRows.length && !testingByDate.size) return;
-    const html = buildPdfHtml();
-    const title =
-      calendarMode === MODE_ACADEMIC
-        ? "FLHS-Academic-Testing-Calendar-2026-2027"
-        : "FLHS-School-Calendar-2026-2027";
 
+    const html = buildPdfHtml();
     if (pdfBtnEl) {
       pdfBtnEl.disabled = true;
       pdfBtnEl.setAttribute("aria-busy", "true");
     }
 
-    const printWindow = window.open("", "_blank", "noopener,noreferrer,width=1024,height=768");
-    if (!printWindow) {
-      if (pdfBtnEl) {
-        pdfBtnEl.disabled = false;
-        pdfBtnEl.removeAttribute("aria-busy");
-      }
-      window.alert("Please allow pop-ups to download the calendar PDF.");
-      return;
-    }
+    // Prefer a same-page iframe so we avoid blank popup tabs from window.open + document.write.
+    const existing = document.getElementById("cal-pdf-frame");
+    if (existing) existing.remove();
 
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.document.title = title;
+    const frame = document.createElement("iframe");
+    frame.id = "cal-pdf-frame";
+    frame.title = "Calendar PDF export";
+    frame.setAttribute("aria-hidden", "true");
+    frame.style.cssText =
+      "position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none;";
+    document.body.appendChild(frame);
 
-    const restore = () => {
-      if (pdfBtnEl) {
-        pdfBtnEl.disabled = false;
-        pdfBtnEl.removeAttribute("aria-busy");
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      restorePdfButton();
+      setTimeout(() => {
+        frame.remove();
+      }, 500);
+    };
+
+    const triggerPrint = () => {
+      try {
+        const win = frame.contentWindow;
+        if (!win) throw new Error("Missing print frame window");
+        win.focus();
+        win.addEventListener("afterprint", finish, { once: true });
+        win.print();
+        // Safari / some mobile browsers may not fire afterprint reliably.
+        setTimeout(finish, 5000);
+      } catch (err) {
+        console.error(err);
+        finish();
+        window.alert(
+          "Could not open the print dialog. Please try again, or use your browser’s Print → Save as PDF."
+        );
       }
     };
-    printWindow.addEventListener("afterprint", () => {
-      restore();
-      printWindow.close();
-    });
-    setTimeout(restore, 4000);
+
+    frame.addEventListener(
+      "load",
+      () => {
+        setTimeout(triggerPrint, 100);
+      },
+      { once: true }
+    );
+
+    // srcdoc is more reliable than document.write into a popup.
+    frame.srcdoc = html;
   }
 
   function bindInteractions() {
