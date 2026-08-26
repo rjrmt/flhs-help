@@ -1143,6 +1143,116 @@
       font-weight: 700;
     }
 
+    .logo.is-spinning {
+      animation: logo-egg-spin 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes logo-egg-spin {
+      0% { transform: rotate(0deg) scale(1); }
+      40% { transform: rotate(18deg) scale(1.08); }
+      70% { transform: rotate(-8deg) scale(1.04); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    .bubble-letter.is-winking {
+      animation: letter-wink 0.7s ease;
+    }
+
+    @keyframes letter-wink {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      30% { transform: scale(1.18) rotate(-6deg); }
+      60% { transform: scale(1.08) rotate(4deg); }
+    }
+
+    .day-wink-line {
+      margin-top: 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 750;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      animation: wink-fade 2.2s ease forwards;
+    }
+
+    @keyframes wink-fade {
+      0% { opacity: 0; transform: translateY(4px); }
+      15% { opacity: 1; transform: translateY(0); }
+      75% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-2px); }
+    }
+
+    .footer-credit.is-winking {
+      animation: credit-wink 0.7s ease;
+    }
+
+    @keyframes credit-wink {
+      0%, 100% { transform: scale(1); }
+      40% { transform: scale(1.06); }
+    }
+
+    .egg-toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+      z-index: 80;
+      max-width: min(22rem, calc(100vw - 2rem));
+      padding: 0.7rem 1rem;
+      border-radius: 999px;
+      border: 1.5px solid rgba(0, 35, 102, 0.16);
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--navy);
+      box-shadow: 0 14px 34px rgba(0, 35, 102, 0.22);
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.84rem;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      text-align: center;
+      transform: translate(-50%, 120%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.28s ease, opacity 0.28s ease;
+    }
+
+    .egg-toast.is-show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    .egg-confetti {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .egg-confetti i {
+      position: absolute;
+      top: -0.5rem;
+      width: 0.45rem;
+      height: 0.7rem;
+      border-radius: 0.12rem;
+      opacity: 0.95;
+      animation: confetti-fall 1.35s ease-in forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(520deg); opacity: 0.15; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .logo.is-spinning,
+      .bubble-letter.is-winking,
+      .footer-credit.is-winking,
+      .day-wink-line,
+      .egg-confetti i {
+        animation: none;
+      }
+      .egg-toast {
+        transition: opacity 0.2s ease;
+      }
+    }
+
     .footer-meta {
       line-height: 1.45;
       max-width: 28rem;
@@ -1773,7 +1883,7 @@
               alt="Fort Lauderdale High School — Leading the Launch"
             />
             <h1 class="brand-name">FLHS Help Hub</h1>
-            <p class="brand-sub">Fort Lauderdale High · your one-stop tech shop</p>
+            <p class="brand-sub" id="brand-sub">Fort Lauderdale High · your one-stop tech shop</p>
           </header>
 
           <div class="bubbles" aria-live="polite">
@@ -1949,7 +2059,7 @@
     </div>
   </div>
 
-  <script src="js/home.js" defer></script>
+  <script src="js/home.js?v=88" defer></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

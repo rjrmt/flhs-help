@@ -28,6 +28,12 @@
   /** @type {{ tone: string, exam: boolean, status: string|null, dayType: string|null, notes: string } | null} */
   let currentDayInfo = null;
 
+  /** Temporary greeting override from easter eggs (clears on timeout). */
+  let eggGreeting = null;
+  let eggGreetingTimer = 0;
+  /** Last clock special-minute key shown (avoids toast spam every second). */
+  let lastClockEggKey = "";
+
   let bellModalOpen = false;
   /** @type {Element | null} */
   let bellModalReturnFocus = null;
@@ -758,6 +764,9 @@
   }
 
   function greetingForHour() {
+    if (eggGreeting) return eggGreeting;
+
+    const parts = easternParts();
     const hour24 = Number(
       new Intl.DateTimeFormat("en-US", {
         timeZone: TZ,
@@ -765,10 +774,242 @@
         hour12: false,
       }).format(new Date())
     );
+    const minute = Number(parts.minute);
+    const hm = `${String(hour24 % 24).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+
+    if (hm === "11:11") return "Make a wish";
+    if (hm === "03:33" || hm === "15:33") return "Lucky 3:33";
+
+    const nowMin = hour24 * 60 + minute;
+    if (nowMin === 10 * 60 + 51) return "Lunch is sacred";
+    if (nowMin === 12 * 60 + 30) return "Lunch B crew, assemble";
 
     if (hour24 < 12) return "Good morning";
     if (hour24 < 17) return "Good afternoon";
     return "Good evening";
+  }
+
+  function setEggGreeting(text, ms = 8000) {
+    eggGreeting = text;
+    window.clearTimeout(eggGreetingTimer);
+    eggGreetingTimer = window.setTimeout(() => {
+      eggGreeting = null;
+      renderClockBubble(easternParts());
+    }, ms);
+    renderClockBubble(easternParts());
+  }
+
+  function showEggToast(message) {
+    let toast = document.getElementById("egg-toast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "egg-toast";
+      toast.className = "egg-toast";
+      toast.setAttribute("role", "status");
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.remove("is-show");
+    void toast.offsetWidth;
+    toast.classList.add("is-show");
+    window.clearTimeout(showEggToast._timer);
+    showEggToast._timer = window.setTimeout(() => {
+      toast.classList.remove("is-show");
+    }, 2800);
+  }
+
+  function burstConfetti() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const layer = document.createElement("div");
+    layer.className = "egg-confetti";
+    layer.setAttribute("aria-hidden", "true");
+    const colors = ["#002366", "#0056b3", "#e85d04", "#22c55e", "#fbbf24", "#fff"];
+    for (let i = 0; i < 28; i++) {
+      const bit = document.createElement("i");
+      bit.style.left = `${Math.random() * 100}%`;
+      bit.style.background = colors[i % colors.length];
+      bit.style.animationDelay = `${Math.random() * 0.25}s`;
+      bit.style.animationDuration = `${1.05 + Math.random() * 0.55}s`;
+      layer.appendChild(bit);
+    }
+    document.body.appendChild(layer);
+    window.setTimeout(() => layer.remove(), 1700);
+  }
+
+  function seasonalBrandSub(isoDate, entry) {
+    const sub = document.getElementById("brand-sub");
+    if (!sub) return;
+    const defaultSub = "Fort Lauderdale High · your one-stop tech shop";
+    const notes = String(entry?.notes || "").toLowerCase();
+    let line = null;
+    if (notes.includes("thanksgiving")) {
+      line = "Thanksgiving break · go eat something good";
+    } else if (notes.includes("winter break")) {
+      line = "Winter break mode · printers can wait";
+    } else if (notes.includes("spring break")) {
+      line = "Spring break · touch grass, then check Canvas";
+    } else if (notes.includes("new year")) {
+      line = "New year · new tickets · same Flying L";
+    } else if (
+      notes.includes("labor day") ||
+      notes.includes("veterans") ||
+      notes.includes("mlk") ||
+      notes.includes("presidents") ||
+      notes.includes("memorial")
+    ) {
+      line = "Holiday mode · Help Hub still on duty";
+    } else if (notes.includes("first day of school")) {
+      line = "Welcome back Flying L · let's go";
+    } else if (notes.includes("quarter last day")) {
+      line = "Quarter winds down · save your work twice";
+    }
+    sub.textContent = line || defaultSub;
+  }
+
+  function maybeClockEggToast(parts) {
+    const hour24 = Number(
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: TZ,
+        hour: "numeric",
+        hour12: false,
+      }).format(new Date())
+    ) % 24;
+    const minute = Number(parts.minute);
+    const key = `${parts.isoDate}-${hour24}:${minute}`;
+    if (key === lastClockEggKey) return;
+    const hm = `${String(hour24).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    let msg = null;
+    if (hm === "11:11") msg = "11:11 · make a wish (then restart your laptop)";
+    else if (hm === "15:33" || hm === "03:33") msg = "3:33 · lucky minute for the Flying L";
+    else if (hm === "10:51") msg = "Lunch A is sacred · protect it";
+    else if (hm === "12:30") msg = "Lunch B time · hydrate and go";
+    if (!msg) return;
+    lastClockEggKey = key;
+    showEggToast(msg);
+  }
+
+  function isBellOffDuty() {
+    const parts = easternParts();
+    if (parts.weekday === "Saturday" || parts.weekday === "Sunday") return true;
+    const now = easternMinutesNow();
+    if (now < 7 * 60 || now >= 16 * 60) return true;
+    const dt = currentDayInfo?.dayType;
+    if (!dt || dt === "closed" || dt === "planning") return true;
+    return false;
+  }
+
+  function wireEasterEggs() {
+    const logo = document.querySelector(".brand .logo");
+    let logoTaps = 0;
+    let logoTimer = 0;
+    logo?.addEventListener("click", () => {
+      logoTaps += 1;
+      window.clearTimeout(logoTimer);
+      logoTimer = window.setTimeout(() => {
+        logoTaps = 0;
+      }, 1600);
+      if (logoTaps < 5) return;
+      logoTaps = 0;
+      logo.classList.remove("is-spinning");
+      void logo.offsetWidth;
+      logo.classList.add("is-spinning");
+      window.setTimeout(() => logo.classList.remove("is-spinning"), 900);
+      showEggToast("FLHSHelp online · RJ approved ✓");
+      burstConfetti();
+    });
+
+    let typed = "";
+    let typedTimer = 0;
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.closest("input, textarea, select, [contenteditable='true']") ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const key = event.key;
+      if (!/^[a-zA-Z]$/.test(key)) return;
+      typed = (typed + key.toLowerCase()).slice(-12);
+      window.clearTimeout(typedTimer);
+      typedTimer = window.setTimeout(() => {
+        typed = "";
+      }, 2200);
+      let unlocked = null;
+      if (typed.endsWith("flyingl")) unlocked = "flyingl";
+      else if (typed.endsWith("rj")) unlocked = "rj";
+      if (!unlocked) return;
+      typed = "";
+      setEggGreeting("IT Specialist mode unlocked", 9000);
+      burstConfetti();
+      showEggToast(
+        unlocked === "rj"
+          ? "rj · you found the boss key"
+          : "flyingl · Leading the Launch"
+      );
+    });
+
+    dayBubble?.addEventListener("click", (event) => {
+      const letter = event.target?.closest?.(".bubble-letter");
+      if (!letter || !dayBubble.contains(letter)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const taps = Number(letter.dataset.eggTaps || "0") + 1;
+      letter.dataset.eggTaps = String(taps);
+      window.clearTimeout(Number(letter.dataset.eggTimer || 0));
+      letter.dataset.eggTimer = String(
+        window.setTimeout(() => {
+          letter.dataset.eggTaps = "0";
+        }, 700)
+      );
+      if (taps < 3) return;
+      letter.dataset.eggTaps = "0";
+      letter.classList.remove("is-winking");
+      void letter.offsetWidth;
+      letter.classList.add("is-winking");
+      const tone = dayBubble.dataset.tone || "";
+      const wink =
+        tone === "blue"
+          ? "Blue Day vibes · periods 5–8 energy"
+          : tone === "white"
+            ? "White Day energy · periods 1–4 go"
+            : tone === "erd"
+              ? "Early release? Say less."
+              : "Calendar flex unlocked";
+      dayBubble.querySelector(".day-wink-line")?.remove();
+      const line = document.createElement("p");
+      line.className = "day-wink-line";
+      line.textContent = wink;
+      letter.insertAdjacentElement("afterend", line);
+      window.setTimeout(() => line.remove(), 2300);
+    });
+
+    const credit = document.querySelector(".footer-credit");
+    let rjTaps = 0;
+    let rjTimer = 0;
+    credit?.addEventListener("click", (event) => {
+      event.preventDefault();
+      rjTaps += 1;
+      window.clearTimeout(rjTimer);
+      if (rjTaps >= 3) {
+        rjTaps = 0;
+        credit.classList.add("is-winking");
+        showEggToast("You found RJ · welcome to the lab");
+        burstConfetti();
+        window.setTimeout(() => {
+          credit.classList.remove("is-winking");
+          location.href = credit.href;
+        }, 900);
+        return;
+      }
+      rjTimer = window.setTimeout(() => {
+        const shouldGo = rjTaps > 0;
+        rjTaps = 0;
+        if (shouldGo) location.href = credit.href;
+      }, 480);
+    });
   }
 
   /**
@@ -1297,11 +1538,19 @@
   function wireBellModal() {
     if (!statusLine || !bellModal) return;
 
-    statusLine.addEventListener("click", () => openBellModal());
+    const tryOpenBell = () => {
+      if (isBellOffDuty()) {
+        showEggToast("Bell’s off duty. Go home.");
+        return;
+      }
+      openBellModal();
+    };
+
+    statusLine.addEventListener("click", () => tryOpenBell());
     statusLine.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        openBellModal();
+        tryOpenBell();
       }
     });
 
@@ -1332,6 +1581,7 @@
       parts.isoDate
     );
     currentDayInfo = todayInfo;
+    seasonalBrandSub(parts.isoDate, todayEntry);
 
     // Day-type bubble flips to tomorrow at/after 4:00 PM Eastern.
     if (dayBubbleShowsTomorrow()) {
@@ -1367,6 +1617,7 @@
   function tickClock() {
     const parts = easternParts();
     renderClockBubble(parts);
+    maybeClockEggToast(parts);
     // Keep bell status in sync at period boundaries without rebuilding the day bubble.
     refreshBellStatus();
   }
@@ -1426,6 +1677,7 @@
 
   function start() {
     wireBellModal();
+    wireEasterEggs();
     tickClock();
     loadData();
 
