@@ -1676,6 +1676,10 @@
   }
 
   function start() {
+    // Clear any stuck scroll lock from a previous modal session / bfcache restore.
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("touch-action");
+
     wireBellModal();
     wireEasterEggs();
     tickClock();
@@ -1687,8 +1691,15 @@
     // Re-check day shortly after midnight Eastern
     window.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
+        if (!bellModalOpen) document.body.classList.remove("modal-open");
         tickClock();
         refreshDay();
+      }
+    });
+
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted && !bellModalOpen) {
+        document.body.classList.remove("modal-open");
       }
     });
 
