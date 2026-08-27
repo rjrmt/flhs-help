@@ -819,6 +819,16 @@
                     </span>
                     <span class="app-label">Student test rooms</span>
                   </a>
+                  <a class="app-icon" href="teacher-directory.html" data-tour="directory">
+                    <span class="app-tile map" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <circle cx="9" cy="8" r="2.4" stroke="currentColor" stroke-width="1.7"/>
+                        <circle cx="16" cy="9.2" r="2.1" stroke="currentColor" stroke-width="1.7"/>
+                        <path d="M4.8 18.2c.7-2.4 2.5-3.7 4.2-3.7s3.5 1.3 4.2 3.7M12.6 18.2c.4-1.5 1.4-2.4 2.9-2.4 1.4 0 2.5.9 3.1 2.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <span class="app-label">Teacher directory</span>
+                  </a>
                   <a
                     class="app-icon"
                     href="https://forms.cloud.microsoft.com/r/8m0jyxMsGN"
@@ -943,7 +953,7 @@
       aria-labelledby="tour-title"
       aria-describedby="tour-body"
     >
-      <p class="tour-kicker" id="tour-step">1 / 7</p>
+      <p class="tour-kicker" id="tour-step">1 / 8</p>
       <h2 id="tour-title">Welcome</h2>
       <p id="tour-body"></p>
       <div class="tour-actions">
@@ -971,11 +981,11 @@
         idInput.value = idInput.value.replace(/\D/g, "").slice(0, 10);
       });
 
-      const TOUR_KEY = "flhs-teacher-tour-v1";
+      const TOUR_KEY = "flhs-teacher-tour-v2";
       const steps = [
         {
           title: "Built for your school day",
-          body: "Quick tour of Teacher Resources — laptop help, student lookups, testing rooms, detentions, and campus tools so you spend less time hunting links.",
+          body: "Quick tour of Teacher Resources — laptop help, student lookups, teacher directory, detentions, and campus tools so you spend less time hunting links.",
           selector: null,
         },
         {
@@ -985,8 +995,13 @@
         },
         {
           title: "Assist a student",
-          body: "Eligibility check, find a homeroom, and Test Room Locator — the tools you need when a student is standing at your desk.",
+          body: "Eligibility check, find a homeroom, Test Room Locator, and Teacher Directory — the tools you need when someone is standing at your desk.",
           selector: '[data-tour="assist"]',
+        },
+        {
+          title: "New · Teacher directory",
+          body: "Look up a colleague by name or room number for their location and main phone line. Handy between bells.",
+          selector: '[data-tour="directory"]',
         },
         {
           title: "New · Detentions",

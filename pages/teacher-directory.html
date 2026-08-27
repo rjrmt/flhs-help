@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS Teacher Directory — look up staff by name or room for location and main phone." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="FLHS Help" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Teacher Directory | FLHSHelp</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="../assets/icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky-50: #e8f0fa;
+      --sky-200: #9eb8dc;
+      --navy: #002366;
+      --royal: #0056b3;
+      --ink-900: #002366;
+      --ink-700: #1a3a6e;
+      --ink-500: #3d5680;
+      --ink-400: #5a7194;
+      --border: rgba(197, 204, 216, 0.65);
+      --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
+      --radius-xl: 1.75rem;
+      --err-ink: #be123c;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+
+    body {
+      min-height: 100%;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      color: var(--ink-900);
+      background: var(--sky-200);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      position: relative;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse 95% 70% at 6% -12%, rgba(0, 86, 179, 0.38), transparent 58%),
+        radial-gradient(ellipse 80% 60% at 98% 0%, rgba(0, 35, 102, 0.32), transparent 55%),
+        linear-gradient(168deg, #b7cce8 0%, #9eb8dc 42%, #7fa3d0 78%, #6d94c4 100%);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: clamp(1.25rem, 3.5vw, 2.5rem);
+    }
+
+    .board {
+      width: min(100%, 34rem);
+      padding: clamp(1.35rem, 4vw, 2rem);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(244, 248, 255, 0.8) 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98), var(--shadow);
+      backdrop-filter: blur(28px) saturate(1.25);
+      -webkit-backdrop-filter: blur(28px) saturate(1.25);
+      animation: rise-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      text-align: left;
+    }
+
+    .logo {
+      width: 3.4rem;
+      height: auto;
+      flex-shrink: 0;
+      filter: drop-shadow(0 8px 14px rgba(45, 90, 160, 0.18));
+    }
+
+    .kicker {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-400);
+    }
+
+    h1 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(1.35rem, 4.5vw, 1.7rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--navy);
+    }
+
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      height: 2.4rem;
+      padding: 0 0.9rem;
+      border-radius: 0.8rem;
+      border: 1.5px solid rgba(0, 35, 102, 0.16);
+      background: #fff;
+      color: var(--navy);
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 750;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .home-btn svg { width: 1rem; height: 1rem; }
+
+    .lead {
+      font-size: 0.92rem;
+      font-weight: 550;
+      line-height: 1.45;
+      color: var(--ink-500);
+      margin-bottom: 1rem;
+      text-wrap: balance;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 0.55rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      height: 2.85rem;
+      padding: 0 0.95rem;
+      border-radius: 0.85rem;
+      border: 1.5px solid rgba(0, 35, 102, 0.28);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--ink-900);
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 650;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--royal);
+      box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
+    }
+
+    .search-btn {
+      height: 2.85rem;
+      padding: 0 1.1rem;
+      border: none;
+      border-radius: 0.85rem;
+      background: linear-gradient(180deg, #1a4bb8 0%, var(--navy) 100%);
+      color: #fff;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 750;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .search-btn:disabled { opacity: 0.55; cursor: wait; }
+
+    .status {
+      min-height: 1.25rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-400);
+      margin-bottom: 0.75rem;
+    }
+    .status[data-tone="error"] { color: var(--err-ink); }
+    .status[data-tone="ok"] { color: #065f46; }
+
+    .results {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .card {
+      text-align: left;
+      padding: 0.9rem 1rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(0, 35, 102, 0.1);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 8px 18px rgba(0, 35, 102, 0.08);
+    }
+
+    .card-name {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--navy);
+      margin-bottom: 0.15rem;
+    }
+
+    .card-role {
+      font-size: 0.78rem;
+      font-weight: 650;
+      color: var(--ink-400);
+      margin-bottom: 0.65rem;
+    }
+
+    .meta {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 4.5rem 1fr;
+      gap: 0.4rem;
+      align-items: baseline;
+      font-size: 0.88rem;
+    }
+
+    .meta-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-400);
+    }
+
+    .meta-value {
+      font-weight: 700;
+      color: var(--ink-700);
+      word-break: break-word;
+    }
+
+    .meta-value a {
+      color: var(--royal);
+      font-weight: 750;
+      text-decoration: none;
+    }
+    .meta-value a:hover { text-decoration: underline; }
+
+    .periods {
+      margin-top: 0.7rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid rgba(0, 35, 102, 0.08);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.35rem;
+    }
+
+    .period {
+      padding: 0.35rem 0.3rem;
+      border-radius: 0.55rem;
+      background: rgba(232, 240, 250, 0.9);
+      text-align: center;
+    }
+
+    .period-n {
+      display: block;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink-400);
+    }
+
+    .period-v {
+      display: block;
+      margin-top: 0.1rem;
+      font-size: 0.72rem;
+      font-weight: 750;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 0.85rem 1.5rem 1.65rem;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(0, 35, 102, 0.78);
+    }
+    footer a {
+      color: var(--navy);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    @keyframes rise-in {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 420px) {
+      .search-form { flex-direction: column; }
+      .search-btn { width: 100%; }
+      .periods { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .board { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main>
+      <section class="board" aria-labelledby="dir-heading">
+        <div class="topbar">
+          <div class="brand">
+            <img class="logo" src="../assets/brand/logo.png" width="80" height="80" alt="Fort Lauderdale High School" />
+            <div>
+              <p class="kicker">Teachers</p>
+              <h1 id="dir-heading">Teacher Directory</h1>
+            </div>
+          </div>
+          <a class="home-btn" href="teacher-resources.html">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 6 9 12l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+          </a>
+        </div>
+
+        <p class="lead">Look up a teacher by name or room number for their location and main phone line.</p>
+
+        <form class="search-form" id="dir-form" autocomplete="off">
+          <label class="sr-only" for="dir-query">Name or room</label>
+          <input
+            class="search-input"
+            id="dir-query"
+            name="q"
+            type="search"
+            inputmode="search"
+            placeholder="Name or room #…"
+            maxlength="80"
+            required
+          />
+          <button class="search-btn" id="search-btn" type="submit">Find</button>
+        </form>
+        <p class="status" id="status-line" aria-live="polite"></p>
+        <div class="results" id="results" hidden></div>
+      </section>
+    </main>
+    <footer>
+      <p>
+        <strong>FLHSHelp.com</strong> ·
+        <a href="teacher-resources.html">Teacher Resources</a> ·
+        Fort Lauderdale High School
+      </p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/flhs-db.js"></script>
+  <script>
+    (() => {
+      const AUTO_MS = 220;
+      const form = document.getElementById("dir-form");
+      const input = document.getElementById("dir-query");
+      const searchBtn = document.getElementById("search-btn");
+      const statusLine = document.getElementById("status-line");
+      const results = document.getElementById("results");
+
+      let timer = 0;
+      let lastQ = "";
+      let inFlight = false;
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function setStatus(message, tone = "") {
+        statusLine.textContent = message || "";
+        if (tone) statusLine.dataset.tone = tone;
+        else delete statusLine.dataset.tone;
+      }
+
+      function displayName(raw) {
+        const s = String(raw || "").trim();
+        if (!s.includes(",")) return s;
+        const [last, ...rest] = s.split(",");
+        const first = rest.join(",").trim();
+        return first ? `${first} ${last.trim()}` : s;
+      }
+
+      function telHref(phone) {
+        const raw = String(phone || "").trim();
+        if (!raw || /radio/i.test(raw)) return "";
+        const digits = raw.replace(/\D/g, "");
+        if (digits.length === 7) return `tel:754${digits}`;
+        if (digits.length === 10) return `tel:${digits}`;
+        if (digits.length === 11 && digits.startsWith("1")) return `tel:${digits}`;
+        return digits ? `tel:${digits}` : "";
+      }
+
+      function displayPhone(phone) {
+        const raw = String(phone || "").trim();
+        if (!raw) return "—";
+        if (/radio/i.test(raw)) return "Radio";
+        const m = raw.match(/^(\d{3})-(\d{4})$/);
+        if (m) return `754-${m[1]}-${m[2]}`;
+        return raw;
+      }
+
+      function periodCells(periods) {
+        const p = periods && typeof periods === "object" ? periods : {};
+        return [1, 2, 3, 4, 5, 6, 7, 8]
+          .map((n) => {
+            const v = String(p[String(n)] || "").trim() || "—";
+            return `<div class="period"><span class="period-n">P${n}</span><span class="period-v">${escapeHtml(v)}</span></div>`;
+          })
+          .join("");
+      }
+
+      function cardHtml(row) {
+        const phone = row.main_phone || "";
+        const tel = telHref(phone);
+        const phoneHtml = tel
+          ? `<a href="${escapeHtml(tel)}">${escapeHtml(displayPhone(phone))}</a>`
+          : escapeHtml(displayPhone(phone));
+        return `
+          <article class="card">
+            <h2 class="card-name">${escapeHtml(displayName(row.name))}</h2>
+            <p class="card-role">${escapeHtml(row.role || "Staff")}</p>
+            <div class="meta">
+              <div class="meta-row">
+                <span class="meta-label">Room</span>
+                <span class="meta-value">${escapeHtml(row.room || "—")}</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Phone</span>
+                <span class="meta-value">${phoneHtml}</span>
+              </div>
+            </div>
+            <div class="periods" aria-label="Period locations">${periodCells(row.periods)}</div>
+          </article>
+        `;
+      }
+
+      async function lookup(query) {
+        const db = window.flhsCreateDb();
+        const { data, error } = await db.rpc("lookup_staff", { p_query: query });
+        if (error) throw error;
+        return Array.isArray(data) ? data : [];
+      }
+
+      async function runSearch(raw, { fromAuto = false } = {}) {
+        const q = String(raw || "").trim();
+        if (q.length < 2) {
+          results.hidden = true;
+          results.innerHTML = "";
+          setStatus(q ? "Type at least 2 characters." : "");
+          return;
+        }
+        if (fromAuto && q === lastQ) return;
+        lastQ = q;
+        inFlight = true;
+        searchBtn.disabled = true;
+        setStatus("Searching…");
+        try {
+          const rows = await lookup(q);
+          if (!rows.length) {
+            results.hidden = true;
+            results.innerHTML = "";
+            setStatus(`No matches for “${q}”.`, "error");
+            return;
+          }
+          results.hidden = false;
+          results.innerHTML = rows.map(cardHtml).join("");
+          setStatus(`${rows.length} match${rows.length === 1 ? "" : "es"}`, "ok");
+        } catch (err) {
+          console.error(err);
+          results.hidden = true;
+          results.innerHTML = "";
+          setStatus("Could not load directory. Try again.", "error");
+        } finally {
+          inFlight = false;
+          searchBtn.disabled = false;
+        }
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        window.clearTimeout(timer);
+        runSearch(input.value);
+      });
+
+      input.addEventListener("input", () => {
+        window.clearTimeout(timer);
+        const q = input.value.trim();
+        if (q.length < 2) {
+          results.hidden = true;
+          results.innerHTML = "";
+          setStatus(q ? "Type at least 2 characters." : "");
+          lastQ = "";
+          return;
+        }
+        timer = window.setTimeout(() => {
+          if (!inFlight) runSearch(q, { fromAuto: true });
+        }, AUTO_MS);
+      });
+
+      const params = new URLSearchParams(location.search);
+      const preset = params.get("q");
+      if (preset) {
+        input.value = preset;
+        runSearch(preset);
+      }
+    })();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("../sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

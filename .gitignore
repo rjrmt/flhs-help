@@ -6,4 +6,5 @@ node_modules/
 data/homerooms.csv
 data/laptop-eligible.csv
 data/test-rooms.csv
+data/staff-directory.json
 .flhs-upload-secret
