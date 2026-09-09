@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Edit Flying L PBIS coupon wording, categories, and terms." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Coupon Settings | FLHS Help Hub</title>
+  <link rel="manifest" href="../../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/coupons.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="wrap mid">
+      <section class="board no-print" id="lock-gate" aria-labelledby="gate-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">IT only · FLHSHelp</p>
+              <h1 id="gate-title">Coupon settings</h1>
+            </div>
+          </div>
+          <a class="home" href="../">Coupons</a>
+        </div>
+        <p class="lead">Unlock with the staff upload key to edit coupon copy.</p>
+        <form id="unlock-form">
+          <label class="field">
+            <span>Staff upload key</span>
+            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+          </label>
+          <button class="btn btn-primary" type="submit">Unlock</button>
+          <p class="status" id="gate-status" role="status"></p>
+        </form>
+      </section>
+
+      <div id="app" hidden>
+        <div class="grid-2">
+          <section class="board no-print" aria-labelledby="settings-title">
+            <div class="top">
+              <div class="brand">
+                <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+                <div>
+                  <p class="kicker">IT only · Flying L PBIS</p>
+                  <h1 id="settings-title">Coupon settings</h1>
+                </div>
+              </div>
+              <a class="home" href="../">Coupons</a>
+            </div>
+            <p class="lead">Change the wording once — the next generated sheet picks it up. No redeploy needed.</p>
+
+            <label class="field">
+              <span>School name</span>
+              <input id="school-name" type="text" />
+            </label>
+            <label class="field">
+              <span>Program name</span>
+              <input id="program-name" type="text" />
+            </label>
+            <label class="field">
+              <span>Tagline</span>
+              <input id="tagline" type="text" />
+            </label>
+            <p class="field-label">Categories</p>
+            <div class="chips" id="category-chips"></div>
+            <div class="actions" style="margin-bottom: 0.85rem">
+              <input id="category-input" type="text" placeholder="Add a category" />
+              <button class="btn" type="button" id="add-category">Add</button>
+            </div>
+            <label class="field">
+              <span>Terms of use</span>
+              <textarea id="terms-text"></textarea>
+            </label>
+            <button class="btn btn-primary" type="button" id="save-btn">Save settings</button>
+            <p class="status" id="status" role="status"></p>
+          </section>
+          <section class="panel no-print">
+            <p class="section-label">Live preview</p>
+            <div class="preview-stage" id="live-preview"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <footer class="site no-print">Fort Lauderdale High School</footer>
+  </div>
+  <script src="../../js/supabase-config.js"></script>
+  <script src="../../js/coupons-api.js"></script>
+  <script src="../../js/coupons-print.js"></script>
+  <script src="../../js/coupons-settings.js"></script>
+</body>
+</html>

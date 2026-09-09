@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="FLHS IT specialist tools — laptop desk, roster uploads, and other staff tech shortcuts." />
+  <meta name="description" content="FLHS Flying L PBIS coupon tools — builder, quick print, and settings." />
   <meta name="theme-color" content="#9eb8dc" />
   <meta name="robots" content="noindex,nofollow" />
-  <title>IT Resources | FLHS Help Hub</title>
+  <title>PBIS Coupons | FLHS Help Hub</title>
   <link rel="manifest" href="../manifest.webmanifest" />
   <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
@@ -24,7 +24,6 @@
       --border-soft: rgba(0, 35, 102, 0.16);
       --shadow: 0 28px 64px rgba(0, 35, 102, 0.22), 0 10px 24px rgba(0, 35, 102, 0.12);
       --radius-xl: 1.75rem;
-      --radius-lg: 1.25rem;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -43,11 +42,7 @@
       flex-direction: column;
       padding: clamp(1rem, 3vw, 2rem);
     }
-    main {
-      flex: 1;
-      display: grid;
-      place-items: center;
-    }
+    main { flex: 1; display: grid; place-items: center; }
     .board {
       width: min(100%, 36rem);
       padding: clamp(1.35rem, 4vw, 2rem);
@@ -64,17 +59,8 @@
       gap: 0.75rem;
       margin-bottom: 1.15rem;
     }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-      min-width: 0;
-    }
-    .brand img {
-      width: 2.8rem;
-      height: 2.8rem;
-      flex-shrink: 0;
-    }
+    .brand { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+    .brand img { width: 2.8rem; height: 2.8rem; flex-shrink: 0; }
     .kicker {
       font-size: 0.68rem;
       font-weight: 800;
@@ -153,9 +139,9 @@
     .app-icon:hover .app-tile { transform: translateY(-2px); }
     .app-icon:active .app-tile { transform: scale(0.94); }
     .app-tile svg { width: 1.85rem; height: 1.85rem; }
-    .app-tile.laptop { background: linear-gradient(160deg, #1d4ed8, #002366); color: #fff; }
-    .app-tile.admin { background: linear-gradient(160deg, #5a7194, #002366); color: #fff; }
     .app-tile.coupon { background: linear-gradient(160deg, #e6b000, #c99200); color: #3b2a00; }
+    .app-tile.print { background: linear-gradient(160deg, #d97706, #92400e); color: #fff; }
+    .app-tile.settings { background: linear-gradient(160deg, #64748b, #334155); color: #fff; }
     .app-label {
       font-size: 0.68rem;
       font-weight: 700;
@@ -164,6 +150,47 @@
       color: var(--navy);
       max-width: 5.4rem;
     }
+    label.field { display: grid; gap: 0.35rem; margin-bottom: 0.85rem; text-align: left; }
+    label.field span {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-500);
+    }
+    input[type="password"] {
+      width: 100%;
+      height: 2.85rem;
+      padding: 0 0.9rem;
+      border-radius: 0.85rem;
+      border: 1.5px solid rgba(0, 35, 102, 0.28);
+      background: rgba(255,255,255,0.95);
+      font: inherit;
+      font-weight: 600;
+      color: inherit;
+    }
+    .btn {
+      height: 2.95rem;
+      padding: 0 1.1rem;
+      border: none;
+      border-radius: 0.85rem;
+      background: linear-gradient(180deg, #1a4bb8, var(--navy));
+      color: #fff;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:disabled { opacity: 0.55; cursor: wait; }
+    .status {
+      min-height: 1.3rem;
+      margin-top: 0.7rem;
+      font-size: 0.86rem;
+      font-weight: 650;
+      color: var(--ink-400);
+    }
+    .status.ok { color: #15803d; }
+    .status.err { color: #be123c; }
     .note {
       margin-top: 1.25rem;
       padding: 0.75rem 0.85rem;
@@ -193,65 +220,74 @@
 <body>
   <div class="page">
     <main>
-      <section class="board" aria-labelledby="it-title">
+      <section class="board" aria-labelledby="coupon-hub-title">
         <div class="top">
           <div class="brand">
             <img src="../assets/brand/logo.png" width="88" height="88" alt="" />
             <div>
-              <p class="kicker">Staff only · FLHSHelp</p>
-              <h1 id="it-title">IT Resources</h1>
+              <p class="kicker">IT only · Flying L PBIS</p>
+              <h1 id="coupon-hub-title">PBIS Coupons</h1>
             </div>
           </div>
-          <a class="home" href="../index.html">
+          <a class="home" href="../pages/it-resources.html">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M4.5 11.25 12 4.75l7.5 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M7 10.75V19a.75.75 0 0 0 .75.75h3.5v-4.5h2.5v4.5h3.5A.75.75 0 0 0 18 19v-8.25" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M15 6 9 12l6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Home
+            IT Resources
           </a>
         </div>
 
         <p class="lead">
-          Quick tech tools for Media Center / IT ops. Add more shortcuts here anytime.
+          Flying L Positive Behavior Coupon tools. Unlock with the staff upload key, then pick an app. The teacher list comes from the staff directory already in the database.
         </p>
 
-        <p class="section-label">Tech tools</p>
-        <nav class="app-grid" aria-label="IT tech tools">
-          <a class="app-icon" href="laptop-desk.html">
-            <span class="app-tile laptop" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="app-label">Laptop checker</span>
-          </a>
-          <a class="app-icon" href="upload.html">
-            <span class="app-tile admin" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M12 4.5v9.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="m8.8 8.2 3.2-3.2 3.2 3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M5 14.5v3.2A1.8 1.8 0 0 0 6.8 19.5h10.4a1.8 1.8 0 0 0 1.8-1.8v-3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="app-label">Upload testing roster</span>
-          </a>
-          <a class="app-icon" href="../coupons/">
-            <span class="app-tile coupon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <rect x="4" y="5.5" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M8 9.2h8M8 12.2h5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M16.2 14.6c.9 0 1.6.7 1.6 1.6s-.7 1.6-1.6 1.6-1.6-.7-1.6-1.6.7-1.6 1.6-1.6Z" stroke="currentColor" stroke-width="1.6"/>
-              </svg>
-            </span>
-            <span class="app-label">PBIS coupons</span>
-          </a>
-        </nav>
+        <form id="unlock-form">
+          <label class="field">
+            <span>Staff upload key</span>
+            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+          </label>
+          <button class="btn" type="submit" id="unlock-btn">Unlock coupon tools</button>
+          <p class="status" id="gate-status" role="status"></p>
+        </form>
 
-        <p class="note">
-          This page is linked from the footer “IT Support” text — not listed in student or teacher hubs.
-        </p>
+        <div id="coupon-apps" hidden>
+          <p class="section-label">Coupon apps</p>
+          <nav class="app-grid" aria-label="Coupon apps">
+            <a class="app-icon" href="builder/">
+              <span class="app-tile coupon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="4" y="5.5" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M8 9.2h8M8 12.2h5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M16.2 14.6c.9 0 1.6.7 1.6 1.6s-.7 1.6-1.6 1.6-1.6-.7-1.6-1.6.7-1.6 1.6-1.6Z" stroke="currentColor" stroke-width="1.6"/>
+                </svg>
+              </span>
+              <span class="app-label">Coupon builder</span>
+            </a>
+            <a class="app-icon" href="quick-print/">
+              <span class="app-tile print" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M7 9V5.8A1.3 1.3 0 0 1 8.3 4.5h7.4A1.3 1.3 0 0 1 17 5.8V9" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M7 15.5v3.2A1.3 1.3 0 0 0 8.3 20h7.4a1.3 1.3 0 0 0 1.3-1.3v-3.2" stroke="currentColor" stroke-width="1.8"/>
+                  <rect x="4.5" y="9" width="15" height="7" rx="1.4" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M16.3 11.4h1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="app-label">Quick print</span>
+            </a>
+            <a class="app-icon" href="settings/">
+              <span class="app-tile settings" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M12 4.5v1.6M12 17.9v1.6M4.5 12h1.6M17.9 12h1.6M6.7 6.7l1.1 1.1M16.2 16.2l1.1 1.1M17.3 6.7l-1.1 1.1M7.8 16.2l-1.1 1.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="app-label">Settings</span>
+            </a>
+          </nav>
+          <p class="note">
+            Key stays on this computer for the session, same as the testing roster upload.
+          </p>
+        </div>
       </section>
     </main>
     <footer>
@@ -259,6 +295,9 @@
       · Fort Lauderdale High School
     </footer>
   </div>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/coupons-api.js"></script>
+  <script src="../js/coupons-hub.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

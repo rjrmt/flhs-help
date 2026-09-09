@@ -1,6 +1,6 @@
 /* Minimal service worker for PWA installability.
    Shell assets are cached; /data/ CSV requests are never intercepted. */
-const CACHE_NAME = "flhs-help-shell-v91";
+const CACHE_NAME = "flhs-help-shell-v97";
 
 const SHELL_URLS = [
   "./",
@@ -20,6 +20,10 @@ const SHELL_URLS = [
   "./pages/laptop-checkout.html",
   "./pages/laptop-desk.html",
   "./pages/student-locator.html",
+  "./coupons/",
+  "./coupons/builder/",
+  "./coupons/quick-print/",
+  "./coupons/settings/",
   "./js/home.js",
   "./js/laptop-checkout.js",
   "./js/laptop-desk.js",
@@ -28,6 +32,13 @@ const SHELL_URLS = [
   "./js/calendar.js",
   "./js/map.js",
   "./js/media.js",
+  "./js/coupons-api.js",
+  "./js/coupons-hub.js",
+  "./js/coupons-print.js",
+  "./js/coupons-builder.js",
+  "./js/coupons-quick-print.js",
+  "./js/coupons-settings.js",
+  "./css/coupons.css",
   "./manifest.webmanifest",
   "./assets/brand/logo.png",
   "./assets/maps/campus.png",

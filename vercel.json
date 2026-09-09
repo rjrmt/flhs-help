@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/coupons", "destination": "/coupons/index.html" },
+    { "source": "/coupons/builder", "destination": "/coupons/builder/index.html" },
+    { "source": "/coupons/quick-print", "destination": "/coupons/quick-print/index.html" },
+    { "source": "/coupons/settings", "destination": "/coupons/settings/index.html" }
+  ]
+}

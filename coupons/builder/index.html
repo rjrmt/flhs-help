@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS Flying L PBIS coupon builder — import staff and print double-sided 10-up sheets." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Coupon Builder | FLHS Help Hub</title>
+  <link rel="manifest" href="../../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/coupons.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="wrap wide">
+      <section class="board no-print" id="lock-gate" aria-labelledby="gate-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">IT only · Flying L PBIS</p>
+              <h1 id="gate-title">Coupon Builder</h1>
+            </div>
+          </div>
+          <a class="home" href="../">Coupons</a>
+        </div>
+        <p class="lead">Unlock with the same staff upload key used for the testing roster tool.</p>
+        <form id="unlock-form">
+          <label class="field">
+            <span>Staff upload key</span>
+            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+          </label>
+          <button class="btn btn-primary" type="submit">Unlock</button>
+          <p class="status" id="gate-status" role="status"></p>
+        </form>
+      </section>
+
+      <div id="app" hidden>
+        <section class="board no-print" aria-labelledby="coupons-title">
+          <div class="top">
+            <div class="brand">
+              <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+              <div>
+                <p class="kicker">IT only · Flying L PBIS</p>
+                <h1 id="coupons-title">Coupon Builder</h1>
+              </div>
+            </div>
+            <a class="home" href="../">Coupons</a>
+          </div>
+          <p class="lead">
+            Filter by role or building, then print. Each teacher gets full pages of <strong>10 identical coupons</strong> — not mixed leftover cards. Room <strong>2004</strong> is Building 20; <strong>518</strong> is Building 5. Avery 5371 / 8371.
+          </p>
+
+          <div class="filter-bar">
+            <label class="field">
+              <span>Search</span>
+              <input id="roster-search" type="search" placeholder="Name, room, or role" />
+            </label>
+            <label class="field">
+              <span>Role</span>
+              <select id="role-filter">
+                <option value="">All roles</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Show</span>
+              <select id="status-filter">
+                <option value="active">Active only</option>
+                <option value="all">Active + inactive</option>
+                <option value="inactive">Inactive only</option>
+              </select>
+            </label>
+          </div>
+
+          <p class="section-label">Building</p>
+          <div class="building-chips" id="building-chips" role="group" aria-label="Filter by building"></div>
+
+          <div class="roster-toolbar">
+            <div class="actions">
+              <button class="btn" type="button" id="select-visible">Select visible</button>
+              <button class="btn" type="button" id="clear-selected">Clear</button>
+            </div>
+            <p class="roster-count" id="roster-count"></p>
+          </div>
+
+          <div class="table-wrap table-wrap-tall">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th class="col-check"><input id="select-all" type="checkbox" aria-label="Select all visible" /></th>
+                  <th>Name</th>
+                  <th>Room</th>
+                  <th>Bldg</th>
+                  <th>Role</th>
+                  <th>Pages</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="roster-body"></tbody>
+            </table>
+          </div>
+          <div class="actions add-row">
+            <input id="add-name" type="text" placeholder="Add name" />
+            <input id="add-room" class="room" type="text" placeholder="Room" />
+            <input id="add-qty" class="qty" type="number" min="1" value="1" title="Pages" placeholder="Pages" />
+            <button class="btn" type="button" id="add-btn">Add</button>
+          </div>
+
+          <details class="import-panel">
+            <summary>Update roster from a spreadsheet</summary>
+            <p class="note">Only needed for names that are not already in the staff directory.</p>
+            <label class="field">
+              <span>Paste from Excel / Sheets or CSV (Name, Room, Pages)</span>
+              <textarea id="import-text" placeholder="Name	Room	Pages&#10;Ramautar, Rajesh	Media	1"></textarea>
+            </label>
+            <div class="actions" style="margin-bottom: 0.5rem">
+              <label class="btn" for="import-file">Choose CSV</label>
+              <input id="import-file" type="file" accept=".csv,.txt,text/csv,text/plain" hidden />
+              <button class="btn btn-primary" type="button" id="import-btn">Import</button>
+            </div>
+          </details>
+
+          <p class="section-label">Print setup</p>
+          <div class="controls">
+            <label class="field">
+              <span>Pages this run (blank = each person’s saved pages)</span>
+              <input id="qty-override" type="number" min="1" placeholder="1 page = 10 identical coupons" />
+            </label>
+            <label class="choice sheet-opt">
+              <input id="sheet-per-building" type="checkbox" />
+              New sheet when the building changes
+            </label>
+            <div>
+              <p class="field-label">Duplex flip</p>
+              <div class="choice-row">
+                <label class="choice"><input type="radio" name="flip" value="long" checked /> Long edge (vertical)</label>
+                <label class="choice"><input type="radio" name="flip" value="short" /> Short edge (horizontal)</label>
+              </div>
+            </div>
+            <div>
+              <p class="field-label">Page order</p>
+              <div class="choice-row">
+                <label class="choice"><input type="radio" name="order" value="alternating" checked /> Alternating (auto-duplex)</label>
+                <label class="choice"><input type="radio" name="order" value="grouped" /> Grouped fronts, then backs</label>
+              </div>
+            </div>
+          </div>
+          <div class="actions print-actions">
+            <button class="btn btn-gold" type="button" id="print-btn">Generate &amp; Print</button>
+          </div>
+          <p class="status" id="status" role="status"></p>
+        </section>
+      </div>
+    </div>
+    <footer class="site no-print">
+      <a href="mailto:rajesh.ramautar@browardschools.com">Email RJ</a>
+      · Fort Lauderdale High School
+    </footer>
+  </div>
+  <script src="../../js/supabase-config.js"></script>
+  <script src="../../js/coupons-api.js"></script>
+  <script src="../../js/coupons-print.js"></script>
+  <script src="../../js/coupons-builder.js"></script>
+</body>
+</html>
