@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS classroom laptop report — count the laptops you have and tell IT how many extras you still need." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <title>Classroom laptop report | FLHS Help Hub</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/laptop-needs.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="wrap">
+      <section class="board" aria-labelledby="form-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">Teachers · Flying L</p>
+              <h1 id="form-title">Classroom laptop report</h1>
+            </div>
+          </div>
+          <a class="home" href="../index.html">Home</a>
+        </div>
+        <p class="lead">
+          Count the student laptops in your cart, then tell us your largest class and how many <strong>extra</strong> laptops you still need. Do not enter a full class set — everyone would ask for the maximum.
+        </p>
+        <p class="note" id="load-note">Loading staff directory…</p>
+
+        <div id="pick-panel">
+          <label class="field">
+            <span>Find your name</span>
+            <input id="staff-search" type="search" placeholder="Type last name or room" autocomplete="off" />
+          </label>
+          <div class="staff-list" id="staff-list"></div>
+        </div>
+
+        <div id="form-panel" hidden>
+          <div class="picked">
+            <div>
+              <strong id="picked-name"></strong>
+              <p id="picked-meta"></p>
+            </div>
+            <button class="btn" type="button" id="change-staff">Change</button>
+          </div>
+          <p class="record" id="cart-record" hidden></p>
+          <form id="need-form">
+            <p class="field-label">Did you check your classroom laptop cart?</p>
+            <div class="choice-row">
+              <label class="choice"><input type="radio" name="cart" value="yes" required /> Yes, I checked it</label>
+              <label class="choice"><input type="radio" name="cart" value="no" /> Not yet</label>
+            </div>
+            <div class="grid-2">
+              <label class="field">
+                <span>Laptops actually in your cart</span>
+                <input id="actual-count" type="number" min="0" max="80" required placeholder="Count them" />
+              </label>
+              <label class="field">
+                <span>Largest class size</span>
+                <input id="max-students" type="number" min="1" max="80" required placeholder="e.g. 32" />
+              </label>
+            </div>
+            <label class="field">
+              <span>Extra laptops needed</span>
+              <input id="extras-needed" type="number" min="0" max="80" required placeholder="0 if you have enough" />
+            </label>
+            <p class="hint" id="extras-hint">
+              Extras means how many more you need beyond what you already have. If your largest class is 32 and you counted 29, extras = 3.
+            </p>
+            <label class="field">
+              <span>Notes (optional)</span>
+              <textarea id="notes" placeholder="Broken machines, missing chargers, no cart in this room…"></textarea>
+            </label>
+            <button class="btn btn-primary" type="submit" id="submit-btn">Submit laptop count</button>
+          </form>
+        </div>
+        <p class="status" id="status" role="status"></p>
+      </section>
+    </div>
+    <footer class="site">Fort Lauderdale High School · Media Center / IT</footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/flhs-db.js"></script>
+  <script src="../js/teacher-laptop.js"></script>
+</body>
+</html>

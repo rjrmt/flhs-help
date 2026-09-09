@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS IT laptop count — see which staff have submitted classroom laptop needs." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Laptop Count | FLHS Help Hub</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/laptop-needs.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="wrap wide">
+      <section class="board" id="lock-gate" aria-labelledby="gate-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">IT only · Laptop count</p>
+              <h1 id="gate-title">Classroom laptop count</h1>
+            </div>
+          </div>
+          <a class="home" href="it-resources.html">IT Resources</a>
+        </div>
+        <p class="lead">Unlock with the staff upload key to see who has submitted and who is still missing.</p>
+        <form id="unlock-form">
+          <label class="field">
+            <span>Staff upload key</span>
+            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+          </label>
+          <button class="btn btn-primary" type="submit">Unlock</button>
+          <p class="status" id="gate-status" role="status"></p>
+        </form>
+      </section>
+
+      <div id="app" hidden>
+        <section class="board" aria-labelledby="count-title">
+          <div class="top">
+            <div class="brand">
+              <img src="../assets/brand/logo.png" width="88" height="88" alt="" />
+              <div>
+                <p class="kicker">IT only · Laptop count</p>
+                <h1 id="count-title">Who still needs to submit</h1>
+              </div>
+            </div>
+            <a class="home" href="it-resources.html">IT Resources</a>
+          </div>
+          <p class="lead">
+            Teachers report how many laptops are actually in the cart and how many <strong>extras</strong> they still need — not a full class set. The district ask is the extras total. Compare that to the cart inventory below.
+          </p>
+          <div class="stats" id="stats"></div>
+          <div class="filter-chips" id="view-chips">
+            <button type="button" class="filter-chip is-on" data-view="missing">Missing teachers</button>
+            <button type="button" class="filter-chip" data-view="submitted">Submitted</button>
+            <button type="button" class="filter-chip" data-view="all">All staff</button>
+            <button type="button" class="filter-chip" data-view="carts">Cart inventory</button>
+          </div>
+          <label class="field">
+            <span>Search</span>
+            <input id="row-search" type="search" placeholder="Name, room, or role" />
+          </label>
+          <p class="section-label" id="table-label">Roster</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Name</th>
+                  <th>Room</th>
+                  <th>Cart</th>
+                  <th>Expected</th>
+                  <th>On hand</th>
+                  <th>Missing</th>
+                  <th>Max class</th>
+                  <th>Extras</th>
+                </tr>
+              </thead>
+              <tbody id="count-body"></tbody>
+            </table>
+          </div>
+          <p class="status" id="status" role="status"></p>
+
+          <p class="section-label" style="margin-top:1.25rem">Cart inventory</p>
+          <p class="note" id="inventory-note">Loading cart assignments…</p>
+          <div class="table-wrap" id="inventory-wrap" hidden>
+            <table>
+              <thead>
+                <tr>
+                  <th>Cart</th>
+                  <th>Responsible</th>
+                  <th>Matched staff</th>
+                  <th>Room</th>
+                  <th>Expected</th>
+                  <th>Kind</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+    <footer class="site">Fort Lauderdale High School</footer>
+  </div>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/laptop-count.js"></script>
+</body>
+</html>

@@ -991,6 +991,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 0.75rem;
+      overflow: visible;
       animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
     }
 
@@ -1133,6 +1134,28 @@
       letter-spacing: -0.01em;
       color: var(--navy);
       text-wrap: balance;
+    }
+
+    .shortcut--glow {
+      position: relative;
+      z-index: 2;
+    }
+    .shortcut--glow::before {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: calc(var(--radius-md) + 4px);
+      border: 2.5px solid rgba(255, 214, 64, 0.95);
+      box-shadow:
+        0 0 0 1px rgba(255, 244, 180, 0.7),
+        0 0 12px 2px rgba(255, 196, 0, 0.75),
+        0 0 26px 6px rgba(230, 176, 0, 0.4);
+      pointer-events: none;
+      animation: laptop-glow-outline 2.3s ease-in-out infinite;
+    }
+    @keyframes laptop-glow-outline {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
     }
 
     footer {
@@ -1968,7 +1991,7 @@
               <span class="shortcut-label">Student IT Ticket</span>
             </a>
 
-            <a class="shortcut shortcut--testing" href="pages/laptop-checkout.html">
+            <a class="shortcut shortcut--laptop" href="pages/student-locator.html">
               <span class="shortcut-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
                   <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
@@ -1976,7 +1999,7 @@
                   <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
               </span>
-              <span class="shortcut-label">Check laptop eligibility</span>
+              <span class="shortcut-label">Test Room Locator</span>
             </a>
 
             <a class="shortcut shortcut--teacher-resources" href="pages/resources.html">
@@ -2002,7 +2025,7 @@
               <span class="shortcut-label">Teacher IT Ticket</span>
             </a>
 
-            <a class="shortcut shortcut--laptop" href="pages/student-locator.html">
+            <a class="shortcut shortcut--testing shortcut--glow" href="pages/teacher-laptop.html">
               <span class="shortcut-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
                   <rect x="5" y="3.5" width="14" height="17" rx="2" stroke="currentColor" stroke-width="1.8"/>
@@ -2010,7 +2033,7 @@
                   <path d="m14.2 15.2 1.4 1.4 2.6-2.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </span>
-              <span class="shortcut-label">Test Room Locator</span>
+              <span class="shortcut-label">Classroom laptop report</span>
             </a>
 
             <a class="shortcut shortcut--resources" href="pages/teacher-resources.html">
