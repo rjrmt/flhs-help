@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/laptop-needs.css" />
 </head>
-<body>
+<body class="report-page">
   <div class="page">
     <div class="wrap">
       <section class="board" aria-labelledby="form-title">
@@ -28,14 +28,15 @@
           </div>
           <a class="home" href="../index.html">Home</a>
         </div>
-        <p class="lead">
-          Count the student laptops in your cart, then tell us your largest class and how many <strong>extra</strong> laptops you still need. Do not enter a full class set — everyone would ask for the maximum.
+        <p class="lead lead-callout">
+          Count the student laptops in your cart, then tell us your largest class and how many <strong>extra</strong> laptops you still need. Please do not enter a full class set.
         </p>
         <p class="note" id="load-note">Loading staff directory…</p>
 
-        <div id="pick-panel">
+        <div id="pick-panel" class="q q-name">
+          <p class="q-title"><span class="q-num">1</span> Find your name</p>
           <label class="field">
-            <span>Find your name</span>
+            <span class="visually-hidden">Find your name</span>
             <input id="staff-search" type="search" placeholder="Type last name or room" autocomplete="off" />
           </label>
           <div class="staff-list" id="staff-list"></div>
@@ -51,32 +52,42 @@
           </div>
           <p class="record" id="cart-record" hidden></p>
           <form id="need-form">
-            <p class="field-label">Did you check your classroom laptop cart?</p>
-            <div class="choice-row">
-              <label class="choice"><input type="radio" name="cart" value="yes" required /> Yes, I checked it</label>
-              <label class="choice"><input type="radio" name="cart" value="no" /> Not yet</label>
+            <div class="q q-cart">
+              <p class="q-title"><span class="q-num">2</span> Did you check your classroom laptop cart?</p>
+              <div class="choice-row">
+                <label class="choice choice-yes"><input type="radio" name="cart" value="yes" required /> Yes, I checked it</label>
+                <label class="choice choice-no"><input type="radio" name="cart" value="no" /> Not yet</label>
+              </div>
             </div>
             <div class="grid-2">
+              <div class="q q-count">
+                <label class="field">
+                  <span class="q-title"><span class="q-num">3</span> Laptops actually in your cart</span>
+                  <input id="actual-count" type="number" min="0" max="80" required placeholder="Count them" />
+                </label>
+              </div>
+              <div class="q q-class">
+                <label class="field">
+                  <span class="q-title"><span class="q-num">4</span> Largest class size</span>
+                  <input id="max-students" type="number" min="1" max="80" required placeholder="e.g. 32" />
+                </label>
+              </div>
+            </div>
+            <div class="q q-extras">
               <label class="field">
-                <span>Laptops actually in your cart</span>
-                <input id="actual-count" type="number" min="0" max="80" required placeholder="Count them" />
+                <span class="q-title"><span class="q-num">5</span> Extra laptops needed</span>
+                <input id="extras-needed" type="number" min="0" max="80" required placeholder="0 if you have enough" />
               </label>
+              <p class="hint" id="extras-hint">
+                Not your class size. Only how many more you still need. If the class is 32 and you counted 29, extras = 3.
+              </p>
+            </div>
+            <div class="q q-notes">
               <label class="field">
-                <span>Largest class size</span>
-                <input id="max-students" type="number" min="1" max="80" required placeholder="e.g. 32" />
+                <span class="q-title"><span class="q-num">6</span> Notes <em>(optional)</em></span>
+                <textarea id="notes" placeholder="Broken machines, missing chargers, no cart in this room…"></textarea>
               </label>
             </div>
-            <label class="field">
-              <span>Extra laptops needed</span>
-              <input id="extras-needed" type="number" min="0" max="80" required placeholder="0 if you have enough" />
-            </label>
-            <p class="hint" id="extras-hint">
-              Extras means how many more you need beyond what you already have. If your largest class is 32 and you counted 29, extras = 3.
-            </p>
-            <label class="field">
-              <span>Notes (optional)</span>
-              <textarea id="notes" placeholder="Broken machines, missing chargers, no cart in this room…"></textarea>
-            </label>
             <button class="btn btn-primary" type="submit" id="submit-btn">Submit laptop count</button>
           </form>
         </div>
