@@ -133,7 +133,7 @@
       <div class="stat"><b>${missingTeachers}</b><span>Teachers missing</span></div>
       <div class="stat"><b>${extras}</b><span>Extras requested</span></div>
       <div class="stat"><b>${missingLaptops}</b><span>Missing vs cart</span></div>
-      <div class="stat"><b>${cartsChecked}</b><span>Carts checked</span></div>
+      <div class="stat"><b>${cartsChecked}</b><span>Carts confirmed</span></div>
       <div class="stat"><b>${assignedCarts}/${inventory.length}</b><span>Carts assigned</span></div>
     `;
   }
@@ -166,8 +166,8 @@
         const checked = !form
           ? ""
           : form.cart_checked
-            ? ` <span class="badge badge-ok">Checked</span>`
-            : ` <span class="badge badge-warn">Not yet</span>`;
+            ? ` <span class="badge badge-ok">Confirmed</span>`
+            : ` <span class="badge badge-warn">Not this cart</span>`;
         return `<tr>
           <td>${status}</td>
           <td>${escapeHtml(displayName(person.name))}</td>

@@ -1,6 +1,6 @@
 /* Minimal service worker for PWA installability.
    Shell assets are cached; /data/ CSV requests are never intercepted. */
-const CACHE_NAME = "flhs-help-shell-v105";
+const CACHE_NAME = "flhs-help-shell-v106";
 
 const SHELL_URLS = [
   "./",

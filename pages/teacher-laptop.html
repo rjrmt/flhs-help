@@ -50,13 +50,20 @@
             </div>
             <button class="btn" type="button" id="change-staff">Change</button>
           </div>
-          <p class="record" id="cart-record" hidden></p>
           <form id="need-form">
             <div class="q q-cart">
-              <p class="q-title"><span class="q-num">2</span> Did you check your classroom laptop cart?</p>
+              <p class="q-title"><span class="q-num">2</span> Confirm your cart number</p>
+              <p class="cart-code" id="cart-code">—</p>
+              <p class="hint" id="cart-hint">Look at the label on the cart in your room.</p>
               <div class="choice-row">
-                <label class="choice choice-yes"><input type="radio" name="cart" value="yes" required /> Yes, I checked it</label>
-                <label class="choice choice-no"><input type="radio" name="cart" value="no" /> Not yet</label>
+                <label class="choice choice-yes"><input type="radio" name="cart" value="yes" required /> <span id="cart-yes-label">Yes, this is my cart</span></label>
+                <label class="choice choice-no"><input type="radio" name="cart" value="no" /> <span id="cart-no-label">No, that's not my cart</span></label>
+              </div>
+              <div id="cart-mismatch" hidden>
+                <label class="field">
+                  <span class="visually-hidden">Cart number in your room</span>
+                  <input id="cart-correction" type="text" maxlength="40" placeholder="Cart number in your room" autocomplete="off" />
+                </label>
               </div>
             </div>
             <div class="grid-2">

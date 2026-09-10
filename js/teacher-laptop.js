@@ -6,7 +6,12 @@
   const formPanel = document.getElementById("form-panel");
   const pickedName = document.getElementById("picked-name");
   const pickedMeta = document.getElementById("picked-meta");
-  const cartRecord = document.getElementById("cart-record");
+  const cartCodeEl = document.getElementById("cart-code");
+  const cartHint = document.getElementById("cart-hint");
+  const cartYesLabel = document.getElementById("cart-yes-label");
+  const cartNoLabel = document.getElementById("cart-no-label");
+  const cartMismatch = document.getElementById("cart-mismatch");
+  const cartCorrection = document.getElementById("cart-correction");
   const actualCount = document.getElementById("actual-count");
   const maxStudents = document.getElementById("max-students");
   const extrasNeeded = document.getElementById("extras-needed");
@@ -49,6 +54,24 @@
 
   function expectedCount(row) {
     return Number(row?.expected_count) || 0;
+  }
+
+  function cartCodes(row) {
+    return String(row?.cart_code || "")
+      .split(/[,/]+/)
+      .map((code) => code.trim())
+      .filter(Boolean);
+  }
+
+  function cartLabel(row) {
+    const codes = cartCodes(row);
+    return codes.length ? codes.join(" · ") : "";
+  }
+
+  function setCartMismatchVisible(show) {
+    if (!cartMismatch) return;
+    cartMismatch.hidden = !show;
+    if (!show && cartCorrection) cartCorrection.value = "";
   }
 
   function suggestedExtras() {
@@ -117,19 +140,30 @@
       .filter(Boolean)
       .join(" · ");
     const expected = expectedCount(row);
-    if (cartRecord) {
-      if (expected > 0) {
-        cartRecord.hidden = false;
-        cartRecord.textContent = `Our records: cart ${row.cart_code} · ${expected} student laptop${expected === 1 ? "" : "s"} assigned. Count what is in the cart today.`;
-      } else {
-        cartRecord.hidden = false;
-        cartRecord.textContent =
-          "No classroom cart is assigned to you in the inventory. Enter 0 if you do not have a class set, then extras = how many additional laptops you need.";
+    const listed = cartLabel(row);
+    if (cartCodeEl) cartCodeEl.textContent = listed || "None on file";
+    if (listed) {
+      if (cartYesLabel) cartYesLabel.textContent = "Yes, this is my cart";
+      if (cartNoLabel) cartNoLabel.textContent = "No, that's not my cart";
+      if (cartHint) {
+        cartHint.textContent = expected
+          ? `Look at the label on the cart in your room. Records show ${expected} student laptop${expected === 1 ? "" : "s"} assigned.`
+          : "Look at the label on the cart in your room.";
       }
+      if (cartCorrection) cartCorrection.placeholder = "Cart number in your room";
+    } else {
+      if (cartYesLabel) cartYesLabel.textContent = "I don't have a cart";
+      if (cartNoLabel) cartNoLabel.textContent = "I have a cart";
+      if (cartHint) {
+        cartHint.textContent =
+          "No classroom cart is assigned to you. Confirm that, or enter the number on the cart in your room.";
+      }
+      if (cartCorrection) cartCorrection.placeholder = "Cart number in your room";
     }
+    setCartMismatchVisible(false);
     pickPanel.hidden = true;
     formPanel.hidden = false;
-    actualCount.focus();
+    document.querySelector('input[name="cart"][value="yes"]')?.focus();
     refreshExtrasHint();
   }
 
@@ -137,7 +171,7 @@
     selected = null;
     extrasTouched = false;
     form.reset();
-    if (cartRecord) cartRecord.hidden = true;
+    setCartMismatchVisible(false);
     pickPanel.hidden = false;
     formPanel.hidden = true;
     search?.focus();
@@ -172,6 +206,12 @@
   actualCount?.addEventListener("input", refreshExtrasHint);
   maxStudents?.addEventListener("input", refreshExtrasHint);
 
+  form?.addEventListener("change", (event) => {
+    if (event.target?.name !== "cart") return;
+    setCartMismatchVisible(event.target.value === "no");
+    if (event.target.value === "no") cartCorrection?.focus();
+  });
+
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!selected) {
@@ -183,9 +223,20 @@
     const max = Number(maxStudents.value);
     const extras = Number(extrasNeeded.value);
     if (cart !== "yes" && cart !== "no") {
-      setStatus("Say whether you checked your cart", "err");
+      setStatus("Confirm your cart number", "err");
       return;
     }
+    const listed = cartLabel(selected);
+    const reportedCart = String(cartCorrection?.value || "").trim();
+    const noteParts = [];
+    if (cart === "no") {
+      if (listed && reportedCart) noteParts.push(`Cart on file: ${listed}. Teacher reports: ${reportedCart}.`);
+      else if (listed) noteParts.push(`Teacher says this is not cart ${listed}.`);
+      else if (reportedCart) noteParts.push(`No cart on file. Teacher reports: ${reportedCart}.`);
+      else noteParts.push("Teacher reports having a cart, but did not enter a number.");
+    }
+    const typedNotes = String(notes.value || "").trim();
+    if (typedNotes) noteParts.push(typedNotes);
     submitBtn.disabled = true;
     setStatus("Saving…");
     try {
@@ -196,7 +247,7 @@
         p_max_students: max,
         p_actual_count: actual,
         p_extras_needed: extras,
-        p_notes: String(notes.value || "").trim(),
+        p_notes: noteParts.join(" "),
       });
       if (error) throw error;
       const saved = data && typeof data === "object" ? data : {};
