@@ -40,5 +40,29 @@
   "teacherRequest": {
     "enabled": false
   },
-  "reservations": []
+  "reservations": [],
+  "homeAnnouncements": [
+    {
+      "eyebrow": "Laptops",
+      "title": "Need a school laptop?",
+      "detail": "Pickup at the Media Center before school or study hall with a teacher pass.",
+      "href": "pages/resources.html#laptops",
+      "tone": "teal"
+    },
+    {
+      "eyebrow": "Teachers",
+      "title": "Classroom laptop report",
+      "detail": "Count what is in your cart and tell IT how many extras you still need.",
+      "href": "pages/teacher-laptop.html",
+      "tone": "amber"
+    },
+    {
+      "eyebrow": "Testing",
+      "title": "Find your test room",
+      "detail": "Enter your student number to see where to go on exam days.",
+      "href": "pages/student-locator.html",
+      "tone": "violet"
+    }
+  ],
+  "homeSpotlightSeconds": 8
 }

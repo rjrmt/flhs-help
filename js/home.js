@@ -3,9 +3,20 @@
   const CALENDAR_CSV_URL = "data/calendar-2026-2027.csv";
   const BELL_CSV_URL = "data/bell-schedule.csv";
   const TESTING_CSV_URL = "data/academic-testing-2026-2027.csv";
+  const MEDIA_JSON_URL = "data/media-center.json";
 
   const dayBubble = document.getElementById("day-bubble");
   const clockBubble = document.getElementById("clock-bubble");
+  const mediaBubble = document.getElementById("media-bubble");
+  const mediaBubblePill = document.getElementById("media-bubble-pill");
+  const mediaBubbleDetail = document.getElementById("media-bubble-detail");
+  const spotlightBubble = document.getElementById("spotlight-bubble");
+  const spotlightBody = document.getElementById("spotlight-body");
+  const spotlightEyebrow = document.getElementById("spotlight-eyebrow");
+  const spotlightTitle = document.getElementById("spotlight-title");
+  const spotlightDetail = document.getElementById("spotlight-detail");
+  const spotlightLinkLabel = document.getElementById("spotlight-link-label");
+  const spotlightHint = document.getElementById("spotlight-hint");
   const statusLine = document.getElementById("status-line");
   const bellModal = document.getElementById("bell-schedule-modal");
   const bellModalBody = document.getElementById("bell-modal-body");
@@ -27,6 +38,18 @@
 
   /** @type {{ tone: string, exam: boolean, status: string|null, dayType: string|null, notes: string } | null} */
   let currentDayInfo = null;
+
+  /** @type {any} */
+  let mediaCfg = null;
+  /** @type {ReturnType<typeof window.flhsMediaCenterStatus.createEngine> | null} */
+  let mediaStatusEngine = null;
+  /** @type {Array<{ eyebrow?: string, title: string, detail?: string, href?: string, linkLabel?: string, tone?: string }>} */
+  let spotlightSlides = [];
+
+  const SPOTLIGHT_TONE_CYCLE = ["teal", "amber", "violet", "rose", "indigo", "emerald", "cyan", "gold"];
+  let spotlightIndex = 0;
+  let spotlightTimer = 0;
+  let lastMediaRefreshMin = -1;
 
   /** Temporary greeting override from easter eggs (clears on timeout). */
   let eggGreeting = null;
@@ -709,7 +732,7 @@
         </span>`
       : "";
 
-    const openLabel = info.testing ? "View testing calendar" : "View calendar";
+    const openLabel = info.testing ? "Open testing calendar" : "Open calendar";
 
     dayBubble.innerHTML = `
       <p class="bubble-eyebrow">${escapeHtml(info.whenLabel)}</p>
@@ -717,10 +740,10 @@
       <p class="bubble-title">${escapeHtml(info.title)}</p>
       <p class="bubble-detail">${escapeHtml(info.detail)}</p>
       ${testingMarkup}
-      <span class="bubble-open-hint" aria-hidden="true">
+      <span class="bubble-open-hint">
         <span class="bubble-open-label">${escapeHtml(openLabel)}</span>
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
     `;
@@ -836,10 +859,108 @@
     window.setTimeout(() => layer.remove(), 1700);
   }
 
+  function easternMonth(date = new Date()) {
+    return Number(
+      new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "numeric" }).format(date)
+    );
+  }
+
+  function isAutumnSeason(date = new Date()) {
+    const month = easternMonth(date);
+    return month >= 9 && month <= 11;
+  }
+
+  function isOctoberSpookySeason(date = new Date()) {
+    const month = easternMonth(date);
+    return month === 9 || month === 10;
+  }
+
+  function appendFallParticle(layer, kind, index) {
+    const left = `${(index * 6.3 + (index % 3) * 11) % 100}%`;
+    const delay = `${-(index * 1.7)}s`;
+    const duration = `${16 + (index % 5) * 2.5}s`;
+    const drift = `${-36 + (index % 7) * 12}px`;
+    const size = `${0.55 + (index % 4) * 0.18}rem`;
+
+    if (kind === "leaf") {
+      const colors = ["#c2410c", "#ea580c", "#d97706", "#b45309", "#92400e", "#9a3412", "#f59e0b"];
+      const leaf = document.createElement("span");
+      leaf.className = "fall-leaf";
+      leaf.style.setProperty("--leaf-left", left);
+      leaf.style.setProperty("--leaf-delay", delay);
+      leaf.style.setProperty("--leaf-duration", duration);
+      leaf.style.setProperty("--leaf-size", size);
+      leaf.style.setProperty("--leaf-drift", drift);
+      leaf.style.setProperty("--leaf-color", colors[index % colors.length]);
+      leaf.style.setProperty("--leaf-spin", `${200 + (index % 6) * 55}deg`);
+      layer.appendChild(leaf);
+      return;
+    }
+
+    if (kind === "ghost") {
+      const ghost = document.createElement("span");
+      ghost.className = "fall-ghost";
+      ghost.style.setProperty("--leaf-left", left);
+      ghost.style.setProperty("--leaf-delay", delay);
+      ghost.style.setProperty("--leaf-duration", `${20 + (index % 4) * 3}s`);
+      ghost.style.setProperty("--spook-size", `${0.95 + (index % 3) * 0.22}rem`);
+      ghost.style.setProperty("--leaf-drift", drift);
+      ghost.innerHTML = '<span class="fall-ghost-body"></span><span class="fall-ghost-tail"></span>';
+      layer.appendChild(ghost);
+      return;
+    }
+
+    const pumpkin = document.createElement("span");
+    pumpkin.className = "fall-pumpkin";
+    pumpkin.style.setProperty("--leaf-left", left);
+    pumpkin.style.setProperty("--leaf-delay", delay);
+    pumpkin.style.setProperty("--leaf-duration", duration);
+    pumpkin.style.setProperty("--spook-size", `${0.85 + (index % 3) * 0.2}rem`);
+    pumpkin.style.setProperty("--leaf-drift", drift);
+    pumpkin.innerHTML =
+      '<span class="fall-pumpkin-stem"></span><span class="fall-pumpkin-rind"></span>';
+    layer.appendChild(pumpkin);
+  }
+
+  function initAutumnTheme() {
+    const page = document.getElementById("home-page");
+    if (!page || !isAutumnSeason()) return;
+    const spooky = isOctoberSpookySeason();
+    page.classList.add("season-autumn");
+    document.body.classList.add("season-autumn");
+    if (spooky) {
+      page.classList.add("season-october");
+      document.body.classList.add("season-october");
+    }
+    const themeMeta = document.getElementById("theme-color-meta");
+    if (themeMeta) {
+      themeMeta.setAttribute("content", spooky ? "#5c3d6e" : "#c9956a");
+    }
+    const deco = document.getElementById("october-deco");
+    if (deco) deco.hidden = !spooky;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const layer = document.getElementById("fall-leaves");
+    if (!layer || layer.childElementCount > 0) return;
+
+    if (spooky) {
+      for (let i = 0; i < 8; i += 1) appendFallParticle(layer, "leaf", i);
+      for (let i = 0; i < 5; i += 1) appendFallParticle(layer, "ghost", i + 8);
+      for (let i = 0; i < 5; i += 1) appendFallParticle(layer, "pumpkin", i + 13);
+      return;
+    }
+
+    for (let i = 0; i < 16; i += 1) appendFallParticle(layer, "leaf", i);
+  }
+
   function seasonalBrandSub(isoDate, entry) {
     const sub = document.getElementById("brand-sub");
     if (!sub) return;
-    const defaultSub = "Fort Lauderdale High · your one-stop tech shop";
+    const defaultSub = isOctoberSpookySeason()
+      ? "Fort Lauderdale High · spooky season · Help Hub still works"
+      : isAutumnSeason()
+        ? "Fort Lauderdale High · autumn on campus · Flying L season"
+        : "Fort Lauderdale High · your one-stop tech shop";
     const notes = String(entry?.notes || "").toLowerCase();
     let line = null;
     if (notes.includes("thanksgiving")) {
@@ -1569,6 +1690,172 @@
       .replace(/"/g, "&quot;");
   }
 
+  function mediaStatusPillLabel(status) {
+    if (status.tone === "open") return "Open";
+    if (status.tone === "soon") return "Wait";
+    if (status.tone === "check") return "Check";
+    return "Closed";
+  }
+
+  function mediaDetailLine(status) {
+    if (status.tone === "open") {
+      const bit = String(status.detail || "").split("·")[0].trim();
+      return bit || "Walk-ins welcome right now.";
+    }
+    if (status.tone === "soon") {
+      const bit = String(status.detail || "").replace(/^Next open:\s*/i, "");
+      return bit || status.title || "Opens again later today.";
+    }
+    if (status.tone === "closed" || status.tone === "reserved") {
+      return "7:00–7:40 AM · lunch · no after school";
+    }
+    return status.detail || status.title || "See the Media Center page for hours.";
+  }
+
+  function mediaCalendarDayType(isoDate) {
+    const entry = calendarByDate.get(isoDate);
+    if (!entry) return window.flhsMediaCenterStatus.classifyDayType(null);
+    return window.flhsMediaCenterStatus.classifyDayType({
+      dayType: entry.dayType,
+      notes: entry.notes,
+    });
+  }
+
+  function refreshMediaBubble(date = new Date()) {
+    if (!mediaStatusEngine || !mediaBubble) return;
+    const parts = easternParts(date);
+    const nowMin = easternMinutesNow(date);
+    const dayType = mediaCalendarDayType(parts.isoDate);
+    const status = mediaStatusEngine.computeStatus(dayType, nowMin, parts.isoDate);
+    mediaBubble.dataset.tone = status.tone;
+    if (mediaBubblePill) mediaBubblePill.textContent = mediaStatusPillLabel(status);
+    if (mediaBubbleDetail) mediaBubbleDetail.textContent = mediaDetailLine(status);
+    mediaBubble.setAttribute(
+      "aria-label",
+      `Media Center: ${mediaStatusPillLabel(status)}. ${status.title}. ${status.detail} View full hours.`
+    );
+  }
+
+  function spotlightToneForSlide(slide, index) {
+    const explicit = String(slide.tone || "").trim().toLowerCase();
+    if (explicit && SPOTLIGHT_TONE_CYCLE.includes(explicit)) return explicit;
+    const eyebrow = String(slide.eyebrow || "").toLowerCase();
+    if (eyebrow.includes("laptop")) return "teal";
+    if (eyebrow.includes("teacher")) return "amber";
+    if (eyebrow.includes("testing today")) return "rose";
+    if (eyebrow.includes("testing")) return "violet";
+    if (eyebrow.includes("calendar")) return "gold";
+    if (eyebrow.includes("flhs")) return "indigo";
+    return SPOTLIGHT_TONE_CYCLE[index % SPOTLIGHT_TONE_CYCLE.length];
+  }
+
+  function applySpotlightTone(slide, index) {
+    if (!spotlightBubble) return;
+    spotlightBubble.setAttribute("data-spotlight-tone", spotlightToneForSlide(slide, index));
+  }
+
+  function buildSpotlightSlides() {
+    /** @type {typeof spotlightSlides} */
+    const slides = [];
+    if (Array.isArray(mediaCfg?.homeAnnouncements)) {
+      for (const item of mediaCfg.homeAnnouncements) {
+        if (!item?.title) continue;
+        slides.push({
+          eyebrow: item.eyebrow || "Announcement",
+          title: item.title,
+          detail: item.detail || "",
+          href: item.href || "",
+          linkLabel: item.linkLabel || "Learn more",
+          tone: item.tone || "",
+        });
+      }
+    }
+
+    const parts = easternParts();
+    const tests = testingByDate.get(parts.isoDate) || [];
+    for (const row of tests) {
+      slides.push({
+        eyebrow: "Testing today",
+        title: row.title,
+        detail: row.details || row.category || "See FLHS Testing for your room.",
+        href: "pages/student-locator.html",
+        linkLabel: "Find test room",
+        tone: "rose",
+      });
+    }
+
+    if (currentDayInfo?.exam && currentDayInfo.notes) {
+      slides.unshift({
+        eyebrow: "Today on calendar",
+        title: currentDayInfo.status || currentDayInfo.notes,
+        detail: currentDayInfo.notes,
+        href: "pages/calendar.html",
+        linkLabel: "Open calendar",
+        tone: "gold",
+      });
+    }
+
+    if (!slides.length) {
+      slides.push({
+        eyebrow: "FLHS Help",
+        title: "Quick links below",
+        detail: "Tickets, testing, calendar, and Media Center hours — all on this page.",
+        href: "pages/resources.html",
+        linkLabel: "Student resources",
+        tone: "indigo",
+      });
+    }
+    return slides;
+  }
+
+  function renderSpotlightSlide(index, animate = false) {
+    if (!spotlightBubble || !spotlightSlides.length) return;
+    const slideIndex = index % spotlightSlides.length;
+    const slide = spotlightSlides[slideIndex];
+    const apply = () => {
+      applySpotlightTone(slide, slideIndex);
+      if (spotlightEyebrow) spotlightEyebrow.textContent = slide.eyebrow || "Spotlight";
+      if (spotlightTitle) spotlightTitle.textContent = slide.title;
+      if (spotlightDetail) spotlightDetail.textContent = slide.detail || "";
+      const href = slide.href || "pages/resources.html";
+      spotlightBubble.setAttribute("href", href);
+      if (spotlightLinkLabel) spotlightLinkLabel.textContent = slide.linkLabel || "Learn more";
+      if (spotlightHint) spotlightHint.hidden = false;
+      spotlightBubble.setAttribute(
+        "aria-label",
+        `${slide.eyebrow || "Spotlight"}: ${slide.title}. ${slide.detail || ""}`
+      );
+      spotlightBubble.classList.remove("is-fading");
+    };
+    if (animate && spotlightBody) {
+      applySpotlightTone(slide, slideIndex);
+      spotlightBubble.classList.add("is-fading");
+      window.setTimeout(apply, 280);
+    } else {
+      apply();
+    }
+  }
+
+  function rebuildSpotlightSlides() {
+    spotlightSlides = buildSpotlightSlides();
+    spotlightIndex = 0;
+    renderSpotlightSlide(0, false);
+  }
+
+  function advanceSpotlight() {
+    if (spotlightSlides.length < 2) return;
+    spotlightIndex = (spotlightIndex + 1) % spotlightSlides.length;
+    renderSpotlightSlide(spotlightIndex, true);
+  }
+
+  function startSpotlightRotation() {
+    if (spotlightTimer) clearInterval(spotlightTimer);
+    spotlightTimer = 0;
+    const sec = Number(mediaCfg?.homeSpotlightSeconds) || 8;
+    if (spotlightSlides.length < 2) return;
+    spotlightTimer = window.setInterval(advanceSpotlight, Math.max(5, sec) * 1000);
+  }
+
   function refreshDay() {
     // Avoid flashing "Not on the calendar" before the CSV map is ready.
     if (!calendarReady) return;
@@ -1597,6 +1884,9 @@
       renderDayBubble(todayInfo);
     }
     refreshBellStatus();
+    rebuildSpotlightSlides();
+    startSpotlightRotation();
+    refreshMediaBubble();
   }
 
   function refreshBellStatus() {
@@ -1618,16 +1908,22 @@
     const parts = easternParts();
     renderClockBubble(parts);
     maybeClockEggToast(parts);
+    const nowMin = easternMinutesNow();
+    if (nowMin !== lastMediaRefreshMin) {
+      lastMediaRefreshMin = nowMin;
+      refreshMediaBubble();
+    }
     // Keep bell status in sync at period boundaries without rebuilding the day bubble.
     refreshBellStatus();
   }
 
   async function loadData() {
     try {
-      const [calRes, bellRes, testRes] = await Promise.all([
+      const [calRes, bellRes, testRes, mediaRes] = await Promise.all([
         fetch(CALENDAR_CSV_URL, { cache: "no-cache" }),
         fetch(BELL_CSV_URL, { cache: "no-cache" }),
         fetch(TESTING_CSV_URL, { cache: "no-cache" }),
+        fetch(MEDIA_JSON_URL, { cache: "no-cache" }),
       ]);
 
       if (!calRes.ok) throw new Error(`Calendar CSV ${calRes.status}`);
@@ -1649,6 +1945,15 @@
       } else {
         console.warn("Academic testing CSV unavailable:", testRes.status);
         testingByDate = new Map();
+      }
+
+      if (mediaRes.ok) {
+        mediaCfg = await mediaRes.json();
+        mediaStatusEngine = window.flhsMediaCenterStatus.createEngine(mediaCfg, bellByDayType);
+      } else {
+        console.warn("Media Center config unavailable:", mediaRes.status);
+        mediaCfg = null;
+        mediaStatusEngine = null;
       }
 
       refreshDay();
@@ -1680,6 +1985,7 @@
     document.body.classList.remove("modal-open");
     document.body.style.removeProperty("touch-action");
 
+    initAutumnTheme();
     wireBellModal();
     wireEasterEggs();
     tickClock();
@@ -1706,6 +2012,7 @@
     window.addEventListener("beforeunload", () => {
       clearInterval(clockTimer);
       clearInterval(dayTimer);
+      if (spotlightTimer) clearInterval(spotlightTimer);
     });
   }
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="FLHS Help Hub — Fort Lauderdale High School IT help for students and staff." />
-  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="theme-color" content="#c9956a" id="theme-color-meta" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="FLHS Help Hub" />
@@ -140,6 +140,293 @@
       animation: soft-pulse 8s ease-in-out infinite;
     }
 
+    .fall-leaves {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .fall-leaf {
+      position: absolute;
+      top: -8%;
+      left: var(--leaf-left, 50%);
+      width: var(--leaf-size, 0.85rem);
+      height: calc(var(--leaf-size, 0.85rem) * 1.35);
+      background: var(--leaf-color, #c2410c);
+      border-radius: 2% 88% 2% 88%;
+      opacity: 0;
+      animation: leaf-fall var(--leaf-duration, 18s) linear infinite;
+      animation-delay: var(--leaf-delay, 0s);
+      filter: drop-shadow(0 1px 2px rgba(80, 30, 0, 0.18));
+      will-change: transform, opacity;
+    }
+
+    @keyframes leaf-fall {
+      0% {
+        transform: translate3d(0, -8vh, 0) rotate(0deg);
+        opacity: 0;
+      }
+      8% {
+        opacity: 0.82;
+      }
+      100% {
+        transform: translate3d(var(--leaf-drift, 0px), 108vh, 0) rotate(var(--leaf-spin, 240deg));
+        opacity: 0.12;
+      }
+    }
+
+    .page.season-autumn {
+      background:
+        radial-gradient(ellipse 92% 68% at 6% -10%, rgba(234, 88, 12, 0.32), transparent 56%),
+        radial-gradient(ellipse 78% 58% at 98% 2%, rgba(180, 83, 9, 0.26), transparent 54%),
+        radial-gradient(ellipse 68% 48% at 48% 108%, rgba(146, 64, 14, 0.22), transparent 62%),
+        radial-gradient(ellipse 42% 32% at 72% 38%, rgba(251, 191, 36, 0.18), transparent 68%),
+        linear-gradient(168deg, #edd5c3 0%, #ddb892 26%, #c9956a 50%, #b8794a 76%, #9a6234 100%);
+    }
+
+    .page.season-autumn::before {
+      opacity: 0.32;
+      background-image:
+        radial-gradient(circle at 18% 28%, rgba(255, 247, 237, 0.45) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 78% 62%, rgba(254, 215, 170, 0.4) 0 1px, transparent 1.6px);
+    }
+
+    .page.season-autumn::after {
+      background:
+        radial-gradient(circle at 40% 35%, rgba(255, 251, 245, 0.42), transparent 52%),
+        radial-gradient(circle, rgba(180, 83, 9, 0.14), transparent 70%);
+    }
+
+    .page.season-autumn .board {
+      border-color: rgba(146, 64, 14, 0.22);
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255, 251, 245, 0.94) 0%,
+          rgba(255, 244, 230, 0.88) 55%,
+          rgba(254, 236, 220, 0.82) 100%
+        );
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.92),
+        0 28px 64px rgba(120, 53, 15, 0.18),
+        0 10px 24px rgba(120, 53, 15, 0.1);
+    }
+
+    .page.season-autumn .board-floor {
+      background: radial-gradient(
+        ellipse 70% 55% at 50% 40%,
+        rgba(120, 53, 15, 0.32) 0%,
+        rgba(180, 83, 9, 0.14) 45%,
+        transparent 72%
+      );
+    }
+
+    .page.season-october {
+      background:
+        radial-gradient(ellipse 85% 60% at 12% -8%, rgba(124, 58, 237, 0.34), transparent 55%),
+        radial-gradient(ellipse 70% 55% at 92% 4%, rgba(234, 88, 12, 0.3), transparent 52%),
+        radial-gradient(ellipse 55% 40% at 50% 100%, rgba(88, 28, 135, 0.28), transparent 58%),
+        radial-gradient(ellipse 35% 28% at 68% 35%, rgba(251, 146, 60, 0.22), transparent 65%),
+        linear-gradient(168deg, #3b2d52 0%, #5c3d6e 22%, #8b4513 48%, #c2703a 72%, #d97706 100%);
+    }
+
+    .page.season-october::before {
+      opacity: 0.38;
+      background-image:
+        radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.55) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 76% 64%, rgba(253, 186, 116, 0.45) 0 1px, transparent 1.5px);
+    }
+
+    .page.season-october::after {
+      background:
+        radial-gradient(circle at 42% 32%, rgba(237, 233, 254, 0.2), transparent 52%),
+        radial-gradient(circle, rgba(124, 58, 237, 0.16), transparent 70%);
+    }
+
+    .page.season-october .board {
+      border-color: rgba(124, 58, 237, 0.22);
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255, 251, 248, 0.95) 0%,
+          rgba(255, 244, 235, 0.9) 50%,
+          rgba(254, 235, 220, 0.86) 100%
+        );
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.92),
+        0 28px 64px rgba(88, 28, 135, 0.2),
+        0 10px 24px rgba(180, 83, 9, 0.12);
+    }
+
+    .fall-ghost {
+      position: absolute;
+      top: -10%;
+      left: var(--leaf-left, 50%);
+      width: var(--spook-size, 1.35rem);
+      height: calc(var(--spook-size, 1.35rem) * 1.15);
+      opacity: 0;
+      animation: spook-fall var(--leaf-duration, 22s) ease-in-out infinite;
+      animation-delay: var(--leaf-delay, 0s);
+      filter: drop-shadow(0 2px 6px rgba(30, 10, 60, 0.25));
+      will-change: transform, opacity;
+    }
+
+    .fall-ghost-body {
+      display: block;
+      width: 100%;
+      height: 78%;
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 48% 48% 42% 42%;
+      position: relative;
+    }
+
+    .fall-ghost-body::before,
+    .fall-ghost-body::after {
+      content: "";
+      position: absolute;
+      top: 38%;
+      width: 0.22rem;
+      height: 0.28rem;
+      border-radius: 999px;
+      background: #312e81;
+    }
+
+    .fall-ghost-body::before { left: 28%; }
+    .fall-ghost-body::after { right: 28%; }
+
+    .fall-ghost-tail {
+      display: block;
+      width: 100%;
+      height: 28%;
+      background:
+        radial-gradient(circle at 20% 0, rgba(255, 255, 255, 0.88) 0.32rem, transparent 0.34rem),
+        radial-gradient(circle at 50% 0, rgba(255, 255, 255, 0.88) 0.32rem, transparent 0.34rem),
+        radial-gradient(circle at 80% 0, rgba(255, 255, 255, 0.88) 0.32rem, transparent 0.34rem);
+    }
+
+    .fall-pumpkin {
+      position: absolute;
+      top: -8%;
+      left: var(--leaf-left, 50%);
+      width: var(--spook-size, 1.1rem);
+      height: calc(var(--spook-size, 1.1rem) * 0.82);
+      opacity: 0;
+      animation: leaf-fall var(--leaf-duration, 20s) linear infinite;
+      animation-delay: var(--leaf-delay, 0s);
+      filter: drop-shadow(0 2px 4px rgba(80, 30, 0, 0.25));
+      will-change: transform, opacity;
+    }
+
+    .fall-pumpkin-rind {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 42% 42% 38% 38%;
+      background: linear-gradient(180deg, #fb923c 0%, #ea580c 55%, #c2410c 100%);
+      position: relative;
+    }
+
+    .fall-pumpkin-rind::before {
+      content: "";
+      position: absolute;
+      inset: 18% 22% auto;
+      height: 55%;
+      border-left: 2px solid rgba(124, 45, 18, 0.35);
+      border-right: 2px solid rgba(124, 45, 18, 0.35);
+      transform: skewX(-6deg);
+      pointer-events: none;
+    }
+
+    .fall-pumpkin-stem {
+      position: absolute;
+      top: -18%;
+      left: 50%;
+      width: 0.22rem;
+      height: 0.32rem;
+      margin-left: -0.11rem;
+      border-radius: 2px;
+      background: #15803d;
+      transform: rotate(-12deg);
+    }
+
+    @keyframes spook-fall {
+      0% {
+        transform: translate3d(0, -6vh, 0) rotate(-6deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.9;
+      }
+      50% {
+        transform: translate3d(calc(var(--leaf-drift, 0px) * 0.5), 48vh, 0) rotate(6deg);
+      }
+      100% {
+        transform: translate3d(var(--leaf-drift, 0px), 108vh, 0) rotate(12deg);
+        opacity: 0.1;
+      }
+    }
+
+    .october-deco {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .october-deco svg {
+      position: absolute;
+      opacity: 0.92;
+    }
+
+    .deco-ghost--tl {
+      width: 2.1rem;
+      top: 0.55rem;
+      left: 0.65rem;
+      animation: ghost-bob 3.6s ease-in-out infinite;
+    }
+
+    .deco-pumpkin--tr {
+      width: 1.85rem;
+      top: 0.65rem;
+      right: 0.7rem;
+      animation: pumpkin-bob 4.2s ease-in-out infinite 0.6s;
+    }
+
+    .deco-ghost--br {
+      width: 1.55rem;
+      bottom: 0.85rem;
+      right: 1rem;
+      opacity: 0.75;
+      animation: ghost-bob 4.8s ease-in-out infinite 1.1s;
+    }
+
+    @keyframes ghost-bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes pumpkin-bob {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50% { transform: translateY(-4px) rotate(4deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fall-leaves {
+        display: none;
+      }
+      .fall-leaf,
+      .fall-ghost,
+      .fall-pumpkin {
+        animation: none;
+      }
+      .october-deco svg {
+        animation: none;
+      }
+    }
+
     main {
       position: relative;
       z-index: 1;
@@ -270,6 +557,301 @@
       animation-delay: 0.14s;
     }
 
+    .bubble:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .bubble:nth-child(4) {
+      animation-delay: 0.26s;
+    }
+
+    .bubble--compact {
+      min-height: 7.35rem;
+      padding: 0.72rem 0.75rem 0.8rem;
+    }
+
+    .bubble--compact .bubble-title {
+      font-size: 0.88rem;
+      line-height: 1.25;
+      margin-bottom: 0.15rem;
+    }
+
+    .bubble--compact .bubble-detail {
+      font-size: 0.72rem;
+      line-height: 1.32;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    #media-bubble.bubble-media {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 0;
+      padding: 0.85rem 0.75rem 0.8rem;
+      min-height: 0;
+    }
+
+    #media-bubble .bubble-eyebrow {
+      margin-bottom: 0.35rem;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      opacity: 1;
+    }
+
+    .media-bubble-status {
+      margin: 0 0 0.35rem;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(1.65rem, 5.5vw, 1.95rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--navy);
+    }
+
+    #media-bubble .bubble-detail {
+      margin-bottom: 0.45rem;
+      max-width: 14rem;
+      font-size: 0.76rem;
+      line-height: 1.38;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    #media-bubble[data-tone="open"] {
+      background: linear-gradient(165deg, #4ade80 0%, #16a34a 42%, #15803d 100%);
+      border-color: rgba(21, 128, 61, 0.45);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 10px 26px rgba(21, 128, 61, 0.28);
+    }
+    #media-bubble[data-tone="open"] .bubble-eyebrow,
+    #media-bubble[data-tone="open"] .media-bubble-status,
+    #media-bubble[data-tone="open"] .bubble-detail {
+      color: #f0fdf4;
+    }
+    #media-bubble[data-tone="open"] .bubble-eyebrow { opacity: 1; }
+    #media-bubble[data-tone="open"] .bubble-detail { opacity: 0.95; }
+    #media-bubble[data-tone="open"]::before {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.35), transparent 60%);
+    }
+    #media-bubble[data-tone="open"] .bubble-open-hint {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+
+    #media-bubble[data-tone="soon"] {
+      background: linear-gradient(165deg, #fdba74 0%, #ea580c 45%, #c2410c 100%);
+      border-color: rgba(194, 65, 12, 0.42);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 10px 26px rgba(194, 65, 12, 0.26);
+    }
+    #media-bubble[data-tone="soon"] .bubble-eyebrow,
+    #media-bubble[data-tone="soon"] .media-bubble-status,
+    #media-bubble[data-tone="soon"] .bubble-detail {
+      color: #fff7ed;
+    }
+    #media-bubble[data-tone="soon"] .bubble-eyebrow { opacity: 1; }
+    #media-bubble[data-tone="soon"]::before {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.28), transparent 60%);
+    }
+    #media-bubble[data-tone="soon"] .bubble-open-hint {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.32);
+      color: #fff;
+    }
+
+    #media-bubble[data-tone="closed"],
+    #media-bubble[data-tone="reserved"] {
+      background: linear-gradient(165deg, #f87171 0%, #dc2626 42%, #b91c1c 100%);
+      border-color: rgba(185, 28, 28, 0.45);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        0 10px 26px rgba(185, 28, 28, 0.28);
+    }
+    #media-bubble[data-tone="closed"] .bubble-eyebrow,
+    #media-bubble[data-tone="reserved"] .bubble-eyebrow,
+    #media-bubble[data-tone="closed"] .media-bubble-status,
+    #media-bubble[data-tone="reserved"] .media-bubble-status,
+    #media-bubble[data-tone="closed"] .bubble-detail,
+    #media-bubble[data-tone="reserved"] .bubble-detail {
+      color: #fef2f2;
+    }
+    #media-bubble[data-tone="closed"] .bubble-eyebrow,
+    #media-bubble[data-tone="reserved"] .bubble-eyebrow { opacity: 1; }
+    #media-bubble[data-tone="closed"] .bubble-detail,
+    #media-bubble[data-tone="reserved"] .bubble-detail { opacity: 0.94; }
+    #media-bubble[data-tone="closed"]::before,
+    #media-bubble[data-tone="reserved"]::before {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.26), transparent 60%);
+    }
+    #media-bubble[data-tone="closed"] .bubble-open-hint,
+    #media-bubble[data-tone="reserved"] .bubble-open-hint {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.32);
+      color: #fff;
+    }
+
+    #media-bubble[data-tone="check"] {
+      background: linear-gradient(165deg, #7dd3fc 0%, #0284c7 45%, #0369a1 100%);
+      border-color: rgba(3, 105, 161, 0.4);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 10px 26px rgba(3, 105, 161, 0.24);
+    }
+    #media-bubble[data-tone="check"] .bubble-eyebrow,
+    #media-bubble[data-tone="check"] .media-bubble-status,
+    #media-bubble[data-tone="check"] .bubble-detail {
+      color: #f0f9ff;
+    }
+    #media-bubble[data-tone="check"]::before {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.28), transparent 60%);
+    }
+    #media-bubble[data-tone="check"] .bubble-open-hint {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.32);
+      color: #fff;
+    }
+
+    #spotlight-bubble.bubble-spotlight {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.85rem 0.75rem 0.78rem;
+      min-height: 0;
+      transition:
+        background 0.45s ease,
+        border-color 0.45s ease,
+        box-shadow 0.45s ease;
+    }
+
+    #spotlight-bubble .spotlight-body {
+      width: 100%;
+      transition: opacity 0.32s ease;
+    }
+
+    #spotlight-bubble.is-fading .spotlight-body {
+      opacity: 0;
+    }
+
+    #spotlight-bubble .bubble-eyebrow {
+      margin-bottom: 0.3rem;
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      opacity: 1;
+    }
+
+    #spotlight-bubble .bubble-title {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+      line-height: 1.22;
+      letter-spacing: -0.02em;
+    }
+
+    #spotlight-bubble .bubble-detail {
+      font-size: 0.74rem;
+      line-height: 1.38;
+      max-width: 14rem;
+      margin: 0 auto 0.4rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    #spotlight-bubble .bubble-open-hint {
+      margin-top: 0.15rem;
+      font-size: 0.68rem;
+    }
+
+    #spotlight-bubble[data-spotlight-tone="teal"] {
+      background: linear-gradient(165deg, #2dd4bf 0%, #0d9488 48%, #115e59 100%);
+      border-color: rgba(13, 148, 136, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px rgba(13, 148, 136, 0.28);
+    }
+    #spotlight-bubble[data-spotlight-tone="amber"] {
+      background: linear-gradient(165deg, #fbbf24 0%, #d97706 48%, #b45309 100%);
+      border-color: rgba(217, 119, 6, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 10px 24px rgba(217, 119, 6, 0.26);
+    }
+    #spotlight-bubble[data-spotlight-tone="violet"] {
+      background: linear-gradient(165deg, #a78bfa 0%, #7c3aed 48%, #5b21b6 100%);
+      border-color: rgba(124, 58, 237, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 24px rgba(91, 33, 182, 0.28);
+    }
+    #spotlight-bubble[data-spotlight-tone="rose"] {
+      background: linear-gradient(165deg, #fb7185 0%, #e11d48 48%, #be123c 100%);
+      border-color: rgba(225, 29, 72, 0.42);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 24px rgba(190, 18, 60, 0.26);
+    }
+    #spotlight-bubble[data-spotlight-tone="indigo"] {
+      background: linear-gradient(165deg, #818cf8 0%, #4f46e5 48%, #3730a3 100%);
+      border-color: rgba(79, 70, 229, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 24px rgba(55, 48, 163, 0.28);
+    }
+    #spotlight-bubble[data-spotlight-tone="emerald"] {
+      background: linear-gradient(165deg, #6ee7b7 0%, #059669 48%, #047857 100%);
+      border-color: rgba(5, 150, 105, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px rgba(4, 120, 87, 0.26);
+    }
+    #spotlight-bubble[data-spotlight-tone="gold"] {
+      background: linear-gradient(165deg, #fde047 0%, #ca8a04 48%, #a16207 100%);
+      border-color: rgba(202, 138, 4, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 24px rgba(161, 98, 7, 0.26);
+    }
+    #spotlight-bubble[data-spotlight-tone="cyan"] {
+      background: linear-gradient(165deg, #67e8f9 0%, #0891b2 48%, #0e7490 100%);
+      border-color: rgba(8, 145, 178, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px rgba(14, 116, 144, 0.26);
+    }
+
+    #spotlight-bubble[data-spotlight-tone] .bubble-eyebrow,
+    #spotlight-bubble[data-spotlight-tone] .bubble-title,
+    #spotlight-bubble[data-spotlight-tone] .bubble-detail {
+      color: #fffbeb;
+    }
+    #spotlight-bubble[data-spotlight-tone="gold"] .bubble-eyebrow,
+    #spotlight-bubble[data-spotlight-tone="gold"] .bubble-title,
+    #spotlight-bubble[data-spotlight-tone="gold"] .bubble-detail {
+      color: #422006;
+    }
+    #spotlight-bubble[data-spotlight-tone="amber"] .bubble-eyebrow,
+    #spotlight-bubble[data-spotlight-tone="amber"] .bubble-title,
+    #spotlight-bubble[data-spotlight-tone="amber"] .bubble-detail {
+      color: #fff7ed;
+    }
+    #spotlight-bubble[data-spotlight-tone] .bubble-eyebrow { opacity: 1; }
+    #spotlight-bubble[data-spotlight-tone] .bubble-detail { opacity: 0.94; }
+    #spotlight-bubble[data-spotlight-tone]::before {
+      background: radial-gradient(ellipse 85% 65% at 50% 0%, rgba(255, 255, 255, 0.28), transparent 62%);
+    }
+    #spotlight-bubble[data-spotlight-tone] .bubble-open-hint {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.34);
+      color: #fff;
+    }
+    #spotlight-bubble[data-spotlight-tone="gold"] .bubble-open-hint {
+      background: rgba(66, 32, 6, 0.12);
+      border-color: rgba(66, 32, 6, 0.22);
+      color: #422006;
+    }
+
     .bubble::before {
       content: "";
       position: absolute;
@@ -369,10 +951,36 @@
       box-shadow: 0 2px 8px rgba(0, 35, 102, 0.14);
     }
 
+    #day-bubble .bubble-open-hint {
+      margin-top: 0.65rem;
+      min-height: 2.25rem;
+      padding: 0.48rem 1rem 0.48rem 1.05rem;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      border-width: 2px;
+      box-shadow:
+        0 2px 0 rgba(0, 35, 102, 0.12),
+        0 6px 16px rgba(0, 35, 102, 0.2);
+    }
+
+    #day-bubble .bubble-open-hint svg {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    #day-bubble:hover .bubble-open-hint,
+    #day-bubble:focus-visible .bubble-open-hint {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow:
+        0 3px 0 rgba(0, 35, 102, 0.14),
+        0 10px 22px rgba(0, 35, 102, 0.26);
+    }
+
     #day-bubble[data-tone="white"] .bubble-open-hint {
-      color: var(--cal-white-ink);
-      background: rgba(10, 10, 10, 0.08);
-      border-color: rgba(10, 10, 10, 0.16);
+      color: #fff;
+      background: #0a0a0a;
+      border-color: #0a0a0a;
     }
     #day-bubble[data-tone="white"] .bubble-testing {
       color: var(--cal-white-ink);
@@ -380,9 +988,9 @@
       border-color: rgba(10, 10, 10, 0.12);
     }
     #day-bubble[data-tone="blue"] .bubble-open-hint {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.18);
-      border-color: rgba(255, 255, 255, 0.35);
+      color: var(--navy);
+      background: #fff;
+      border-color: rgba(255, 255, 255, 0.95);
     }
     #day-bubble[data-tone="blue"] .bubble-testing {
       color: #fff;
@@ -392,9 +1000,9 @@
     #day-bubble[data-tone="planning"] .bubble-open-hint,
     #day-bubble[data-tone="psd"] .bubble-open-hint,
     #day-bubble[data-tone="closed"] .bubble-open-hint {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.18);
-      border-color: rgba(255, 255, 255, 0.35);
+      color: #1a3d12;
+      background: #fff;
+      border-color: rgba(255, 255, 255, 0.92);
     }
     #day-bubble[data-tone="planning"] .bubble-testing,
     #day-bubble[data-tone="psd"] .bubble-testing,
@@ -404,9 +1012,9 @@
       border-color: rgba(255, 255, 255, 0.28);
     }
     #day-bubble[data-tone="erd"] .bubble-open-hint {
-      color: var(--cal-erd-ink);
-      background: rgba(154, 52, 18, 0.1);
-      border-color: rgba(154, 52, 18, 0.22);
+      color: #fff;
+      background: #9a3412;
+      border-color: #7c2d12;
     }
     #day-bubble[data-tone="erd"] .bubble-testing {
       color: var(--cal-erd-ink);
@@ -415,22 +1023,24 @@
     }
     #day-bubble[data-tone="weekend"] .bubble-open-hint,
     #day-bubble[data-tone="error"] .bubble-open-hint {
-      color: var(--navy);
+      color: #fff;
+      background: var(--navy);
+      border-color: #001a4d;
     }
     #day-bubble[data-tone="white"][data-exam="true"] .bubble-open-hint {
-      color: var(--cal-white-ink);
-      background: rgba(10, 10, 10, 0.08);
-      border-color: rgba(10, 10, 10, 0.16);
+      color: #fff;
+      background: #0a0a0a;
+      border-color: #0a0a0a;
     }
     #day-bubble[data-tone="blue"][data-exam="true"] .bubble-open-hint {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.18);
-      border-color: rgba(255, 255, 255, 0.35);
+      color: var(--navy);
+      background: #fff;
+      border-color: rgba(255, 255, 255, 0.95);
     }
     #day-bubble[data-tone="erd"][data-exam="true"] .bubble-open-hint {
-      color: #5c3b00;
-      background: rgba(92, 59, 0, 0.1);
-      border-color: rgba(92, 59, 0, 0.22);
+      color: #fff;
+      background: #9a3412;
+      border-color: #7c2d12;
     }
     #day-bubble[data-testing="true"] {
       padding-bottom: 0.85rem;
@@ -1906,11 +2516,38 @@
   </style>
 </head>
 <body>
-  <div class="page">
+  <div class="page" id="home-page">
+    <div class="fall-leaves" id="fall-leaves" aria-hidden="true"></div>
     <main>
       <div class="board-stage">
         <div class="board-floor" aria-hidden="true"></div>
         <section class="board" aria-label="FLHS Help Hub home">
+          <div class="october-deco" id="october-deco" hidden aria-hidden="true">
+            <svg class="deco-ghost--tl" viewBox="0 0 48 52" fill="none" role="presentation">
+              <path d="M24 4c-9.5 0-16 7.2-16 16.5 0 5.2 2.2 9.8 5.6 12.8-1.2 2.4-2.8 4.6-4.8 6.5 4.2-1.2 8-3.4 11-6.2 1.2.4 2.5.6 3.8.6 9.5 0 16-7.2 16-16.5S33.5 4 24 4Z" fill="rgba(255,255,255,0.92)"/>
+              <circle cx="18" cy="22" r="2.2" fill="#312e81"/>
+              <circle cx="30" cy="22" r="2.2" fill="#312e81"/>
+              <path d="M21 28q3 2 6 0" stroke="#312e81" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            </svg>
+            <svg class="deco-pumpkin--tr" viewBox="0 0 40 36" fill="none" role="presentation">
+              <path d="M20 6c-8 0-14 5.5-14 13.2 0 7.2 6.2 13.8 14 13.8s14-6.6 14-13.8C34 11.5 28 6 20 6Z" fill="#ea580c"/>
+              <path d="M20 6c-8 0-14 5.5-14 13.2 0 7.2 6.2 13.8 14 13.8s14-6.6 14-13.8C34 11.5 28 6 20 6Z" fill="url(#pumpkin-shine)"/>
+              <path d="M14 14v12M20 12v16M26 14v12" stroke="#9a3412" stroke-width="1.4" stroke-linecap="round" opacity="0.55"/>
+              <path d="M17 24c1.2 1.2 4.8 1.2 6 0" stroke="#431407" stroke-width="1.6" stroke-linecap="round"/>
+              <rect x="18.5" y="2" width="3" height="5" rx="1" fill="#15803d" transform="rotate(-8 20 4.5)"/>
+              <defs>
+                <linearGradient id="pumpkin-shine" x1="10" y1="8" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#fb923c"/>
+                  <stop offset="1" stop-color="#c2410c"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <svg class="deco-ghost--br" viewBox="0 0 48 52" fill="none" role="presentation">
+              <path d="M24 6c-8 0-14 6-14 14.5 0 4.8 2 9 5.2 11.8-1 2-2.4 3.8-4 5.4 3.6-1 6.8-2.8 9.4-5 1 .3 2.2.5 3.4.5 8 0 14-6 14-14.5S32 6 24 6Z" fill="rgba(255,255,255,0.78)"/>
+              <circle cx="19" cy="23" r="1.8" fill="#312e81"/>
+              <circle cx="29" cy="23" r="1.8" fill="#312e81"/>
+            </svg>
+          </div>
           <header class="brand">
             <img
               class="logo"
@@ -1945,8 +2582,47 @@
               <p class="bubble-letter" aria-hidden="true">—</p>
               <p class="bubble-title">Loading…</p>
               <p class="bubble-detail">Checking school calendar</p>
+              <span class="bubble-open-hint">
+                <span class="bubble-open-label">Open calendar</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </a>
+
+            <a
+              id="media-bubble"
+              class="bubble bubble--compact bubble-link bubble-media"
+              href="pages/media.html"
+              data-tone="check"
+              aria-label="Media Center walk-in status. View full hours"
+            >
+              <p class="bubble-eyebrow">Media Center</p>
+              <p class="media-bubble-status" id="media-bubble-pill">…</p>
+              <p class="bubble-detail" id="media-bubble-detail">Checking walk-in hours…</p>
               <span class="bubble-open-hint" aria-hidden="true">
-                <span class="bubble-open-label">View calendar</span>
+                <span class="bubble-open-label">Full hours</span>
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </a>
+
+            <a
+              id="spotlight-bubble"
+              class="bubble bubble--compact bubble-link bubble-spotlight"
+              href="pages/resources.html"
+              data-spotlight-tone="indigo"
+              aria-live="polite"
+              aria-label="Campus spotlight"
+            >
+              <div class="spotlight-body" id="spotlight-body">
+                <p class="bubble-eyebrow" id="spotlight-eyebrow">Spotlight</p>
+                <p class="bubble-title" id="spotlight-title">Loading…</p>
+                <p class="bubble-detail" id="spotlight-detail">Announcements and reminders rotate here.</p>
+              </div>
+              <span class="bubble-open-hint" id="spotlight-hint" aria-hidden="true">
+                <span class="bubble-open-label" id="spotlight-link-label">Learn more</span>
                 <svg viewBox="0 0 24 24" fill="none">
                   <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -1994,12 +2670,17 @@
             <a class="shortcut shortcut--laptop" href="pages/student-locator.html">
               <span class="shortcut-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
-                  <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
-                  <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                  <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M7.5 3.5h7.2L18.5 7.3V19.5a1.5 1.5 0 0 1-1.5 1.5H7.5a1.5 1.5 0 0 1-1.5-1.5V5a1.5 1.5 0 0 1 1.5-1.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="M14.7 3.5V7h3.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="9.25" cy="10.25" r="1.15" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12 10.25h5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="9.25" cy="14" r="1.15" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12 14h5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="9.25" cy="17.75" r="1.15" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12 17.75h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
               </span>
-              <span class="shortcut-label">Test Room Locator</span>
+              <span class="shortcut-label">FLHS Testing</span>
             </a>
 
             <a class="shortcut shortcut--teacher-resources" href="pages/resources.html">
@@ -2096,7 +2777,8 @@
     </div>
   </div>
 
-  <script src="js/home.js?v=89" defer></script>
+  <script src="js/flhs-media-center-status.js?v=1" defer></script>
+  <script src="js/home.js?v=97" defer></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

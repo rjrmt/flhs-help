@@ -19,6 +19,8 @@
 
   /** @type {any} */
   let mediaCfg = null;
+  /** @type {ReturnType<typeof window.flhsMediaCenterStatus.createEngine> | null} */
+  let statusEngine = null;
   /** @type {Map<string, { date: string, dayType: string, notes: string }>} */
   let calendarByDate = new Map();
   /** @type {Map<string, Array<{ period: string, label: string, startMin: number, endMin: number, lunchTrack: string }>>} */
@@ -119,25 +121,6 @@
     });
   }
 
-  function classifyDayType(row) {
-    if (!row) return "unknown";
-    const type = String(row.day_type || row.dayType || "").toLowerCase();
-    const notes = String(row.notes || row.label || "").toLowerCase();
-    if (type.includes("white")) return "white";
-    if (type.includes("blue")) return "blue";
-    if (type.includes("erd") || notes.includes("early release")) return "erd";
-    if (type.includes("psd") || notes.includes("professional")) return "psd";
-    if (
-      type.includes("closed") ||
-      type.includes("holiday") ||
-      type.includes("planning") ||
-      /no school|holiday|closed|planning/.test(notes)
-    ) {
-      return "closed";
-    }
-    return type || "unknown";
-  }
-
   function loadBell(rows) {
     const map = new Map();
     rows.forEach((r) => {
@@ -159,191 +142,6 @@
     bellByDayType = map;
   }
 
-  function lunchWindows(dayType) {
-    const rows = bellByDayType.get(dayType) || [];
-    return rows
-      .filter((r) => r.period === "lunch" && (r.lunchTrack === "A" || r.lunchTrack === "B"))
-      .map((r) => ({
-        id: `lunch-${r.lunchTrack.toLowerCase()}`,
-        label: `Lunch ${r.lunchTrack}`,
-        startMin: r.startMin,
-        endMin: r.endMin,
-        blurb: mediaCfg?.walkIn?.lunchBlurb || "Walk in during your lunch",
-        kind: "walkin",
-      }));
-  }
-
-  function reservationFor(isoDate, nowMin, dayType) {
-    const list = Array.isArray(mediaCfg?.reservations) ? mediaCfg.reservations : [];
-    const today = list.filter((r) => toIsoDateKey(r.date) === isoDate);
-    if (!today.length) return null;
-
-    const bell = bellByDayType.get(dayType) || [];
-    for (const res of today) {
-      const periodKey = String(res.period || "").toLowerCase();
-      const match = bell.find((b) => {
-        const p = String(b.period || "").toLowerCase();
-        const lab = String(b.label || "").toLowerCase();
-        return (
-          p === periodKey ||
-          lab.includes(`period ${periodKey}`) ||
-          p.includes(periodKey)
-        );
-      });
-      if (match && nowMin >= match.startMin && nowMin < match.endMin) {
-        return { ...res, window: match };
-      }
-    }
-    return null;
-  }
-
-  function buildWindows(dayType) {
-    const before = mediaCfg.walkIn.beforeSchool;
-    const after = mediaCfg.walkIn.afterSchool;
-    const study = mediaCfg.studyHall || {};
-    const during = mediaCfg.duringClass || {};
-    const windows = [
-      {
-        id: before.id,
-        label: before.label,
-        startMin: parseHHMM(before.start),
-        endMin: parseHHMM(before.end),
-        blurb: before.blurb,
-        kind: "walkin",
-        icon: "sun",
-      },
-      ...lunchWindows(dayType).map((w) => ({ ...w, icon: "lunch" })),
-      {
-        id: "study",
-        label: study.label || "Study hall",
-        startMin: null,
-        endMin: null,
-        blurb: study.blurb || "Academic purposes only · teacher pass required",
-        kind: "pass",
-        icon: "pass",
-      },
-      {
-        id: "class",
-        label: during.label || "During class periods",
-        startMin: null,
-        endMin: null,
-        blurb: during.blurb || "Closed — no walk-ins during class",
-        kind: "closed",
-        icon: "door",
-      },
-      after?.closed
-        ? {
-            id: after.id,
-            label: after.label,
-            startMin: null,
-            endMin: null,
-            blurb: after.blurb || "Closed after school",
-            kind: "closed",
-            icon: "moon",
-          }
-        : {
-            id: after.id,
-            label: after.label,
-            startMin: parseHHMM(after.start),
-            endMin: parseHHMM(after.end),
-            blurb: after.blurb,
-            kind: "walkin",
-            icon: "moon",
-          },
-    ];
-    return windows.filter(
-      (w) => w.kind !== "walkin" || (w.startMin != null && w.endMin != null)
-    );
-  }
-
-  function computeStatus(dayType, nowMin, isoDate) {
-    if (dayType === "closed") {
-      return {
-        tone: "closed",
-        answer: "No",
-        kicker: "No school today",
-        title: "Media Center is closed",
-        detail: "Come back on the next school day.",
-      };
-    }
-    if (dayType === "unknown") {
-      return {
-        tone: "check",
-        answer: "Check",
-        kicker: "Not a school day",
-        title: "Walk-ins are for school days",
-        detail: "Try again Monday–Friday when school is open.",
-      };
-    }
-
-    const activeRes = reservationFor(isoDate, nowMin, dayType);
-    if (activeRes) {
-      const label = activeRes.label || "Class reserved";
-      return {
-        tone: "reserved",
-        answer: "No",
-        kicker: "Not for walk-ins",
-        title: "A class is using it now",
-        detail: `${label}. Study hall still needs a teacher pass.`,
-      };
-    }
-
-    const windows = buildWindows(dayType).filter((w) => w.kind === "walkin");
-    const openNow = windows.find((w) => nowMin >= w.startMin && nowMin < w.endMin);
-    if (openNow) {
-      return {
-        tone: "open",
-        answer: "Yes",
-        kicker: "You can walk in",
-        title: "Yes — go now!",
-        detail: `${openNow.label} · ${formatRange(openNow.startMin, openNow.endMin)}`,
-        activeId: openNow.id,
-      };
-    }
-
-    const next = windows
-      .filter((w) => w.startMin > nowMin)
-      .sort((a, b) => a.startMin - b.startMin)[0];
-    if (next) {
-      return {
-        tone: "soon",
-        answer: "Wait",
-        kicker: "Not right now",
-        title: "Come back later",
-        detail: `Next open: ${next.label} · ${formatRange(next.startMin, next.endMin)}. Study hall needs a teacher pass.`,
-        activeId: null,
-      };
-    }
-
-    const firstBell = (bellByDayType.get(dayType) || []).find((r) => r.period !== "lunch");
-    const lastBell = [...(bellByDayType.get(dayType) || [])].sort(
-      (a, b) => b.endMin - a.endMin
-    )[0];
-    if (
-      firstBell &&
-      lastBell &&
-      nowMin >= firstBell.startMin &&
-      nowMin < lastBell.endMin
-    ) {
-      return {
-        tone: "closed",
-        answer: "No",
-        kicker: "Class time",
-        title: "No walk-ins during class",
-        detail: "Only study hall with a real teacher pass (academic work).",
-        activeId: "class",
-      };
-    }
-
-    return {
-      tone: "closed",
-      answer: "No",
-      kicker: "Closed right now",
-      title: "Not open for walk-ins",
-      detail: "Come before school (7:00–7:40) or at lunch. After school is closed.",
-    };
-  }
-
   function iconSvg(kind) {
     if (kind === "sun") {
       return `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M5.2 18.8l1.6-1.6M17.2 6.8l1.6-1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`;
@@ -361,8 +159,8 @@
   }
 
   function renderWindows(dayType, nowMin, activeId) {
-    if (!windowsEl) return;
-    const windows = buildWindows(dayType);
+    if (!windowsEl || !statusEngine) return;
+    const windows = statusEngine.buildWindows(dayType);
     windowsEl.innerHTML = windows
       .map((w) => {
         const isLive =
@@ -430,17 +228,17 @@
   }
 
   function refresh() {
-    if (!mediaCfg) return;
+    if (!mediaCfg || !statusEngine) return;
     const parts = easternParts();
     const nowMin = easternMinutesNow();
     const cal = calendarByDate.get(parts.isoDate);
-    const dayType = classifyDayType(cal);
+    const dayType = window.flhsMediaCenterStatus.classifyDayType(cal);
 
     if (clockEl) {
       clockEl.textContent = `${parts.weekday} · ${parts.clock}`;
     }
 
-    const status = computeStatus(dayType, nowMin, parts.isoDate);
+    const status = statusEngine.computeStatus(dayType, nowMin, parts.isoDate);
     if (statusEl) {
       statusEl.dataset.tone = status.tone;
     }
@@ -550,6 +348,7 @@
         })
       );
       loadBell(parseCsv(await bellRes.text()));
+      statusEngine = window.flhsMediaCenterStatus.createEngine(mediaCfg, bellByDayType);
       setupTeacherForm();
       refresh();
       setInterval(refresh, 30000);

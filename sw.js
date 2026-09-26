@@ -1,6 +1,6 @@
 /* Minimal service worker for PWA installability.
    Shell assets are cached; /data/ CSV requests are never intercepted. */
-const CACHE_NAME = "flhs-help-shell-v106";
+const CACHE_NAME = "flhs-help-shell-v113";
 
 const SHELL_URLS = [
   "./",
@@ -27,6 +27,7 @@ const SHELL_URLS = [
   "./coupons/quick-print/",
   "./coupons/settings/",
   "./js/home.js",
+  "./js/flhs-media-center-status.js",
   "./js/laptop-checkout.js",
   "./js/laptop-desk.js",
   "./js/laptop-count.js",
