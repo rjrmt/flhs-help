@@ -7,4 +7,6 @@ data/homerooms.csv
 data/laptop-eligible.csv
 data/test-rooms.csv
 data/staff-directory.json
+data/roster_apply.sql
+**/Staff Roster.csv
 .flhs-upload-secret

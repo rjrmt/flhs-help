@@ -8,6 +8,9 @@ Usage:
   python3 scripts/upload_staff_directory.py --api
   python3 scripts/upload_staff_directory.py --api --file data/staff-directory.json
 
+For the district Staff Roster.csv (emails + job titles), use
+scripts/import_staff_roster_csv.py — it merges into existing room/phone rows.
+
 Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
 Never put the service role key in the website.
 """
@@ -62,6 +65,7 @@ def load_rows(path: Path) -> list[dict]:
                 "name": name,
                 "role": str(row.get("role") or "").strip(),
                 "main_phone": str(row.get("main_phone") or "").strip(),
+                "email": str(row.get("email") or "").strip(),
                 "room": str(row.get("room") or "").strip(),
                 "periods": row.get("periods") or {},
             }

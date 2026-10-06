@@ -226,6 +226,13 @@
       setStatus("Confirm your cart number", "err");
       return;
     }
+    const listedForValidate = cartLabel(selected);
+    const reportedForValidate = String(cartCorrection?.value || "").trim();
+    if (cart === "no" && !listedForValidate && !reportedForValidate) {
+      setStatus("Enter the cart number on the label in your room", "err");
+      cartCorrection?.focus();
+      return;
+    }
     const listed = cartLabel(selected);
     const reportedCart = String(cartCorrection?.value || "").trim();
     const noteParts = [];
@@ -234,6 +241,8 @@
       else if (listed) noteParts.push(`Teacher says this is not cart ${listed}.`);
       else if (reportedCart) noteParts.push(`No cart on file. Teacher reports: ${reportedCart}.`);
       else noteParts.push("Teacher reports having a cart, but did not enter a number.");
+    } else if (!listed && reportedCart) {
+      noteParts.push(`No cart on file. Teacher reports: ${reportedCart}.`);
     }
     const typedNotes = String(notes.value || "").trim();
     if (typedNotes) noteParts.push(typedNotes);
@@ -248,6 +257,7 @@
         p_actual_count: actual,
         p_extras_needed: extras,
         p_notes: noteParts.join(" "),
+        p_reported_cart: reportedCart,
       });
       if (error) throw error;
       const saved = data && typeof data === "object" ? data : {};

@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>FLHS Testing | Room Changes</title>
+  <meta name="description" content="Classroom relocations for test days — FLHS Testing" />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="apple-mobile-web-app-title" content="FLHS Testing" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../assets/theme.css" />
+  <style>
+    .board-stage { width: min(100%, 38rem); }
+    .date-nav {
+      margin-top: 0.65rem;
+      margin-bottom: 0.35rem;
+      text-align: center;
+      width: 100%;
+    }
+    .date-nav-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-400);
+      margin-bottom: 0.45rem;
+      font-weight: 700;
+    }
+    .date-nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .date-pill {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 7.5rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      border: 1.5px solid rgba(0, 35, 102, 0.28);
+      background: linear-gradient(180deg, #ffffff 0%, #eef4ff 100%);
+      color: var(--navy);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 8px 18px rgba(0, 35, 102, 0.12);
+    }
+    .date-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 12px 24px rgba(0, 35, 102, 0.18);
+    }
+    .date-pill.active {
+      background: linear-gradient(165deg, var(--royal) 0%, var(--navy) 100%);
+      color: #fff;
+      border-color: rgba(0, 35, 102, 0.45);
+    }
+    .date-pill-day {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .date-pill-caption {
+      font-size: 0.65rem;
+      opacity: 0.85;
+      margin-top: 0.1rem;
+    }
+    .date-display {
+      display: block;
+      padding: 0.85rem 0;
+      background: transparent;
+      border-top: 2px solid rgba(0, 35, 102, 0.18);
+      border-bottom: 2px solid rgba(0, 35, 102, 0.18);
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(1.15rem, 4vw, 1.45rem);
+      font-weight: 800;
+      color: var(--navy);
+      margin: 1rem 0 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .date-display::before {
+      content: "📅 ";
+      font-size: 1.15em;
+    }
+    .info {
+      padding: 0.75rem 1rem;
+      background: rgba(0, 86, 179, 0.08);
+      border: 1px solid rgba(0, 86, 179, 0.2);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      color: var(--ink-700);
+      margin: 1.15rem 0 1.35rem;
+      text-align: center;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+    .rooms {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      margin-bottom: 1.35rem;
+    }
+    .room-card {
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.82) 0%, rgba(236, 244, 255, 0.58) 100%);
+      border: 1.5px solid rgba(0, 35, 102, 0.14);
+      border-radius: var(--radius-md);
+      padding: 1rem 0.95rem 0.95rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 18px rgba(0, 35, 102, 0.08);
+    }
+    .room-card:hover {
+      border-color: rgba(0, 35, 102, 0.28);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 12px 24px rgba(0, 35, 102, 0.14);
+    }
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .room-old {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .teacher {
+      font-size: 0.88rem;
+      color: var(--ink-700);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .arrow {
+      text-align: center;
+      color: var(--royal);
+      margin: 0.45rem 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .room-new {
+      padding: 0.75rem;
+      background: linear-gradient(165deg, var(--royal) 0%, var(--navy) 100%);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      margin-bottom: 0.55rem;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+    .new-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.82);
+      margin-bottom: 0.2rem;
+      font-weight: 600;
+    }
+    .new-room {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .periods {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-top: 0.45rem;
+      justify-content: center;
+    }
+    .period {
+      padding: 0.25rem 0.6rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .extra-info {
+      margin-top: 0.75rem;
+      padding: 0.65rem;
+      border-radius: var(--radius-sm);
+    }
+    .extra-info.back {
+      background: #ecfdf5;
+      border: 1.5px solid #10b981;
+      margin-top: 1rem;
+    }
+    .extra-info.back .new-label { color: #065f46; }
+    .extra-info.back .new-room {
+      font-size: 0.9rem;
+      color: #065f46;
+    }
+    .extra-info.back .periods { margin-top: 0.35rem; }
+    .extra-info.back .period {
+      background: #10b981;
+      color: #fff;
+    }
+    .extra-info.alt {
+      background: #fff7ed;
+      border: 1.5px solid #c2410c;
+    }
+    .extra-info.alt .new-label { color: #9a3412; }
+    .extra-info.alt .new-room {
+      font-size: 0.9rem;
+      color: #9a3412;
+    }
+    .extra-info.alt .periods { margin-top: 0.35rem; }
+    .extra-info.alt .period {
+      background: #c2410c;
+      color: #fff;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.25rem;
+      color: var(--ink-500);
+      text-align: center;
+    }
+    .loading-spinner {
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 3px solid rgba(0, 35, 102, 0.15);
+      border-top-color: var(--royal);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+    .error-message {
+      padding: 1.15rem;
+      background: #fef2f2;
+      border: 1.5px solid #ef4444;
+      border-radius: var(--radius-md);
+      color: #b91c1c;
+      text-align: center;
+      margin-bottom: 1.35rem;
+    }
+    .error-message .error-icon {
+      font-size: 2rem;
+      margin-bottom: 0.45rem;
+    }
+    .error-message .error-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.45rem;
+    }
+    .error-message .error-details {
+      font-size: 0.88rem;
+      color: var(--ink-500);
+    }
+    .success-message {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: #059669;
+      color: white;
+      padding: 0.75rem 1.15rem;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-soft);
+      z-index: 1000;
+      font-size: 0.88rem;
+      font-weight: 600;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1.25rem;
+      color: var(--ink-500);
+    }
+    .empty-state-icon {
+      font-size: 2.75rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    .empty-state-title {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.45rem;
+    }
+    .empty-state-message {
+      font-size: 0.88rem;
+      color: var(--ink-400);
+    }
+    @media (max-width: 480px) {
+      .date-display { font-size: 1.05rem; padding: 0.7rem 0; }
+      .date-display::before { font-size: 1em; }
+      .room-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body class="theme-body">
+  <div class="page">
+    <main class="app-main">
+      <div class="board-stage">
+        <div class="board-floor" aria-hidden="true"></div>
+        <div class="container board">
+          <button id="langToggle" class="lang-toggle" aria-label="Switch language / Cambiar idioma" title="English / Español">
+            <span id="langIcon">🇪🇸</span>
+            <span id="langText" data-i18n="spanish">Español</span>
+          </button>
+
+          <header class="brand header">
+            <img
+              src="../../assets/flhs-logo.png"
+              alt="Fort Lauderdale High School — Leading the Launch"
+              class="logo"
+              width="640"
+              height="640"
+            />
+            <p class="brand-name">FLHS Testing</p>
+            <h1 class="page-title" data-i18n="room-changes-title">📍 Room Changes</h1>
+            <div class="date-nav" aria-label="Choose test date">
+              <div class="date-nav-label" data-i18n="select-test-day">Select test day</div>
+              <div class="date-nav-buttons" id="datePills" role="tablist"></div>
+            </div>
+            <div class="date-display" id="dateDisplay" data-i18n="loading">Loading…</div>
+          </header>
+
+          <div class="info" data-i18n="room-changes-info">
+            Room changes for selected test days. If your class isn't listed, you stay in your normal room. These match the
+            official room relocation schedule.
+          </div>
+
+          <div class="rooms" id="roomsContainer">
+            <!-- dynamic cards -->
+          </div>
+
+          <div class="btn-back-wrap">
+            <a href="../../index.html" class="btn-back">
+              <span aria-hidden="true">←</span>
+              <span data-i18n="home">Home</span>
+            </a>
+          </div>
+
+          <div class="footer"><span data-i18n="designed-by">designed by</span> <a href="https://www.linkedin.com/in/rjrmt" target="_blank" rel="noopener">RJ</a></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/translations.js"></script>
+  <script>
+    (function () {
+      // Language toggle functionality
+      const langToggle = document.getElementById('langToggle');
+      const langIcon = document.getElementById('langIcon');
+      const langText = document.getElementById('langText');
+      
+      function updateLangButton() {
+        if (typeof i18n !== 'undefined') {
+          if (i18n.currentLang === 'es') {
+            langIcon.textContent = '🇺🇸';
+            langText.textContent = 'English';
+            langText.setAttribute('data-i18n', 'english');
+          } else {
+            langIcon.textContent = '🇪🇸';
+            langText.textContent = 'Español';
+            langText.setAttribute('data-i18n', 'spanish');
+          }
+        }
+      }
+      
+      if (langToggle) {
+        langToggle.addEventListener('click', () => {
+          if (typeof i18n !== 'undefined') {
+            const newLang = i18n.currentLang === 'en' ? 'es' : 'en';
+            i18n.setLanguage(newLang);
+            updateLangButton();
+            renderDatePills();
+            renderRooms();
+          }
+        });
+        
+        window.addEventListener('languageChanged', () => {
+          updateLangButton();
+          renderDatePills();
+          renderRooms();
+        });
+        
+        updateLangButton();
+      }
+      
+      // ============================================
+      // CSV CONFIGURATION
+      // - Local dev: read from /data/*.csv
+      // - Production (private repo): read via /api/github-csv
+      // ============================================
+      const DATA_DIR = 'data';
+      const IS_LOCAL_DEV = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+      const LOCAL_ROOM_CHANGES_URL = `/${DATA_DIR}/room-changes.csv`;
+
+      async function fetchCSV(dataType, localUrl) {
+        if (IS_LOCAL_DEV) {
+          const res = await fetch(localUrl, { cache: 'no-cache', headers: { 'Accept': 'text/csv' } });
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          return await res.text();
+        }
+        const apiUrl = `/api/github-csv?file=${encodeURIComponent(dataType)}&type=${encodeURIComponent(dataType)}`;
+        const res = await fetch(apiUrl, { cache: 'no-cache', headers: { 'Accept': 'application/json' } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        const json = await res.json();
+        if (!json?.success || !json?.content) throw new Error('Invalid API response while loading CSV');
+        return json.content;
+      }
+      
+      // ============================================
+      // DOM ELEMENTS
+      // ============================================
+      const datePills = document.getElementById('datePills');
+      const dateDisplay = document.getElementById('dateDisplay');
+      const roomsContainer = document.getElementById('roomsContainer');
+
+      // ============================================
+      // STATE MANAGEMENT
+      // ============================================
+      let allRows = [];
+      let allDates = [];
+      let selectedDate = null; // YYYY-MM-DD
+      let isLoading = false;
+      let lastLoadTime = null;
+      let lastDataUpdate = null;
+      const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
+
+      function makeLocalDate(isoDate) {
+        // Parse YYYY-MM-DD as a local date to avoid timezone shifts
+        const [y, m, d] = isoDate.split('-').map(Number);
+        if (!y || !m || !d) return new Date(NaN);
+        return new Date(y, m - 1, d);
+      }
+
+      function formatDateHeading(isoDate) {
+        const d = makeLocalDate(isoDate);
+        if (isNaN(d)) return isoDate;
+        const opts = { month: 'long', day: 'numeric', year: 'numeric' };
+        return d.toLocaleDateString(undefined, opts).toUpperCase();
+      }
+
+      function formatPillLabel(isoDate) {
+        const d = makeLocalDate(isoDate);
+        if (isNaN(d)) return isoDate;
+        const opts = { month: 'short', day: 'numeric' };
+        return d.toLocaleDateString(undefined, opts);
+      }
+
+      function buildDates() {
+        const set = new Set();
+        allRows.forEach(r => {
+          if (r.date) set.add(r.date);
+        });
+        allDates = Array.from(set).sort();
+      }
+
+      function renderDatePills() {
+        datePills.innerHTML = '';
+        allDates.forEach((date, idx) => {
+          const pill = document.createElement('button');
+          pill.type = 'button';
+          pill.className = 'date-pill' + (date === selectedDate ? ' active' : '');
+          pill.setAttribute('role', 'tab');
+          pill.setAttribute('aria-selected', date === selectedDate ? 'true' : 'false');
+
+          const spanDay = document.createElement('span');
+          spanDay.className = 'date-pill-day';
+          spanDay.textContent = formatPillLabel(date);
+          pill.appendChild(spanDay);
+
+          const spanCaption = document.createElement('span');
+          spanCaption.className = 'date-pill-caption';
+          if (typeof i18n !== 'undefined') {
+            spanCaption.textContent = date === selectedDate
+              ? i18n.t('viewing-date')
+              : (idx < allDates.indexOf(selectedDate) ? i18n.t('previous-day') : i18n.t('next-day'));
+          } else {
+            spanCaption.textContent = date === selectedDate
+              ? "You're viewing this date"
+              : (idx < allDates.indexOf(selectedDate) ? 'Previous day changes' : 'Next day changes');
+          }
+          pill.appendChild(spanCaption);
+
+          pill.addEventListener('click', () => {
+            if (selectedDate === date) return;
+            selectedDate = date;
+            renderDatePills();
+            renderRooms();
+          });
+
+          datePills.appendChild(pill);
+        });
+      }
+
+      // ============================================
+      // UTILITY FUNCTIONS
+      // ============================================
+      
+      /**
+       * Show loading state (simplified - no UI indicator)
+       */
+      function setLoading(loading) {
+        isLoading = loading;
+      }
+      
+      /**
+       * Show error message
+       */
+      function showError(message, details = '') {
+        roomsContainer.innerHTML = `
+          <div class="error-message">
+            <div class="error-icon">⚠️</div>
+            <div class="error-title">Error</div>
+            <div class="error-details">${message}${details ? '<br><small>' + details + '</small>' : ''}</div>
+          </div>
+        `;
+        dateDisplay.textContent = 'Error';
+      }
+      
+      /**
+       * Show empty state
+       */
+      function showEmptyState(message = null, icon = '📋') {
+        const defaultMsg = typeof i18n !== 'undefined' ? i18n.t('no-room-changes-message') : 'No room changes configured at this time.';
+        const titleText = typeof i18n !== 'undefined' ? i18n.t('no-room-changes') : 'No Room Changes';
+        roomsContainer.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">${icon}</div>
+            <div class="empty-state-title">${titleText}</div>
+            <div class="empty-state-message">${message || defaultMsg}</div>
+          </div>
+        `;
+      }
+      
+      /**
+       * Show loading overlay (removed - using status dot indicator instead)
+       */
+      function showLoadingOverlay() {
+        // Loading overlay removed to prevent stuck loading states
+        // The status dot indicator provides sufficient feedback
+      }
+      
+      /**
+       * Show success notification
+       */
+      function showSuccessMessage(message) {
+        const successMsg = document.createElement('div');
+        successMsg.className = 'success-message';
+        successMsg.textContent = message;
+        document.body.appendChild(successMsg);
+        setTimeout(() => {
+          successMsg.style.animation = 'slideIn 0.3s ease reverse';
+          setTimeout(() => successMsg.remove(), 300);
+        }, 3000);
+      }
+      
+      // ============================================
+      // RENDERING FUNCTIONS
+      // ============================================
+      
+      function renderRooms() {
+        if (!selectedDate) {
+          // Hide empty state for cleaner look - just clear the container
+          roomsContainer.innerHTML = '';
+          dateDisplay.textContent = typeof i18n !== 'undefined' ? i18n.t('select-date') : 'No date selected';
+          return;
+        }
+
+        dateDisplay.textContent = formatDateHeading(selectedDate);
+
+        const rowsForDate = allRows.filter(r => r.date === selectedDate);
+        if (!rowsForDate.length) {
+          // Hide empty state for cleaner look - just clear the container
+          roomsContainer.innerHTML = '';
+          return;
+        }
+
+        // Group by room + teacher
+        const map = new Map();
+        rowsForDate.forEach(r => {
+          const key = r.room + '||' + r.teacher;
+          if (!map.has(key)) {
+            map.set(key, {
+              room: r.room,
+              teacher: r.teacher,
+              segments: []
+            });
+          }
+          const segmentType = (r.segment_type || 'primary').toLowerCase();
+          const periods = (r.periods || '')
+            .split(/[;,]/)
+            .map(p => p.trim())
+            .filter(Boolean);
+          map.get(key).segments.push({
+            type: segmentType,
+            moveTo: r.move_to || 'TBA',
+            periods
+          });
+        });
+
+        const cards = Array.from(map.values());
+
+        // Sort by numeric room when possible, then by teacher
+        cards.sort((a, b) => {
+          const num = (val) => {
+            if (/^\d+$/.test(val)) return parseInt(val, 10);
+            const n = parseInt(String(val).replace(/\D/g, ''), 10);
+            return Number.isNaN(n) ? 9999 : n;
+          };
+          const diff = num(a.room) - num(b.room);
+          if (diff !== 0) return diff;
+          return String(a.teacher || '').localeCompare(String(b.teacher || ''));
+        });
+
+        roomsContainer.innerHTML = '';
+
+        cards.forEach(card => {
+          // Order segments in the timeline by earliest period, then by type
+          const order = { primary: 0, alt: 1, back: 2 };
+          const minPeriod = (seg) => {
+            if (!seg.periods || !seg.periods.length) return 999;
+            return Math.min(
+              ...seg.periods.map(p => {
+                const n = Number(p);
+                return Number.isNaN(n) ? 999 : n;
+              })
+            );
+          };
+
+          card.segments.sort((s1, s2) => {
+            const p1 = minPeriod(s1);
+            const p2 = minPeriod(s2);
+            if (p1 !== p2) return p1 - p2;
+            return (order[s1.type] || 9) - (order[s2.type] || 9);
+          });
+
+          const hasPrimary = card.segments.some(seg => seg.type === 'primary');
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'room-card';
+
+          const header = document.createElement('div');
+          header.className = 'room-header';
+
+          const oldSpan = document.createElement('span');
+          oldSpan.className = 'room-old';
+          if (/^\d+$/.test(card.room)) {
+            oldSpan.textContent = 'Room ' + card.room;
+          } else {
+            oldSpan.textContent = String(card.room).toUpperCase();
+          }
+          header.appendChild(oldSpan);
+
+          const teacherSpan = document.createElement('span');
+          teacherSpan.className = 'teacher';
+          teacherSpan.textContent = card.teacher || '';
+          header.appendChild(teacherSpan);
+
+          wrapper.appendChild(header);
+
+          const arrow = document.createElement('div');
+          arrow.className = 'arrow';
+          arrow.textContent = '↓';
+          wrapper.appendChild(arrow);
+
+          card.segments.forEach((seg, index) => {
+            const isPrimary = hasPrimary ? seg.type === 'primary' : index === 0;
+            const block = document.createElement('div');
+
+            if (isPrimary) {
+              block.className = 'room-new';
+            } else {
+              block.className = 'extra-info ' + (seg.type === 'back' ? 'back' : 'alt');
+            }
+
+            const label = document.createElement('div');
+            label.className = 'new-label';
+            if (typeof i18n !== 'undefined') {
+              label.textContent = isPrimary ? i18n.t('new-location') : i18n.t('then');
+            } else {
+              label.textContent = isPrimary ? 'New Location' : 'Then';
+            }
+            block.appendChild(label);
+
+            const roomDiv = document.createElement('div');
+            roomDiv.className = 'new-room';
+            roomDiv.textContent = seg.moveTo || 'TBA';
+            block.appendChild(roomDiv);
+
+            if (seg.periods && seg.periods.length) {
+              const periodsDiv = document.createElement('div');
+              periodsDiv.className = 'periods';
+              seg.periods
+                .slice()
+                .sort((a, b) => Number(a) - Number(b))
+                .forEach(p => {
+              const span = document.createElement('span');
+              span.className = 'period';
+              if (typeof i18n !== 'undefined') {
+                span.textContent = i18n.t('period') + ' ' + p;
+              } else {
+                span.textContent = 'P' + p;
+              }
+              periodsDiv.appendChild(span);
+                });
+              block.appendChild(periodsDiv);
+            }
+
+            wrapper.appendChild(block);
+          });
+
+          roomsContainer.appendChild(wrapper);
+        });
+      }
+
+      // ============================================
+      // DATA LOADING FUNCTIONS
+      // ============================================
+      
+      // CSV Parser
+      function parseCSV(text) {
+        const rows = [];
+        let row = [];
+        let value = "";
+        let inQuotes = false;
+        
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          if (char === '"') {
+            if (inQuotes && text[i + 1] === '"') {
+              value += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === "," && !inQuotes) {
+            row.push(value);
+            value = "";
+          } else if ((char === "\n" || char === "\r") && !inQuotes) {
+            if (char === "\r" && text[i + 1] === "\n") i++;
+            row.push(value);
+            rows.push(row);
+            row = [];
+            value = "";
+          } else {
+            value += char;
+          }
+        }
+        
+        if (value.length || row.length) {
+          row.push(value);
+          rows.push(row);
+        }
+        
+        return rows;
+      }
+      
+      /**
+       * Fetch room changes from GitHub CSV
+       */
+      async function queryRoomChanges() {
+        try {
+          const csvText = await fetchCSV('room-changes', LOCAL_ROOM_CHANGES_URL);
+          const rows = parseCSV(csvText);
+          
+          if (rows.length < 2) {
+            return []; // Empty or header only
+          }
+          
+          const headers = rows[0].map(h => h.replace(/^\uFEFF/, "").trim());
+          const data = [];
+          
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row.some(v => v && v.trim())) continue; // Skip empty rows
+            
+            const obj = {};
+            headers.forEach((h, idx) => {
+              obj[h] = (row[idx] || "").trim();
+            });
+            data.push(obj);
+          }
+          
+          return data;
+        } catch (error) {
+          console.error('Error fetching room changes:', error);
+          throw error;
+        }
+      }
+      
+      // ============================================
+      // DATA LOADING FUNCTIONS
+      // ============================================
+      
+      /**
+       * Load room changes data from GitHub CSV
+       */
+      async function loadData(forceRefresh = false) {
+        // Check cache if not forcing refresh
+        if (!forceRefresh && lastLoadTime && (Date.now() - lastLoadTime) < CACHE_DURATION && allRows.length > 0) {
+          // Using cached data
+          renderDatePills();
+          renderRooms();
+          return;
+        }
+        
+        // Prevent concurrent loads
+        if (isLoading) {
+          // Load already in progress, skipping
+          return;
+        }
+        
+        setLoading(true);
+        
+        // Clear existing data
+        allRows = [];
+        allDates = [];
+        selectedDate = null;
+        datePills.innerHTML = '';
+        
+        try {
+          // Fetch data from GitHub CSV
+          const data = await queryRoomChanges();
+          
+          // Fetched room changes data
+          
+          if (data.length > 0) {
+            // Map and normalize data
+            allRows = data.map(row => ({
+              date: row.date || '',
+              room: row.room || '',
+              teacher: row.teacher || '',
+              segment_type: row.segment_type || '',
+              move_to: row.move_to || '',
+              periods: row.periods || ''
+            }));
+            
+            // Build date list
+            buildDates();
+            // Available dates loaded
+            
+            if (allDates.length > 0) {
+              // Select today's date if available, otherwise first date
+              const today = new Date();
+              const todayIso = today.toISOString().slice(0, 10);
+              selectedDate = allDates.includes(todayIso) ? todayIso : allDates[0];
+              
+            // Render UI
+            renderDatePills();
+            renderRooms();
+            
+            // Update last data fetch time
+            lastDataUpdate = Date.now();
+            lastLoadTime = Date.now();
+            } else {
+              // No dates found - hide empty state for cleaner look
+              dateDisplay.textContent = typeof i18n !== 'undefined' ? i18n.t('no-room-changes') : 'No Room Changes';
+              roomsContainer.innerHTML = '';
+              datePills.innerHTML = '';
+              // Update last data fetch time even when no dates found
+              lastDataUpdate = Date.now();
+              lastLoadTime = Date.now();
+            }
+          } else {
+            // No data available - hide empty state for cleaner look
+            dateDisplay.textContent = typeof i18n !== 'undefined' ? i18n.t('no-room-changes') : 'No Room Changes';
+            roomsContainer.innerHTML = '';
+            datePills.innerHTML = '';
+            // Update last data fetch time even when no data available
+            lastDataUpdate = Date.now();
+            lastLoadTime = Date.now();
+          }
+        } catch (error) {
+          console.error('Failed to load from GitHub:', error);
+          dateDisplay.textContent = typeof i18n !== 'undefined' ? i18n.t('error-loading') : 'Error loading data';
+          
+          // Provide helpful error message
+          const errorMessage = error.message || 'Unknown error';
+          const isNetworkError = errorMessage.includes('fetch') || errorMessage.includes('network');
+          const isAuthError = errorMessage.includes('JWT') || errorMessage.includes('auth');
+          
+          let userMessage = typeof i18n !== 'undefined' ? i18n.t('unable-load') : 'Unable to load room changes.';
+          let details = '';
+          
+          if (isNetworkError) {
+            userMessage = typeof i18n !== 'undefined' ? i18n.t('network-error') : 'Network connection error.';
+            details = typeof i18n !== 'undefined' ? i18n.t('network-error-details') : 'Please check your internet connection and try again.';
+          } else if (isAuthError) {
+            userMessage = typeof i18n !== 'undefined' ? i18n.t('auth-error') : 'Authentication error.';
+            details = typeof i18n !== 'undefined' ? i18n.t('auth-error-details') : 'Please refresh the page or contact support.';
+          } else {
+            details = errorMessage;
+          }
+          
+          showError(userMessage, details);
+          datePills.innerHTML = '';
+        } finally {
+          setLoading(false);
+        }
+      }
+      
+      // ============================================
+      // INITIALIZATION
+      // ============================================
+      
+      /**
+       * Initialize the application
+       */
+      async function init() {
+        // Initializing room changes page
+        
+        // Load initial data
+        await loadData();
+        
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+          loadData(true);
+        }, 5 * 60 * 1000);
+        
+        // Refresh on network online
+        window.addEventListener('online', () => {
+          // Network online - refreshing data
+          loadData(true);
+        });
+      }
+      
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script type="module" src="../../assets/vercel-analytics.js"></script>
+</body>
+</html>

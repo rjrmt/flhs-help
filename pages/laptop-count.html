@@ -62,26 +62,46 @@
             <button type="button" class="filter-chip" data-view="all">All staff</button>
             <button type="button" class="filter-chip" data-view="carts">Cart inventory</button>
           </div>
-          <label class="field">
-            <span>Search</span>
-            <input id="row-search" type="search" placeholder="Name, room, or role" />
-          </label>
+          <div class="table-toolbar">
+            <label class="field field-inline">
+              <span>Search</span>
+              <input id="row-search" type="search" placeholder="Name, room, building, cart…" />
+            </label>
+            <label class="field field-inline">
+              <span>Building</span>
+              <select id="building-filter">
+                <option value="all">All buildings</option>
+              </select>
+            </label>
+            <label class="field field-inline">
+              <span>Extras</span>
+              <select id="extras-filter">
+                <option value="all">All</option>
+                <option value="needs">Needs extras (&gt;0)</option>
+                <option value="zero">Reported 0 extras</option>
+              </select>
+            </label>
+            <button type="button" class="btn btn-sm" id="clear-table-filters">Reset sort &amp; filters</button>
+          </div>
+          <p class="note table-hint">Click any column header to sort. Default order is building, then room.</p>
+          <div class="export-actions">
+            <button type="button" class="btn btn-primary" id="export-boss">
+              Boss brief — Excel + copy email
+            </button>
+            <button type="button" class="btn" id="export-order">Order summary (.xlsx)</button>
+            <button type="button" class="btn" id="export-view">Download this table (.xlsx)</button>
+            <button type="button" class="btn" id="export-missing">
+              Missing teachers + email list (.xlsx)
+            </button>
+          </div>
+          <p class="note export-note">
+            Email list uses addresses on file when available; otherwise a suggested
+            <code>@browardschools.com</code> address from the roster name (verify before sending).
+          </p>
           <p class="section-label" id="table-label">Roster</p>
           <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Status</th>
-                  <th>Name</th>
-                  <th>Room</th>
-                  <th>Cart</th>
-                  <th>Expected</th>
-                  <th>On hand</th>
-                  <th>Missing</th>
-                  <th>Max class</th>
-                  <th>Extras</th>
-                </tr>
-              </thead>
+            <table id="roster-table">
+              <thead id="roster-thead"></thead>
               <tbody id="count-body"></tbody>
             </table>
           </div>
@@ -90,17 +110,8 @@
           <p class="section-label" style="margin-top:1.25rem">Cart inventory</p>
           <p class="note" id="inventory-note">Loading cart assignments…</p>
           <div class="table-wrap" id="inventory-wrap" hidden>
-            <table>
-              <thead>
-                <tr>
-                  <th>Cart</th>
-                  <th>Responsible</th>
-                  <th>Matched staff</th>
-                  <th>Room</th>
-                  <th>Expected</th>
-                  <th>Kind</th>
-                </tr>
-              </thead>
+            <table id="inventory-table">
+              <thead id="inventory-thead"></thead>
               <tbody id="inventory-body"></tbody>
             </table>
           </div>
@@ -110,6 +121,7 @@
     <footer class="site">Fort Lauderdale High School</footer>
   </div>
   <script src="../js/supabase-config.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="../js/laptop-count.js"></script>
 </body>
 </html>
