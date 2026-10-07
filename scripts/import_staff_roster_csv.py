@@ -194,20 +194,14 @@ def merge_roster(
             notes.append(f"matched (exact new name): {entry['roster_name']} -> {new_name}")
             continue
 
-        merged_by_name[new_name] = {
-            "name": new_name,
-            "role": entry["role"],
-            "main_phone": "",
-            "email": entry["email"],
-            "room": "",
-            "periods": {},
-        }
-        notes.append(f"added: {entry['roster_name']} as {new_name}")
+        # District roster lists many people not on our phone/cart directory — only merge
+        # into existing rows so we don't create room-less records in the laptop survey.
+        notes.append(f"skipped (no directory match): {entry['roster_name']} -> {new_name}")
 
     matched_roster = sum(1 for n in notes if n.startswith("matched"))
-    added = sum(1 for n in notes if n.startswith("added"))
+    skipped = sum(1 for n in notes if n.startswith("skipped"))
     notes.append(
-        f"summary: roster={len(roster)} matched={matched_roster} added={added} total={len(merged_by_name)}"
+        f"summary: roster={len(roster)} matched={matched_roster} skipped={skipped} total={len(merged_by_name)}"
     )
 
     rows = sorted(merged_by_name.values(), key=lambda r: r["name"])

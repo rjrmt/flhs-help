@@ -33,6 +33,12 @@ function asClient() {
   });
 }
 
+async function loadStatus(admin: ReturnType<typeof asClient>) {
+  const { data, error } = await admin.rpc("admin_laptop_need_status");
+  if (error) throw error;
+  return data && typeof data === "object" ? data : {};
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -47,6 +53,15 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Unauthorized" }, 401);
   }
 
+  let payload: Record<string, unknown> = {};
+  try {
+    payload = (await req.json()) as Record<string, unknown>;
+  } catch {
+    payload = {};
+  }
+
+  const action = String(payload.action || "status").trim();
+
   let admin;
   try {
     admin = asClient();
@@ -55,9 +70,77 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { data, error } = await admin.rpc("admin_laptop_need_status");
-    if (error) throw error;
-    return jsonResponse({ ok: true, ...(data && typeof data === "object" ? data : {}) });
+    if (action === "status") {
+      const status = await loadStatus(admin);
+      return jsonResponse({ ok: true, ...status });
+    }
+
+    if (action === "save_need") {
+      const staffId = Number(payload.staff_id);
+      if (!Number.isFinite(staffId)) {
+        return jsonResponse({ error: "staff_id required" }, 400);
+      }
+      const { data, error } = await admin.rpc("submit_laptop_need", {
+        p_staff_id: staffId,
+        p_cart_checked: Boolean(payload.cart_checked),
+        p_max_students: Number(payload.max_students),
+        p_actual_count: Number(payload.actual_count),
+        p_extras_needed: Number(payload.extras_needed),
+        p_notes: String(payload.notes || ""),
+        p_reported_cart: String(payload.reported_cart || ""),
+      });
+      if (error) throw error;
+      const status = await loadStatus(admin);
+      return jsonResponse({ ok: true, saved: data, ...status });
+    }
+
+    if (action === "patch_staff") {
+      const staffId = Number(payload.staff_id);
+      if (!Number.isFinite(staffId)) {
+        return jsonResponse({ error: "staff_id required" }, 400);
+      }
+      const { data, error } = await admin.rpc("admin_patch_staff_room", {
+        p_staff_id: staffId,
+        p_room: String(payload.room ?? ""),
+      });
+      if (error) throw error;
+      const status = await loadStatus(admin);
+      return jsonResponse({ ok: true, staff: data, ...status });
+    }
+
+    if (action === "assign_cart") {
+      const cartCode = String(payload.cart_code || "").trim();
+      const staffId =
+        payload.staff_id == null || payload.staff_id === ""
+          ? null
+          : Number(payload.staff_id);
+      if (!cartCode) return jsonResponse({ error: "cart_code required" }, 400);
+      if (staffId != null && !Number.isFinite(staffId)) {
+        return jsonResponse({ error: "Invalid staff_id" }, 400);
+      }
+      const { data, error } = await admin.rpc("admin_assign_laptop_cart", {
+        p_cart_code: cartCode,
+        p_staff_id: staffId,
+      });
+      if (error) throw error;
+      const status = await loadStatus(admin);
+      return jsonResponse({ ok: true, assignment: data, ...status });
+    }
+
+    if (action === "delete_need") {
+      const staffId = Number(payload.staff_id);
+      if (!Number.isFinite(staffId)) {
+        return jsonResponse({ error: "staff_id required" }, 400);
+      }
+      const { data, error } = await admin.rpc("admin_delete_laptop_need", {
+        p_staff_id: staffId,
+      });
+      if (error) throw error;
+      const status = await loadStatus(admin);
+      return jsonResponse({ ok: true, deleted: data, ...status });
+    }
+
+    return jsonResponse({ error: `Unknown action: ${action}` }, 400);
   } catch (err) {
     console.error(err);
     const message = (err as { message?: string })?.message || "Request failed";

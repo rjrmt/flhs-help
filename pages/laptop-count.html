@@ -83,7 +83,7 @@
             </label>
             <button type="button" class="btn btn-sm" id="clear-table-filters">Reset sort &amp; filters</button>
           </div>
-          <p class="note table-hint">Click any column header to sort. Default order is building, then room.</p>
+          <p class="note table-hint">Click a row or <strong>Edit</strong> to open the technician panel. Column headers sort the table.</p>
           <div class="export-actions">
             <button type="button" class="btn btn-primary" id="export-boss">
               Boss brief — Excel + copy email
@@ -105,16 +105,83 @@
               <tbody id="count-body"></tbody>
             </table>
           </div>
+
+          <aside id="tech-panel" class="tech-panel" hidden aria-labelledby="tech-panel-title">
+            <div class="tech-panel-head">
+              <div>
+                <p class="kicker">Technician edit</p>
+                <h2 id="tech-panel-title"><span id="tech-panel-name">—</span></h2>
+                <p class="note" id="tech-panel-meta"></p>
+              </div>
+              <button type="button" class="btn btn-sm" id="tech-panel-close" aria-label="Close">Close</button>
+            </div>
+            <form id="tech-form" class="tech-form">
+              <div class="grid-2">
+                <label class="field">
+                  <span>Room (directory)</span>
+                  <input id="tech-room" type="text" maxlength="40" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>Assign cart (inventory)</span>
+                  <select id="tech-cart-assign">
+                    <option value="">— No change —</option>
+                  </select>
+                </label>
+              </div>
+              <div class="grid-2">
+                <label class="field">
+                  <span>On hand</span>
+                  <input id="tech-actual" type="number" min="0" max="80" />
+                </label>
+                <label class="field">
+                  <span>Max class</span>
+                  <input id="tech-max" type="number" min="1" max="80" />
+                </label>
+              </div>
+              <div class="grid-2">
+                <label class="field">
+                  <span>Extras to order</span>
+                  <input id="tech-extras" type="number" min="0" max="80" />
+                </label>
+                <label class="field">
+                  <span>Reported cart #</span>
+                  <input id="tech-reported-cart" type="text" maxlength="40" autocomplete="off" />
+                </label>
+              </div>
+              <fieldset class="tech-fieldset">
+                <legend>Cart check</legend>
+                <label class="choice"><input type="radio" name="tech-cart-ok" value="yes" /> Confirmed / matches records</label>
+                <label class="choice"><input type="radio" name="tech-cart-ok" value="no" /> Mismatch or different cart</label>
+              </fieldset>
+              <label class="field">
+                <span>Notes (appends with IT tag on save)</span>
+                <textarea id="tech-notes" rows="2" placeholder="What you saw in the room…"></textarea>
+              </label>
+              <p class="note" id="tech-existing-notes"></p>
+              <div class="tech-actions">
+                <button type="submit" class="btn btn-primary" id="tech-save">Save changes</button>
+                <button type="button" class="btn" id="tech-clear-form">Clear survey row</button>
+              </div>
+            </form>
+          </aside>
+
           <p class="status" id="status" role="status"></p>
 
-          <p class="section-label" style="margin-top:1.25rem">Cart inventory</p>
-          <p class="note" id="inventory-note">Loading cart assignments…</p>
-          <div class="table-wrap" id="inventory-wrap" hidden>
-            <table id="inventory-table">
-              <thead id="inventory-thead"></thead>
-              <tbody id="inventory-body"></tbody>
-            </table>
-          </div>
+          <details class="inventory-collapse" id="inventory-panel">
+            <summary>
+              <span>Cart inventory</span>
+              <span class="inventory-summary" id="inventory-summary">Loading…</span>
+            </summary>
+            <div class="inventory-collapse-body">
+              <p class="note" id="inventory-note">Loading cart assignments…</p>
+              <div class="table-wrap inventory-table-wrap" id="inventory-wrap" hidden>
+                <table id="inventory-table">
+                  <thead id="inventory-thead"></thead>
+                  <tbody id="inventory-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
         </section>
       </div>
     </div>

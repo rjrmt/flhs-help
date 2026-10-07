@@ -20,6 +20,20 @@
   const inventoryThead = document.getElementById("inventory-thead");
   const buildingFilterEl = document.getElementById("building-filter");
   const extrasFilterEl = document.getElementById("extras-filter");
+  const techPanel = document.getElementById("tech-panel");
+  const techForm = document.getElementById("tech-form");
+  const techPanelName = document.getElementById("tech-panel-name");
+  const techPanelMeta = document.getElementById("tech-panel-meta");
+  const techRoom = document.getElementById("tech-room");
+  const techCartAssign = document.getElementById("tech-cart-assign");
+  const techActual = document.getElementById("tech-actual");
+  const techMax = document.getElementById("tech-max");
+  const techExtras = document.getElementById("tech-extras");
+  const techReportedCart = document.getElementById("tech-reported-cart");
+  const techNotes = document.getElementById("tech-notes");
+  const techExistingNotes = document.getElementById("tech-existing-notes");
+  const inventorySummary = document.getElementById("inventory-summary");
+  const inventoryPanel = document.getElementById("inventory-panel");
 
   /** @type {Array<Record<string, unknown>>} */
   let staff = [];
@@ -36,6 +50,10 @@
   let extrasFilter = "all";
   let invSortKey = "cart";
   let invSortDir = "asc";
+  /** @type {null | { person: Record<string, unknown>, form: Record<string, unknown> | null, building: { label: string } }} */
+  let selectedRow = null;
+  /** @type {string} */
+  let storedFormNotes = "";
 
   const ROSTER_COLUMNS = [
     { key: "status", label: "Status" },
@@ -49,6 +67,7 @@
     { key: "maxClass", label: "Max class" },
     { key: "extras", label: "Extras" },
     { key: "notes", label: "Notes" },
+    { key: "edit", label: "Edit", sortable: false },
   ];
 
   const INVENTORY_COLUMNS = [
@@ -786,17 +805,191 @@ Fort Lauderdale HS · Media Center / IT`;
 
   function renderRosterHead() {
     if (!rosterThead) return;
-    rosterThead.innerHTML = `<tr>${ROSTER_COLUMNS.map(
-      (col) =>
-        `<th scope="col" class="th-sortable" data-sort="${col.key}" title="${escapeHtml(col.title || "Click to sort")}">${escapeHtml(col.label)}${sortIndicator(col.key)}</th>`
-    ).join("")}</tr>`;
+    rosterThead.innerHTML = `<tr>${ROSTER_COLUMNS.map((col) => {
+      if (col.sortable === false) {
+        return `<th scope="col">${escapeHtml(col.label)}</th>`;
+      }
+      return `<th scope="col" class="th-sortable" data-sort="${col.key}" title="${escapeHtml(col.title || "Click to sort")}">${escapeHtml(col.label)}${sortIndicator(col.key)}</th>`;
+    }).join("")}</tr>`;
+  }
+
+  function ingestServerData(data) {
+    const keepId = selectedRow ? Number(selectedRow.person.id) : null;
+    staff = Array.isArray(data.staff) ? data.staff : [];
+    forms = Array.isArray(data.forms) ? data.forms : [];
+    inventory = Array.isArray(data.inventory) ? data.inventory : [];
+    populateBuildingFilter();
+    render();
+    if (keepId) {
+      const refreshed = joinedRows().find((row) => Number(row.person.id) === keepId);
+      if (refreshed) openTechEditor(refreshed, { preserveDraft: true });
+      else closeTechPanel();
+    }
+  }
+
+  async function apiAction(body) {
+    const key = getSavedKey();
+    if (!key) throw new Error("Unlock with the staff upload key first");
+    const cfg = window.FLHS_SUPABASE || {};
+    const response = await fetch(FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: cfg.anonKey,
+        Authorization: `Bearer ${cfg.anonKey}`,
+        "x-flhs-upload-key": key,
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || `Request failed (${response.status})`);
+    }
+    ingestServerData(data);
+    return data;
+  }
+
+  function populateTechCartSelect(person) {
+    if (!techCartAssign) return;
+    const assigned = String(person.cart_code || "")
+      .split(/[,/]+/)
+      .map((c) => c.trim())
+      .filter(Boolean);
+    const opts = ['<option value="">— No change —</option>'];
+    const codes = inventory
+      .map((row) => String(row.cart_code || "").trim())
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+    codes.forEach((code) => {
+      const mine = assigned.includes(code) ? " (on file)" : "";
+      opts.push(`<option value="${escapeHtml(code)}">${escapeHtml(code)}${mine}</option>`);
+    });
+    techCartAssign.innerHTML = opts.join("");
+  }
+
+  function closeTechPanel() {
+    selectedRow = null;
+    storedFormNotes = "";
+    if (techPanel) techPanel.hidden = true;
+    tbody?.querySelectorAll("tr.is-selected").forEach((tr) => tr.classList.remove("is-selected"));
+  }
+
+  function openTechEditor(row, opts = {}) {
+    const { preserveDraft = false } = opts;
+    selectedRow = row;
+    const { person, form, building } = row;
+    const id = Number(person.id);
+    if (techPanel) techPanel.hidden = false;
+    if (techPanelName) techPanelName.textContent = displayName(person.name);
+    if (techPanelMeta) {
+      techPanelMeta.textContent = [
+        building.label,
+        person.room ? `Room ${person.room}` : "No room",
+        person.cart_code ? `Cart ${person.cart_code}` : "No cart on file",
+        form ? "Survey on file" : "No survey yet",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+    }
+    populateTechCartSelect(person);
+    if (!preserveDraft) {
+      if (techRoom) techRoom.value = String(person.room || "");
+      if (techActual) techActual.value = form && form.actual_count != null ? String(form.actual_count) : "";
+      if (techMax) techMax.value = form && form.max_students != null ? String(form.max_students) : "";
+      if (techExtras) techExtras.value = form ? String(extrasOf(form)) : "";
+      if (techReportedCart) techReportedCart.value = form ? reportedCartOf(form) : "";
+      const cartOk = form ? (form.cart_checked ? "yes" : "no") : "yes";
+      techForm?.querySelector(`input[name="tech-cart-ok"][value="${cartOk}"]`)?.click();
+      storedFormNotes = form ? String(form.notes || "") : "";
+      if (techNotes) techNotes.value = "";
+      if (techExistingNotes) {
+        techExistingNotes.textContent = storedFormNotes
+          ? `On file: ${storedFormNotes}`
+          : "No prior notes on this survey.";
+      }
+    }
+    if (!preserveDraft) techPanel?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  async function saveTechEdits(event) {
+    event.preventDefault();
+    if (!selectedRow) return;
+    const person = selectedRow.person;
+    const staffId = Number(person.id);
+    const saveBtn = document.getElementById("tech-save");
+    if (saveBtn) saveBtn.disabled = true;
+    setStatus(statusEl, "Saving…");
+    try {
+      const roomVal = String(techRoom?.value || "").trim();
+      if (roomVal !== String(person.room || "").trim()) {
+        await apiAction({ action: "patch_staff", staff_id: staffId, room: roomVal });
+      }
+      const cartPick = String(techCartAssign?.value || "").trim();
+      if (cartPick) {
+        await apiAction({
+          action: "assign_cart",
+          cart_code: cartPick,
+          staff_id: staffId,
+        });
+      }
+      const actual = Number(techActual?.value);
+      const max = Number(techMax?.value);
+      const extras = Number(techExtras?.value);
+      const cartRadio = techForm?.querySelector('input[name="tech-cart-ok"]:checked')?.value;
+      if (!Number.isFinite(actual) || !Number.isFinite(max) || !Number.isFinite(extras)) {
+        setStatus(statusEl, "Enter on hand, max class, and extras (use 0 if none).", "err");
+        return;
+      }
+      const draft = String(techNotes?.value || "").trim();
+      const stamp = new Date().toLocaleDateString();
+      let notes = storedFormNotes;
+      if (draft) {
+        const tag = `[IT ${stamp}] ${draft}`;
+        notes = notes ? `${notes} ${tag}` : tag;
+      }
+      await apiAction({
+        action: "save_need",
+        staff_id: staffId,
+        cart_checked: cartRadio !== "no",
+        max_students: max,
+        actual_count: actual,
+        extras_needed: extras,
+        reported_cart: String(techReportedCart?.value || "").trim(),
+        notes,
+      });
+      setStatus(statusEl, `Saved for ${displayName(person.name)}`, "ok");
+    } catch (err) {
+      setStatus(statusEl, err.message || "Save failed", "err");
+    } finally {
+      if (saveBtn) saveBtn.disabled = false;
+    }
+  }
+
+  async function clearTechSurvey() {
+    if (!selectedRow) return;
+    const person = selectedRow.person;
+    if (
+      !window.confirm(
+        `Clear the laptop survey for ${displayName(person.name)}? They will show as missing until someone submits again.`
+      )
+    ) {
+      return;
+    }
+    setStatus(statusEl, "Clearing…");
+    try {
+      await apiAction({ action: "delete_need", staff_id: Number(person.id) });
+      closeTechPanel();
+      setStatus(statusEl, "Survey row cleared", "ok");
+    } catch (err) {
+      setStatus(statusEl, err.message || "Could not clear", "err");
+    }
   }
 
   function renderTable() {
     renderRosterHead();
     if (view === "carts") {
       if (tableLabel) tableLabel.textContent = "Use the cart inventory table below";
-      tbody.innerHTML = `<tr><td colspan="11">Switch stays on cart inventory — scroll to the section below.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12">Switch stays on cart inventory — expand the section below.</td></tr>`;
       return;
     }
     const rows = visibleRows();
@@ -807,7 +1000,7 @@ Fort Lauderdale HS · Media Center / IT`;
     };
     if (tableLabel) tableLabel.textContent = labels[view] || "Roster";
     if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="11">No rows for this view.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12">No rows for this view.</td></tr>`;
       return;
     }
     tbody.innerHTML = rows
@@ -819,7 +1012,9 @@ Fort Lauderdale HS · Media Center / IT`;
         const noteCell = note
           ? `<span class="note-snippet" title="${escapeHtml(note)}">${escapeHtml(note.length > 48 ? `${note.slice(0, 45)}…` : note)}</span>`
           : "—";
-        return `<tr>
+        const sid = Number(person.id);
+        const selected = selectedRow && Number(selectedRow.person.id) === sid;
+        return `<tr class="row-selectable${selected ? " is-selected" : ""}" data-staff-id="${sid}" tabindex="0">
           <td>${status}</td>
           <td>${escapeHtml(displayName(person.name))}</td>
           <td>${escapeHtml(building.label)}</td>
@@ -831,6 +1026,7 @@ Fort Lauderdale HS · Media Center / IT`;
           <td>${form ? escapeHtml(form.max_students) : "—"}</td>
           <td>${form ? escapeHtml(extrasOf(form)) : "—"}</td>
           <td>${noteCell}</td>
+          <td><button type="button" class="btn btn-sm edit-row-btn">Edit</button></td>
         </tr>`;
       })
       .join("");
@@ -896,6 +1092,11 @@ Fort Lauderdale HS · Media Center / IT`;
   function renderInventory() {
     renderInventoryHead();
     const rows = sortInventoryRows(visibleInventory());
+    if (inventorySummary) {
+      inventorySummary.textContent = inventory.length
+        ? `${inventory.length} carts · ${rows.length} shown`
+        : "No data";
+    }
     if (!inventory.length) {
       inventoryWrap.hidden = true;
       inventoryNote.hidden = false;
@@ -934,32 +1135,20 @@ Fort Lauderdale HS · Media Center / IT`;
   }
 
   async function load(key) {
-    const cfg = window.FLHS_SUPABASE || {};
-    const response = await fetch(FUNCTION_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: cfg.anonKey,
-        Authorization: `Bearer ${cfg.anonKey}`,
-        "x-flhs-upload-key": key,
-      },
-      body: JSON.stringify({}),
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const err = new Error(data.error || `Request failed (${response.status})`);
-      err.status = response.status;
-      throw err;
-    }
     saveKey(key);
-    staff = Array.isArray(data.staff) ? data.staff : [];
-    forms = Array.isArray(data.forms) ? data.forms : [];
-    inventory = Array.isArray(data.inventory) ? data.inventory : [];
     gate.hidden = true;
     app.hidden = false;
-    populateBuildingFilter();
-    render();
-    setStatus(statusEl, `${inventory.length} carts on file · ${forms.length} form${forms.length === 1 ? "" : "s"} submitted`, "ok");
+    setStatus(statusEl, "Loading…");
+    try {
+      await apiAction({ action: "status" });
+      setStatus(
+        statusEl,
+        `${inventory.length} carts on file · ${forms.length} form${forms.length === 1 ? "" : "s"} submitted`,
+        "ok"
+      );
+    } catch (err) {
+      throw err;
+    }
   }
 
   unlockForm?.addEventListener("submit", async (event) => {
@@ -1045,8 +1234,35 @@ Fort Lauderdale HS · Media Center / IT`;
     document.querySelectorAll("#view-chips .filter-chip").forEach((el) => {
       el.classList.toggle("is-on", el === btn);
     });
+    if (view === "carts" && inventoryPanel) inventoryPanel.open = true;
     renderTable();
     renderInventory();
+  });
+
+  document.getElementById("tech-panel-close")?.addEventListener("click", closeTechPanel);
+  techForm?.addEventListener("submit", saveTechEdits);
+  document.getElementById("tech-clear-form")?.addEventListener("click", clearTechSurvey);
+
+  tbody?.addEventListener("click", (event) => {
+    const btn = event.target.closest(".edit-row-btn");
+    const tr = event.target.closest("tr[data-staff-id]");
+    if (!tr) return;
+    const id = Number(tr.getAttribute("data-staff-id"));
+    const row = joinedRows().find((item) => Number(item.person.id) === id);
+    if (!row) return;
+    if (btn || event.target.closest("tr.row-selectable")) {
+      if (btn || !event.target.closest("button")) openTechEditor(row);
+    }
+  });
+
+  tbody?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const tr = event.target.closest("tr[data-staff-id]");
+    if (!tr) return;
+    event.preventDefault();
+    const id = Number(tr.getAttribute("data-staff-id"));
+    const row = joinedRows().find((item) => Number(item.person.id) === id);
+    if (row) openTechEditor(row);
   });
 
   const saved = getSavedKey();
