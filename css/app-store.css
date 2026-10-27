@@ -189,10 +189,20 @@ footer.page-foot {
 footer.page-foot a { color: var(--navy); font-weight: 700; text-decoration: none; }
 
 /* Kiosk */
+.page:has(> .kiosk-wrap) {
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
 .kiosk-wrap {
-  width: min(100%, 42rem);
-  margin: 0 auto;
-  padding: 1rem 1rem 2rem;
+  width: min(100%, 36rem);
+  margin: 0;
+  padding: 0;
+}
+
+.kiosk-wrap .board {
+  width: 100%;
 }
 
 .kiosk-wrap:has(.board.wide:not([hidden])) {
