@@ -922,6 +922,131 @@
     layer.appendChild(pumpkin);
   }
 
+  const GHOST_JOKES = [
+    { setup: "Why don't ghosts use the Help Hub?", punch: "They hit Control-Alt-Delete... then vanish." },
+    { setup: "What's a ghost's favorite day at FLHS?", punch: "Boo Day. Periods 5 through 8, obviously." },
+    { setup: "Why did the skeleton skip first period?", punch: "No body to go with." },
+    { setup: "How do ghosts send IT tickets?", punch: "They fill out a boo-form." },
+    { setup: "Why was the pumpkin in the Media Center?", punch: "Looking for a good gourd-read." },
+    { setup: "What do you call a Flying L in a sheet?", punch: "A spirit-week overachiever." },
+    { setup: "Why did the laptop go to the pumpkin patch?", punch: "It needed more bytes." },
+    { setup: "What's a vampire's least favorite bell?", punch: "The one that says go outside." },
+    { setup: "Knock knock.", punch: "Who's there? Boo. Boo who? Don't cry — the Help Hub still works." },
+    { setup: "Why don't witches take the activity bus?", punch: "They already have a ride." },
+    { setup: "What's a mummy's favorite class?", punch: "World History. Already wrapped up in it." },
+    { setup: "Why was the ghost bad at Canvas?", punch: "Every module was due... nevermore." },
+    { setup: "What did the ghost tell the printer?", punch: "You look a little pale. Need toner?" },
+    { setup: "Why don't skeletons fight in the hallway?", punch: "They don't have the guts." },
+    { setup: "What's a ghost's favorite shortcut?", punch: "Student IT Ticket. Love a good boo-g report." },
+    { setup: "Why did the calculator hide?", punch: "Too many problems." },
+    { setup: "How do Flying L's stay spooky?", punch: "Extra spirit. And a charged laptop." },
+    { setup: "What do polite ghosts say at check-in?", punch: "Please, and thank boo." },
+    { setup: "Why did the scarecrow ace the quiz?", punch: "Outstanding in its field." },
+    { setup: "Why did the ghost fail the bell schedule?", punch: "Kept floating through class." },
+    { setup: "What's a ghost's favorite lunch?", punch: "Whatever's on the other side of the line." },
+    { setup: "Why don't ghosts play hide and seek in Building 7?", punch: "They're too easy to see through." },
+    { setup: "What do you call a teacher's ghost on White Day?", punch: "A sub with zero attendance issues." },
+    { setup: "Why was the Wi-Fi afraid of October?", punch: "Too many dead zones." },
+  ];
+
+  function shuffleGhostJokes(list) {
+    const next = list.slice();
+    for (let i = next.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const hold = next[i];
+      next[i] = next[j];
+      next[j] = hold;
+    }
+    return next;
+  }
+
+  function initJokeGhost() {
+    const root = document.getElementById("joke-ghost");
+    const btn = document.getElementById("joke-ghost-btn");
+    const speech = document.getElementById("joke-ghost-speech");
+    const setupEl = document.getElementById("joke-ghost-setup");
+    const punchEl = document.getElementById("joke-ghost-punch");
+    if (!root || !btn || !speech || !setupEl || !punchEl) return;
+    if (!isOctoberSpookySeason()) {
+      root.hidden = true;
+      return;
+    }
+
+    root.hidden = false;
+    let deck = shuffleGhostJokes(GHOST_JOKES);
+    let cursor = 0;
+    let punchTimer = 0;
+    let hideTimer = 0;
+    let hintTimer = 0;
+
+    const updateSide = () => {
+      const mover = root.querySelector(".joke-ghost-mover");
+      const stage = root.closest(".board-stage");
+      if (!mover || !stage) return;
+      const ghostBox = mover.getBoundingClientRect();
+      const stageBox = stage.getBoundingClientRect();
+      const mid = ghostBox.left + ghostBox.width / 2;
+      const center = stageBox.left + stageBox.width / 2;
+      root.dataset.side = mid < center ? "left" : "right";
+    };
+
+    const hideSpeech = () => {
+      window.clearTimeout(punchTimer);
+      window.clearTimeout(hideTimer);
+      speech.classList.remove("is-open");
+      punchEl.classList.remove("is-in");
+      speech.hidden = true;
+      root.classList.remove("is-telling");
+      btn.setAttribute("aria-expanded", "false");
+    };
+
+    const tellJoke = () => {
+      if (cursor >= deck.length) {
+        deck = shuffleGhostJokes(GHOST_JOKES);
+        cursor = 0;
+      }
+      const joke = deck[cursor];
+      cursor += 1;
+      window.clearTimeout(punchTimer);
+      window.clearTimeout(hideTimer);
+      root.classList.remove("is-hinting");
+      root.classList.add("is-telling");
+      updateSide();
+      setupEl.textContent = joke.setup;
+      punchEl.textContent = joke.punch;
+      punchEl.classList.remove("is-in");
+      speech.hidden = false;
+      void speech.offsetWidth;
+      speech.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
+      btn.setAttribute("aria-label", `Ghost joke: ${joke.setup} ${joke.punch}`);
+      const punchDelay = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? 0
+        : 720;
+      punchTimer = window.setTimeout(() => {
+        punchEl.classList.add("is-in");
+      }, punchDelay);
+      hideTimer = window.setTimeout(hideSpeech, 8200);
+    };
+
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      tellJoke();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !speech.hidden) hideSpeech();
+    });
+
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      hintTimer = window.setTimeout(() => {
+        if (speech.hidden) root.classList.add("is-hinting");
+      }, 1400);
+      window.setTimeout(() => root.classList.remove("is-hinting"), 6400);
+    }
+    window.setTimeout(updateSide, 80);
+  }
+
   function initAutumnTheme() {
     const page = document.getElementById("home-page");
     if (!page || !isAutumnSeason()) return;
@@ -1986,6 +2111,7 @@
     document.body.style.removeProperty("touch-action");
 
     initAutumnTheme();
+    initJokeGhost();
     wireBellModal();
     wireEasterEggs();
     tickClock();

@@ -340,6 +340,8 @@
     .overlay.is-already .overlay-card { background: linear-gradient(160deg, #d97706, #92400e); }
     .overlay.is-deny { background: rgba(127, 7, 17, 0.8); }
     .overlay.is-deny .overlay-card { background: linear-gradient(160deg, #e11d2e, var(--deny-deep)); }
+    .overlay.is-optout { background: rgba(120, 53, 15, 0.74); }
+    .overlay.is-optout .overlay-card { background: linear-gradient(160deg, #d97706, #9a3412); }
     .overlay.is-missing { background: rgba(0, 35, 102, 0.7); }
     .overlay.is-missing .overlay-card { background: linear-gradient(160deg, #1d4ed8, var(--navy)); }
 
@@ -369,7 +371,7 @@
       <div class="layout">
         <section class="panel" aria-labelledby="scan-title">
           <h1 id="scan-title">Scan student</h1>
-          <p class="lead">Check Opt-In, add them to the pickup list, then press <strong>Done</strong> when you hand over a laptop.</p>
+          <p class="lead">Check Focus <strong>Device Checkout Choice</strong>. Opt-In students are approved for a take-home laptop — add them to the pickup list, then press <strong>Done</strong> when you hand one over.</p>
           <form class="search-form" id="checkout-form" autocomplete="off">
             <label class="sr-only" for="student-number">Student number</label>
             <input
@@ -389,7 +391,7 @@
             />
             <button class="search-btn" type="submit" id="search-btn">Check in</button>
           </form>
-          <p class="hint">Parent Opt-In required · Grades 9–12</p>
+          <p class="hint">Focus Device Checkout Choice · Opt-In approved · Grades 9–12</p>
           <p class="sync-note" id="sync-note">Connecting…</p>
         </section>
 
@@ -433,7 +435,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/flhs-db.js"></script>
-  <script src="../js/laptop-desk.js"></script>
+  <script src="../js/laptop-desk.js?v=2"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

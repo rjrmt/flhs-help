@@ -313,6 +313,8 @@
     .overlay.is-already .overlay-card { background: linear-gradient(160deg, #d97706, #92400e); }
     .overlay.is-deny { background: rgba(127, 7, 17, 0.86); }
     .overlay.is-deny .overlay-card { background: linear-gradient(160deg, #e11d2e, var(--deny-deep)); }
+    .overlay.is-optout { background: rgba(120, 53, 15, 0.78); }
+    .overlay.is-optout .overlay-card { background: linear-gradient(160deg, #d97706, #9a3412); }
     .overlay.is-missing { background: rgba(0, 35, 102, 0.72); }
     .overlay.is-missing .overlay-card { background: linear-gradient(160deg, #1d4ed8, var(--navy)); }
 
@@ -350,7 +352,7 @@
           <h1 id="kiosk-title">Check your eligibility</h1>
           <p class="lead">
             <strong>Scan or type your student number.</strong>
-            We’ll tell you if your Opt-In form is on file.
+            We’ll tell you if Device Checkout Choice is <strong>Opt-In</strong>.
           </p>
           <form class="search-form" id="checkout-form" autocomplete="off">
             <label class="sr-only" for="student-number">Student number</label>
@@ -371,7 +373,7 @@
             />
             <button class="search-btn" type="submit" id="search-btn">Check</button>
           </form>
-          <p class="hint">Parent Opt-In form required · Grades 9–12 · Pickup in the Media Center</p>
+          <p class="hint">Focus Device Checkout Choice · Opt-In approved · Pickup in the Media Center</p>
         </section>
       </div>
     </main>
@@ -393,7 +395,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/flhs-db.js"></script>
-  <script src="../js/laptop-checkout.js"></script>
+  <script src="../js/laptop-checkout.js?v=2"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

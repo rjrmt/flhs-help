@@ -5,6 +5,7 @@
     ok: 7000,
     already: 7000,
     deny: 8000,
+    optout: 7500,
     missing: 5000,
   };
 
@@ -84,6 +85,8 @@
     if (error) throw error;
     const row = Array.isArray(data) ? data[0] : data;
     if (!row?.student_id) return null;
+    const choice = String(row.device_choice || "").trim();
+    const optIn = Boolean(row.laptop_opt_in) || choice.toLowerCase() === "opt-in";
     return {
       studentId: normalizeStudentId(row.student_id),
       name: row.name || "",
@@ -92,7 +95,8 @@
       whiteRoom: row.white_room || "",
       blueTeacher: row.blue_teacher || "",
       blueRoom: row.blue_room || "",
-      optIn: Boolean(row.laptop_opt_in),
+      optIn,
+      deviceChoice: choice,
     };
   }
 
@@ -176,7 +180,9 @@
         <p class="overlay-hint">Tap anywhere to check another student</p>
       </div>
     `;
-    playTone(tone === "ok" ? "ok" : tone === "already" ? "already" : "deny");
+    playTone(
+      tone === "ok" ? "ok" : tone === "already" || tone === "optout" ? "already" : "deny"
+    );
     resetTimer = window.setTimeout(hideOverlay, RESET_MS[tone] || RESET_MS.missing);
   }
 
@@ -198,6 +204,7 @@
       const name = titleCaseName(student?.name || "");
       const grade = gradeLabel(student?.grade || "");
       const room = homeroomLine(student);
+      const choice = String(student?.deviceChoice || "").trim();
 
       if (student?.optIn) {
         let checkin = null;
@@ -219,13 +226,22 @@
         } else {
           showOverlay({
             tone: "ok",
-            kicker: "Opt-In form on file",
+            kicker: "Approved Opt-In",
             title: "You're eligible",
             name,
             detail: [grade, room].filter(Boolean).join(" · "),
             meta: "Pick up in the Media Center during laptop hours",
           });
         }
+      } else if (choice.toLowerCase() === "opt-out") {
+        showOverlay({
+          tone: "optout",
+          kicker: "Opt-Out on file",
+          title: "Not approved for a take-home laptop",
+          name: name || undefined,
+          detail: [grade, room].filter(Boolean).join(" · "),
+          meta: "Device Checkout Choice is Opt-Out · see Media Center staff if you have questions",
+        });
       } else {
         showOverlay({
           tone: "deny",
@@ -234,7 +250,7 @@
           name: name || undefined,
           detail: [grade, room].filter(Boolean).join(" · "),
           meta: student
-            ? "Parent must complete the Opt-In form in Focus Parent Portal"
+            ? "Parent must complete Device Checkout Choice in Focus Parent Portal"
             : "ID not found · ask Media Center staff for help",
         });
       }

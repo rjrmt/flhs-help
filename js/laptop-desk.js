@@ -6,6 +6,7 @@
     ok: 6000,
     already: 5500,
     deny: 8000,
+    optout: 7000,
     missing: 5000,
   };
 
@@ -150,6 +151,8 @@
     if (error) throw error;
     const row = Array.isArray(data) ? data[0] : data;
     if (!row?.student_id) return null;
+    const choice = String(row.device_choice || "").trim();
+    const optIn = Boolean(row.laptop_opt_in) || choice.toLowerCase() === "opt-in";
     return {
       studentId: normalizeStudentId(row.student_id),
       name: row.name || "",
@@ -158,7 +161,8 @@
       whiteRoom: row.white_room || "",
       blueTeacher: row.blue_teacher || "",
       blueRoom: row.blue_room || "",
-      optIn: Boolean(row.laptop_opt_in),
+      optIn,
+      deviceChoice: choice,
     };
   }
 
@@ -313,7 +317,9 @@
         <p class="overlay-hint">Tap anywhere to continue</p>
       </div>
     `;
-    playTone(tone === "ok" ? "ok" : tone === "already" ? "already" : "deny");
+    playTone(
+      tone === "ok" ? "ok" : tone === "already" || tone === "optout" ? "already" : "deny"
+    );
     resetTimer = window.setTimeout(hideOverlay, RESET_MS[tone] || RESET_MS.missing);
   }
 
@@ -377,16 +383,17 @@
       if (!db) throw new Error("Database is not connected");
       const studentId = normalizeStudentId(queryDigits);
       const student = await lookupLaptopStudent(studentId);
-      const eligible = student?.optIn ? student : null;
       const name = titleCaseName(student?.name || "");
       const grade = gradeLabel(student?.grade || "");
       const room = homeroomLine(student);
+      const choice = String(student?.deviceChoice || "").trim();
+      const choiceLine = choice ? `Focus: ${choice}` : "Focus: no Device Checkout Choice";
 
-      if (eligible) {
+      if (student?.optIn) {
         const result = await recordCheckin({
           studentId,
-          name: eligible.name,
-          grade: eligible.grade,
+          name: student.name,
+          grade: student.grade,
         });
         updateStats();
         if (result.already) {
@@ -395,7 +402,7 @@
             kicker: result.row.givenAt ? "Laptop already given" : "Already on the list",
             title: result.row.givenAt ? "Already done" : "Already checked in",
             name,
-            detail: [grade, room].filter(Boolean).join(" · "),
+            detail: [grade, room, choiceLine].filter(Boolean).join(" · "),
             meta: result.row.givenAt
               ? `Laptop given ${formatWhen(result.row.givenAt)}`
               : `Waiting for laptop · first scan ${formatWhen(result.row.at)}`,
@@ -403,23 +410,38 @@
         } else {
           showOverlay({
             tone: "ok",
-            kicker: "Opt-In form on file",
+            kicker: "Approved Opt-In",
             title: "Checked in",
             name,
-            detail: [grade, room].filter(Boolean).join(" · "),
-            meta: "Added to today's pickup list — press Done when handed over",
+            detail: [grade, room, choiceLine].filter(Boolean).join(" · "),
+            meta: "Added to the pickup list — press Done when handed over",
           });
         }
-      } else {
+      } else if (choice.toLowerCase() === "opt-out") {
+        showOverlay({
+          tone: "optout",
+          kicker: "Opt-Out on file",
+          title: "Not approved for a take-home laptop",
+          name: name || undefined,
+          detail: [grade, room, choiceLine].filter(Boolean).join(" · "),
+          meta: "Device Checkout Choice is Opt-Out · do not add to the pickup list",
+        });
+      } else if (student) {
         showOverlay({
           tone: "deny",
           kicker: "Stop",
           title: "FORM NOT COMPLETED PLEASE GO BACK TO CLASS",
           name: name || undefined,
-          detail: [grade, room].filter(Boolean).join(" · "),
-          meta: student
-            ? "No Opt-In form on the checkout list"
-            : "No Opt-In form · ID not on the homeroom roster either",
+          detail: [grade, room, choiceLine].filter(Boolean).join(" · "),
+          meta: "No Opt-In in Focus · parent must complete Device Checkout Choice",
+        });
+      } else {
+        showOverlay({
+          tone: "deny",
+          kicker: "Stop",
+          title: "FORM NOT COMPLETED PLEASE GO BACK TO CLASS",
+          detail: "ID not on the current roster",
+          meta: "No Device Checkout Choice · student not found",
         });
       }
     } catch (err) {
