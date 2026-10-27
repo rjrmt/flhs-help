@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS STAR — kiosk check-in, Mission Control, and bathroom passes." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="STAR" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>STAR | FLHS Help Hub</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/app-store.css" />
+</head>
+<body>
+  <div class="page">
+    <main class="center">
+      <section class="board" aria-labelledby="store-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">FLHS · STAR</p>
+              <h1 id="store-title">STAR</h1>
+            </div>
+          </div>
+          <a class="home" href="../it-resources.html">IT Resources</a>
+        </div>
+        <p class="lead">
+          Students scan in at the kiosk. Tutors log in and claim kids. Mission Control and bathroom passes stay on the staff side.
+        </p>
+        <p class="section-label">Apps</p>
+        <nav class="app-grid" aria-label="STAR apps">
+          <a class="app-icon" href="star.html">
+            <span class="app-tile star" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="m12 3.4 2.2 5.3 5.7.5-4.3 3.7 1.3 5.6L12 15.9 6.1 18.5l1.3-5.6-4.3-3.7 5.7-.5L12 3.4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="app-label">STAR kiosk</span>
+          </a>
+          <a class="app-icon" href="tutor.html">
+            <span class="app-tile tutor" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="9" cy="8" r="2.4" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M4.6 18.2c.4-3 2.5-4.7 4.4-4.7s4 1.7 4.4 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="16.2" cy="9" r="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M15.4 13.6c1.7.15 3.3 1.5 3.7 4.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="app-label">Tutor station</span>
+          </a>
+          <a class="app-icon" href="mission.html">
+            <span class="app-tile track" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M8 9h8M8 12.2h5.2M8 15.4h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="app-label">Mission Control</span>
+          </a>
+          <a class="app-icon" href="bathroom.html">
+            <span class="app-tile bath" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M7 4h10M9 4v5.2A2.8 2.8 0 0 1 6.2 12H5M15 4v5.2A2.8 2.8 0 0 0 17.8 12H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M8 20v-3.2a4 4 0 0 1 8 0V20M6 20h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="app-label">Bathroom passes</span>
+          </a>
+        </nav>
+        <p class="note">
+          The kiosk only asks subject and bus. Tutors assign students to themselves. Mission Control uses the staff upload key.
+        </p>
+      </section>
+    </main>
+    <footer class="page-foot">
+      <a href="mailto:rajesh.ramautar@browardschools.com">Email RJ</a>
+      · Fort Lauderdale High School
+    </footer>
+  </div>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("../../sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

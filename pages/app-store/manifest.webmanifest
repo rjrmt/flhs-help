@@ -1,0 +1,26 @@
+{
+  "name": "FLHS STAR",
+  "short_name": "STAR",
+  "description": "Fort Lauderdale High STAR kiosk, Mission Control, and bathroom passes.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#9eb8dc",
+  "theme_color": "#9eb8dc",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "../../assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../../assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

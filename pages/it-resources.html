@@ -49,7 +49,7 @@
       place-items: center;
     }
     .board {
-      width: min(100%, 36rem);
+      width: min(100%, 40rem);
       padding: clamp(1.35rem, 4vw, 2rem);
       border-radius: var(--radius-xl);
       border: 1px solid rgba(197, 204, 216, 0.65);
@@ -120,6 +120,26 @@
       color: var(--royal);
       margin-bottom: 0.65rem;
     }
+    .cat {
+      padding: 0.85rem 0 0.15rem;
+    }
+    .cat + .cat {
+      margin-top: 0.55rem;
+      border-top: 1px solid rgba(0, 35, 102, 0.1);
+    }
+    .cat-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.7rem;
+    }
+    .cat-head p {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink-400);
+      line-height: 1.35;
+    }
     .app-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(5.4rem, 1fr));
@@ -157,6 +177,10 @@
     .app-tile.admin { background: linear-gradient(160deg, #5a7194, #002366); color: #fff; }
     .app-tile.count { background: linear-gradient(160deg, #0e7490, #155e75); color: #fff; }
     .app-tile.coupon { background: linear-gradient(160deg, #e6b000, #c99200); color: #3b2a00; }
+    .app-tile.store { background: linear-gradient(160deg, #e6b000, #b45309); color: #fff; }
+    .app-tile.mission { background: linear-gradient(160deg, #0e7490, #155e75); color: #fff; }
+    .app-tile.bath { background: linear-gradient(160deg, #1d4ed8, #002366); color: #fff; }
+    .app-tile.tutor { background: linear-gradient(160deg, #7c3aed, #4c1d95); color: #fff; }
     .app-label {
       font-size: 0.68rem;
       font-weight: 700;
@@ -213,53 +237,122 @@
         </div>
 
         <p class="lead">
-          Quick tech tools for Media Center / IT ops. Laptop count tracks classroom cart forms; cart inventory from Excel will live there too.
+          Staff tools grouped by job: laptops, STAR after-school, rosters, and PBIS.
         </p>
 
-        <p class="section-label">Tech tools</p>
-        <nav class="app-grid" aria-label="IT tech tools">
-          <a class="app-icon" href="laptop-desk.html">
-            <span class="app-tile laptop" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="app-label">Laptop checker</span>
-          </a>
-          <a class="app-icon" href="upload.html">
-            <span class="app-tile admin" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M12 4.5v9.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="m8.8 8.2 3.2-3.2 3.2 3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M5 14.5v3.2A1.8 1.8 0 0 0 6.8 19.5h10.4a1.8 1.8 0 0 0 1.8-1.8v-3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="app-label">Upload testing roster</span>
-          </a>
-          <a class="app-icon" href="laptop-count.html">
-            <span class="app-tile count" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M8 9.2h3.2M8 12.2h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="m14.4 8.6 1.5 1.5 2.6-2.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span class="app-label">Laptop count</span>
-          </a>
-          <a class="app-icon" href="../coupons/">
-            <span class="app-tile coupon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <rect x="4" y="5.5" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M8 9.2h8M8 12.2h5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M16.2 14.6c.9 0 1.6.7 1.6 1.6s-.7 1.6-1.6 1.6-1.6-.7-1.6-1.6.7-1.6 1.6-1.6Z" stroke="currentColor" stroke-width="1.6"/>
-              </svg>
-            </span>
-            <span class="app-label">PBIS coupons</span>
-          </a>
-        </nav>
+        <div class="cat">
+          <div class="cat-head">
+            <p class="section-label" style="margin-bottom:0">Laptops</p>
+            <p>Desk check-in and classroom carts</p>
+          </div>
+          <nav class="app-grid" aria-label="Laptop tools">
+            <a class="app-icon" href="laptop-desk.html">
+              <span class="app-tile laptop" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M8 9.4h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="app-label">Laptop checker</span>
+            </a>
+            <a class="app-icon" href="laptop-count.html">
+              <span class="app-tile count" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="3.5" y="5.5" width="17" height="11" rx="1.6" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M2.5 18.2h19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M8 9.2h3.2M8 12.2h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="m14.4 8.6 1.5 1.5 2.6-2.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="app-label">Laptop count</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="cat">
+          <div class="cat-head">
+            <p class="section-label" style="margin-bottom:0">STAR</p>
+            <p>After-school check-in and tracking</p>
+          </div>
+          <nav class="app-grid" aria-label="STAR apps">
+            <a class="app-icon" href="app-store/star.html">
+              <span class="app-tile store" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="m12 3.4 2.2 5.3 5.7.5-4.3 3.7 1.3 5.6L12 15.9 6.1 18.5l1.3-5.6-4.3-3.7 5.7-.5L12 3.4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="app-label">STAR kiosk</span>
+            </a>
+            <a class="app-icon" href="app-store/tutor.html">
+              <span class="app-tile tutor" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="9" cy="8" r="2.4" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M4.6 18.2c.4-3 2.5-4.7 4.4-4.7s4 1.7 4.4 4.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="16.2" cy="9" r="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M15.4 13.6c1.7.15 3.3 1.5 3.7 4.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="app-label">Tutor station</span>
+            </a>
+            <a class="app-icon" href="app-store/mission.html">
+              <span class="app-tile mission" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M8 9h8M8 12.2h5.2M8 15.4h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="app-label">Mission Control</span>
+            </a>
+            <a class="app-icon" href="app-store/bathroom.html">
+              <span class="app-tile bath" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M7 4h10M9 4v5.2A2.8 2.8 0 0 1 6.2 12H5M15 4v5.2A2.8 2.8 0 0 0 17.8 12H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M8 20v-3.2a4 4 0 0 1 8 0V20M6 20h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="app-label">Bathroom passes</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="cat">
+          <div class="cat-head">
+            <p class="section-label" style="margin-bottom:0">Rosters</p>
+            <p>Testing assignments upload</p>
+          </div>
+          <nav class="app-grid" aria-label="Roster tools">
+            <a class="app-icon" href="upload.html">
+              <span class="app-tile admin" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 4.5v9.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="m8.8 8.2 3.2-3.2 3.2 3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 14.5v3.2A1.8 1.8 0 0 0 6.8 19.5h10.4a1.8 1.8 0 0 0 1.8-1.8v-3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="app-label">Upload testing roster</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="cat">
+          <div class="cat-head">
+            <p class="section-label" style="margin-bottom:0">PBIS</p>
+            <p>Flying L coupons</p>
+          </div>
+          <nav class="app-grid" aria-label="PBIS tools">
+            <a class="app-icon" href="../coupons/">
+              <span class="app-tile coupon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="4" y="5.5" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M8 9.2h8M8 12.2h5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M16.2 14.6c.9 0 1.6.7 1.6 1.6s-.7 1.6-1.6 1.6-1.6-.7-1.6-1.6.7-1.6 1.6-1.6Z" stroke="currentColor" stroke-width="1.6"/>
+                </svg>
+              </span>
+              <span class="app-label">PBIS coupons</span>
+            </a>
+          </nav>
+        </div>
 
         <p class="note">
           This page is linked from the footer “IT Support” text — not listed in student or teacher hubs.

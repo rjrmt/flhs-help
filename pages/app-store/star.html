@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="FLHS STAR kiosk — scan a student ID to check in for after-school STAR." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>STAR Kiosk | FLHS Help Hub</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="STAR" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/app-store.css" />
+</head>
+<body data-kiosk-program="star">
+  <div class="page">
+    <div class="kiosk-wrap">
+      <section class="board" aria-labelledby="kiosk-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">STAR · scan ID</p>
+              <h1 id="kiosk-title">STAR check-in</h1>
+            </div>
+          </div>
+          <a class="home" href="index.html">STAR</a>
+        </div>
+        <p class="lead">Scan or type a 10-digit student number. Pick a subject and bus. A tutor will claim you at their station.</p>
+        <form id="kiosk-form" class="kiosk-form">
+          <label class="visually-hidden" for="student-number" style="position:absolute;clip:rect(0 0 0 0)">Student number</label>
+          <input id="student-number" class="kiosk-input" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="Scan student ID" />
+          <button class="btn btn-primary" id="search-btn" type="submit">Look up</button>
+        </form>
+        <div id="flow-panel" hidden style="margin-top:1.1rem"></div>
+      </section>
+    </div>
+  </div>
+  <div id="toast" class="toast" hidden role="status"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../js/supabase-config.js"></script>
+  <script src="../../js/flhs-db.js"></script>
+  <script src="../../js/app-store-kiosk.js"></script>
+</body>
+</html>

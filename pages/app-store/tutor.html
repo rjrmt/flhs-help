@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="FLHS STAR tutor station — log in as staff and claim students waiting for help." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Tutor station | STAR</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/app-store.css" />
+</head>
+<body>
+  <div class="page">
+    <main class="center">
+      <div class="tutor-shell">
+      <section class="board" id="login-board" aria-labelledby="login-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">STAR · tutors</p>
+              <h1 id="login-title">Tutor login</h1>
+            </div>
+          </div>
+          <a class="home" href="index.html">STAR</a>
+        </div>
+        <p class="lead">Find your name on the staff roster. Students check in at the STAR kiosk; you claim them here.</p>
+        <div class="tutor-search-block">
+          <label class="field" for="tutor-search">
+            <span>Your name</span>
+            <input class="search" id="tutor-search" type="search" placeholder="Type a few letters…" autocomplete="off" />
+          </label>
+          <p class="status" id="login-status" role="status"></p>
+          <div class="teacher-list" id="tutor-list"></div>
+        </div>
+      </section>
+
+      <section class="board wide station-board" id="station-board" hidden aria-labelledby="station-title">
+        <div class="tutor-station-top">
+          <div class="brand">
+            <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">Tutor station</p>
+              <h1 id="station-title">My students</h1>
+              <p class="tutor-name" id="station-kicker"></p>
+            </div>
+          </div>
+          <div class="tutor-actions">
+            <span class="punch-pill" id="punch-pill" hidden>Off the clock</span>
+            <button type="button" class="btn btn-primary" id="punch-btn">Clock in</button>
+            <button type="button" class="home" id="switch-tutor">Switch tutor</button>
+            <a class="home" href="index.html">STAR</a>
+          </div>
+        </div>
+        <div class="stats" id="tutor-stats"></div>
+        <p class="status" id="station-status" role="status"></p>
+        <div class="tutor-cols">
+          <div>
+            <p class="section-label">Waiting</p>
+            <div class="tutor-queue" id="waiting-list"></div>
+          </div>
+          <div>
+            <p class="section-label">With you</p>
+            <div class="tutor-queue" id="mine-list"></div>
+          </div>
+        </div>
+        <p class="section-label" style="margin-top:1.25rem">Your time clock</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>In</th>
+                <th>Out</th>
+                <th>Hours</th>
+              </tr>
+            </thead>
+            <tbody id="shift-body"></tbody>
+          </table>
+        </div>
+      </section>
+      </div>
+    </main>
+  </div>
+  <div id="toast" class="toast" hidden role="status"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../js/supabase-config.js"></script>
+  <script src="../../js/flhs-db.js"></script>
+  <script src="../../js/app-store-tutor.js"></script>
+</body>
+</html>
