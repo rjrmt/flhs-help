@@ -57,6 +57,8 @@
     statusEl.className = `status${tone ? ` ${tone}` : ""}`;
   }
 
+  let homeTimer = 0;
+
   function showDone(name, changed) {
     if (doneName) doneName.textContent = displayName(name);
     if (doneDetail) {
@@ -67,6 +69,10 @@
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     if (doneScreen) doneScreen.hidden = false;
     setStatus("");
+    window.clearTimeout(homeTimer);
+    homeTimer = window.setTimeout(() => {
+      window.location.href = "../index.html";
+    }, 1500);
   }
 
   function displayPhone(phone) {
@@ -217,6 +223,7 @@
 
   document.getElementById("change-staff")?.addEventListener("click", showPicker);
   document.getElementById("done-another")?.addEventListener("click", () => {
+    window.clearTimeout(homeTimer);
     if (doneScreen) doneScreen.hidden = true;
     showPicker();
   });
