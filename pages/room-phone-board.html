@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS Promethean board — scan the QR code to confirm your classroom and room phone." />
+  <meta name="theme-color" content="#002366" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Room and phone board | FLHS Help Hub</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;650;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #002366;
+      --royal: #1a4bb8;
+      --gold: #e6b000;
+      --ink: #f4f7ff;
+      --muted: rgba(244, 247, 255, 0.78);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      min-height: 100dvh;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse 70% 80% at 0% 100%, rgba(26, 75, 184, 0.45), transparent 55%),
+        radial-gradient(ellipse 50% 60% at 100% 0%, rgba(230, 176, 0, 0.16), transparent 50%),
+        linear-gradient(155deg, #001845 0%, #002366 48%, #0a3278 100%);
+    }
+    .stage {
+      height: 100dvh;
+      width: 100vw;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+      align-items: center;
+      gap: clamp(1.5rem, 4vw, 4.5rem);
+      padding: clamp(1.25rem, 4.5vh, 3.5rem) clamp(1.5rem, 4.5vw, 4.5rem);
+    }
+    .copy { min-width: 0; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      margin-bottom: clamp(1rem, 3vh, 2rem);
+    }
+    .brand img {
+      width: clamp(3.2rem, 6vh, 5.2rem);
+      height: auto;
+    }
+    .kicker {
+      font-size: clamp(0.78rem, 1.5vw, 1.05rem);
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    h1 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(2.6rem, 5.6vw, 5.4rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 0.95;
+      max-width: 11ch;
+    }
+    .lead {
+      margin-top: clamp(0.8rem, 2vh, 1.4rem);
+      max-width: 28ch;
+      font-size: clamp(1.15rem, 2vw, 1.7rem);
+      font-weight: 650;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+    ol {
+      list-style: none;
+      display: grid;
+      gap: clamp(0.55rem, 1.4vh, 0.9rem);
+      margin-top: clamp(1.2rem, 3.5vh, 2.4rem);
+    }
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-size: clamp(1.05rem, 1.8vw, 1.55rem);
+      font-weight: 750;
+    }
+    .num {
+      flex: 0 0 auto;
+      width: 2.1em;
+      height: 2.1em;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      font-family: "Outfit", system-ui, sans-serif;
+      font-weight: 800;
+    }
+    .qr-card {
+      justify-self: end;
+      width: min(100%, 68vh);
+      max-height: 88vh;
+      background: #fff;
+      color: var(--navy);
+      border-radius: clamp(1.2rem, 2vw, 2rem);
+      padding: clamp(0.7rem, 1.4vw, 1.15rem) clamp(0.7rem, 1.4vw, 1.15rem) clamp(0.85rem, 1.6vw, 1.25rem);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      overflow: hidden;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.28);
+    }
+    #qr-slot {
+      width: 100%;
+      min-height: 0;
+    }
+    #qr-slot svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
+    }
+    .scan-label {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(1.15rem, 2vw, 1.7rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .url {
+      font-size: clamp(0.78rem, 1.2vw, 1rem);
+      font-weight: 750;
+      color: #3d5680;
+      text-align: center;
+      word-break: break-all;
+    }
+    .chrome {
+      position: fixed;
+      top: 0.8rem;
+      right: 0.9rem;
+      display: flex;
+      gap: 0.45rem;
+      z-index: 2;
+      transition: opacity 0.2s ease;
+    }
+    .chrome a, .chrome button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      background: rgba(0, 16, 48, 0.45);
+      color: #fff;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 750;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .chrome button {
+      background: #fff;
+      color: var(--navy);
+      border-color: #fff;
+    }
+    body.is-presenting .chrome { opacity: 0; }
+    body.is-presenting:hover .chrome,
+    body.is-presenting:focus-within .chrome { opacity: 1; }
+    @media (max-aspect-ratio: 5/4) {
+      body { overflow: auto; }
+      .stage {
+        height: auto;
+        min-height: 100dvh;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+      }
+      h1, .lead { max-width: none; }
+      ol { justify-items: center; }
+      .brand, li { justify-content: center; }
+      .qr-card { justify-self: center; width: min(88vw, 70vh); }
+    }
+  </style>
+</head>
+<body>
+  <div class="chrome">
+    <a href="it-resources.html">IT Resources</a>
+    <button type="button" id="present">Fill the board</button>
+  </div>
+  <main class="stage">
+    <section class="copy">
+      <div class="brand">
+        <img src="../assets/brand/logo.png" alt="" />
+        <p class="kicker">Fort Lauderdale High School</p>
+      </div>
+      <h1>Confirm your room and phone</h1>
+      <p class="lead">Open your camera, scan the code, and check the room and phone we have on file.</p>
+      <ol>
+        <li><span class="num">1</span> Scan the code</li>
+        <li><span class="num">2</span> Find your name</li>
+        <li><span class="num">3</span> Confirm or correct it</li>
+      </ol>
+    </section>
+    <aside class="qr-card" aria-label="QR code for the room and phone check">
+      <div id="qr-slot">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49 49" shape-rendering="crispEdges" role="img" aria-label="QR code linking to the room and phone check">
+          <path fill="#ffffff" d="M0 0h49v49H0z"/>
+          <path stroke="#002366" stroke-width="1" d="M4 4.5h7m1 0h1m2 0h2m1 0h1m3 0h2m1 0h1m2 0h1m1 0h1m1 0h5m1 0h7M4 5.5h1m5 0h1m1 0h2m1 0h2m3 0h2m6 0h1m2 0h1m1 0h1m4 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m1 0h1m1 0h6m1 0h2m1 0h4m2 0h2m1 0h2m3 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m5 0h1m5 0h2m1 0h1m2 0h1m6 0h1m2 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m3 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h1m2 0h1m1 0h3m2 0h2m6 0h4m2 0h1m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h7m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m2 0h2M6 12.5h3m1 0h1m1 0h2m1 0h3m1 0h2m1 0h2m1 0h1m1 0h5m1 0h1m1 0h5m2 0h3M4 13.5h1m1 0h1m6 0h1m1 0h4m2 0h3m2 0h1m2 0h1m2 0h2m1 0h6m1 0h3M4 14.5h1m2 0h5m2 0h3m3 0h1m1 0h1m4 0h1m3 0h1m4 0h1m1 0h2M4 15.5h3m1 0h1m2 0h3m3 0h2m3 0h3m5 0h1m1 0h1m2 0h5m1 0h1M5 16.5h3m2 0h1m1 0h2m1 0h4m1 0h4m2 0h2m3 0h1m1 0h4m1 0h2m1 0h2m1 0h1M5 17.5h1m2 0h1m2 0h3m2 0h2m1 0h2m4 0h2m3 0h5m2 0h1m1 0h2m2 0h2M4 18.5h2m4 0h2m3 0h3m1 0h2m1 0h3m3 0h1m4 0h1m2 0h2m2 0h4M4 19.5h2m1 0h1m1 0h1m1 0h1m1 0h2m3 0h2m2 0h2m2 0h1m3 0h1m1 0h1m5 0h2m1 0h1m2 0h1M5 20.5h1m1 0h2m1 0h1m1 0h2m3 0h2m2 0h1m1 0h1m1 0h2m6 0h1m3 0h1m1 0h1m2 0h2M4 21.5h1m1 0h1m1 0h1m3 0h2m2 0h1m2 0h2m2 0h2m2 0h2m1 0h1m1 0h1m1 0h3m1 0h5m1 0h1M7 22.5h1m2 0h3m2 0h1m1 0h1m1 0h2m2 0h1m4 0h4m2 0h1m2 0h1m2 0h3M7 23.5h1m1 0h1m1 0h5m2 0h6m2 0h1m1 0h1m1 0h1m1 0h1m4 0h1m2 0h2m1 0h1M4 24.5h1m1 0h1m1 0h1m1 0h2m3 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h1m4 0h1m2 0h1m1 0h6M6 25.5h1m2 0h1m1 0h3m2 0h4m1 0h6m5 0h1m2 0h4m1 0h5M4 26.5h3m1 0h1m1 0h2m3 0h2m2 0h1m1 0h3m2 0h1m4 0h3m2 0h1m1 0h3M7 27.5h1m3 0h1m1 0h3m1 0h1m2 0h3m4 0h3m1 0h1m3 0h1m4 0h1m2 0h2M8 28.5h1m1 0h2m1 0h1m2 0h2m1 0h2m1 0h1m2 0h1m5 0h1m1 0h1m3 0h1m6 0h1M4 29.5h1m2 0h3m2 0h5m1 0h1m1 0h1m2 0h1m1 0h3m2 0h1m1 0h2m1 0h1m1 0h5m1 0h2M4 30.5h1m4 0h2m5 0h1m1 0h2m2 0h5m3 0h2m1 0h1m2 0h2m1 0h1M4 31.5h1m4 0h1m1 0h1m1 0h2m3 0h2m1 0h1m2 0h2m2 0h1m3 0h1m2 0h2m2 0h1m1 0h1m1 0h1M6 32.5h2m2 0h6m2 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m3 0h2M4 33.5h1m1 0h3m4 0h3m1 0h1m2 0h3m2 0h3m2 0h2m1 0h1m2 0h1m2 0h2m1 0h1m1 0h1M4 34.5h1m1 0h1m1 0h3m2 0h1m2 0h3m1 0h1m3 0h1m2 0h3m1 0h3m1 0h1m1 0h4M4 35.5h1m2 0h1m4 0h2m1 0h1m4 0h3m1 0h2m1 0h2m1 0h2m2 0h8M4 36.5h1m4 0h3m2 0h2m1 0h2m4 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h6m1 0h1M12 37.5h4m2 0h9m1 0h1m4 0h4m3 0h1m2 0h2M4 38.5h7m2 0h1m1 0h1m3 0h1m1 0h2m4 0h1m2 0h4m1 0h2m1 0h1m1 0h1m1 0h1M4 39.5h1m5 0h1m2 0h2m1 0h2m1 0h1m1 0h1m4 0h1m1 0h2m1 0h6m3 0h2m1 0h1M4 40.5h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h2m2 0h2m3 0h2m1 0h1m4 0h5m1 0h1m1 0h1M4 41.5h1m1 0h3m1 0h1m1 0h1m10 0h2m1 0h4m2 0h1m1 0h2m1 0h1m1 0h1m1 0h4M4 42.5h1m1 0h3m1 0h1m1 0h2m1 0h4m1 0h1m1 0h1m1 0h1m5 0h2m1 0h1m1 0h6m1 0h2M4 43.5h1m5 0h1m2 0h2m5 0h1m2 0h1m3 0h5m4 0h1m1 0h1m1 0h4M4 44.5h7m3 0h1m4 0h5m2 0h1m1 0h2m1 0h1m1 0h3m1 0h4"/>
+        </svg>
+      </div>
+      <p class="scan-label">Scan to start</p>
+      <p class="url" id="form-url">www.flhshelp.com/pages/room-phone.html</p>
+    </aside>
+  </main>
+  <script>
+    const present = document.getElementById("present");
+
+    present?.addEventListener("click", async () => {
+      const root = document.documentElement;
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return;
+      }
+      await root.requestFullscreen();
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      const on = Boolean(document.fullscreenElement);
+      document.body.classList.toggle("is-presenting", on);
+      if (present) present.textContent = on ? "Exit full screen" : "Fill the board";
+    });
+  </script>
+</body>
+</html>

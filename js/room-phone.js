@@ -22,6 +22,9 @@
   const form = document.getElementById("need-form");
   const submitBtn = document.getElementById("submit-btn");
   const statusEl = document.getElementById("status");
+  const doneScreen = document.getElementById("done-screen");
+  const doneName = document.getElementById("done-name");
+  const doneDetail = document.getElementById("done-detail");
 
   /** @type {Array<Record<string, unknown>>} */
   let staff = [];
@@ -52,6 +55,18 @@
   function setStatus(message, tone = "") {
     statusEl.textContent = message || "";
     statusEl.className = `status${tone ? ` ${tone}` : ""}`;
+  }
+
+  function showDone(name, changed) {
+    if (doneName) doneName.textContent = displayName(name);
+    if (doneDetail) {
+      doneDetail.textContent = changed
+        ? "IT will update the directory."
+        : "It matches what we already have.";
+    }
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    if (doneScreen) doneScreen.hidden = false;
+    setStatus("");
   }
 
   function displayPhone(phone) {
@@ -201,6 +216,10 @@
   });
 
   document.getElementById("change-staff")?.addEventListener("click", showPicker);
+  document.getElementById("done-another")?.addEventListener("click", () => {
+    if (doneScreen) doneScreen.hidden = true;
+    showPicker();
+  });
 
   form?.addEventListener("change", (event) => {
     const name = event.target?.name;
@@ -259,12 +278,7 @@
       if (error) throw error;
       const saved = data && typeof data === "object" ? data : {};
       const changed = saved.room_confirmed === false || saved.phone_confirmed === false;
-      setStatus(
-        changed
-          ? `Saved for ${displayName(saved.staff_name || selected.name)}. IT will update the directory from what you entered.`
-          : `Saved for ${displayName(saved.staff_name || selected.name)}. Your room and phone match what we have on file.`,
-        "ok"
-      );
+      showDone(saved.staff_name || selected.name, changed);
     } catch (err) {
       setStatus(err.message || "Could not save. Try again.", "err");
     } finally {

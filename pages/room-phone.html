@@ -13,8 +13,151 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/laptop-needs.css" />
+  <style>
+    .room-phone-page { height: 100dvh; overflow: hidden; }
+    .room-phone-page .page {
+      height: 100dvh;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .room-phone-page .wrap {
+      width: min(40rem, 100%);
+      height: 100%;
+      min-height: 0;
+      padding: 0.55rem 0.7rem 0.15rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .room-phone-page .board {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 0.8rem 0.95rem 0.7rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .room-phone-page .top { margin-bottom: 0.4rem; }
+    .room-phone-page .brand img { width: 2.35rem; height: 2.35rem; }
+    .room-phone-page h1 { font-size: 1.28rem; }
+    .room-phone-page .lead,
+    .room-phone-page .lead-callout {
+      margin-bottom: 0.4rem;
+      padding: 0.28rem 0 0.4rem;
+      font-size: 0.8rem;
+      line-height: 1.3;
+    }
+    .room-phone-page .note {
+      margin-bottom: 0.4rem;
+      padding: 0.4rem 0.65rem;
+    }
+    .room-phone-page #pick-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+    }
+    .room-phone-page #pick-panel[hidden] { display: none; }
+    .room-phone-page .staff-list {
+      flex: 1;
+      min-height: 0;
+      max-height: none;
+    }
+    .room-phone-page #form-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .room-phone-page #form-panel[hidden] { display: none; }
+    .room-phone-page .picked { margin-bottom: 0; padding: 0.4rem 0.7rem; }
+    .room-phone-page .q {
+      margin-bottom: 0;
+      padding: 0.5rem 0.7rem 0.55rem 0.75rem;
+    }
+    .room-phone-page .q-title { margin-bottom: 0.25rem; font-size: 0.84rem; }
+    .room-phone-page .cart-code { font-size: 1.15rem; margin-bottom: 0.1rem; }
+    .room-phone-page .q-cart .hint { margin: 0 0 0.4rem; font-size: 0.72rem; }
+    .room-phone-page .q-cart .choice { min-height: 2.25rem; font-size: 0.8rem; }
+    .room-phone-page #room-mismatch,
+    .room-phone-page #phone-mismatch { margin-top: 0.4rem; }
+    .room-phone-page textarea { min-height: 2.2rem; padding: 0.4rem 0.7rem; }
+    .room-phone-page .btn-primary { min-height: 2.45rem; margin-top: 0.15rem; }
+    .room-phone-page .status { margin-top: 0.35rem; min-height: 0; }
+    .room-phone-page footer.site { padding: 0.3rem 0.5rem 0.4rem; }
+    .submitted {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      background: #0f9d58;
+      color: #fff;
+      text-align: center;
+      animation: submitted-in 0.18s ease-out;
+    }
+    .submitted[hidden] { display: none; }
+    .submitted-mark {
+      width: 7.5rem;
+      height: 7.5rem;
+      margin: 0 auto 1.1rem;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      color: #0f9d58;
+      box-shadow: 0 0 0 12px rgba(255, 255, 255, 0.28), 0 18px 40px rgba(0, 40, 20, 0.22);
+      animation: submitted-pop 0.42s cubic-bezier(0.18, 1.45, 0.32, 1);
+    }
+    .submitted-mark svg { width: 4.2rem; height: 4.2rem; }
+    .submitted h2 {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: clamp(2.4rem, 7vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: #fff;
+      margin: 0 0 0.65rem;
+    }
+    .submitted p {
+      margin: 0 auto;
+      max-width: 28rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.96);
+    }
+    .submitted .submitted-detail {
+      margin-top: 0.45rem;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.86);
+    }
+    .submitted-another {
+      margin-top: 1.4rem;
+      min-height: 2.6rem;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255, 255, 255, 0.55);
+      background: transparent;
+      color: #fff;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    @keyframes submitted-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes submitted-pop {
+      0% { transform: scale(0.35); opacity: 0; }
+      70% { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .submitted, .submitted-mark { animation: none; }
+    }
+  </style>
 </head>
-<body class="report-page">
+<body class="report-page room-phone-page">
   <div class="page">
     <div class="wrap">
       <section class="board" aria-labelledby="form-title">
@@ -94,6 +237,19 @@
       </section>
     </div>
     <footer class="site">Fort Lauderdale High School · Media Center / IT</footer>
+  </div>
+  <div id="done-screen" class="submitted" hidden>
+    <div>
+      <div class="submitted-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M5 12.5 9.2 17 19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Submitted</h2>
+      <p id="done-name"></p>
+      <p class="submitted-detail" id="done-detail"></p>
+      <button type="button" class="submitted-another" id="done-another">Submit another name</button>
+    </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
