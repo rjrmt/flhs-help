@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS IT room and phone check — see which teachers have confirmed their classroom and room phone." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Room and phone check | FLHS Help Hub</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/laptop-needs.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="wrap wide">
+      <section class="board" id="lock-gate" aria-labelledby="gate-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">IT only · Room and phone</p>
+              <h1 id="gate-title">Room and phone check</h1>
+            </div>
+          </div>
+          <a class="home" href="it-resources.html">IT Resources</a>
+        </div>
+        <p class="lead">Unlock with the staff upload key to see who has confirmed their room and room phone.</p>
+        <form id="unlock-form">
+          <label class="field">
+            <span>Staff upload key</span>
+            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+          </label>
+          <button class="btn btn-primary" type="submit">Unlock</button>
+          <p class="status" id="gate-status" role="status"></p>
+        </form>
+      </section>
+
+      <div id="app" hidden>
+        <section class="board" aria-labelledby="count-title">
+          <div class="top">
+            <div class="brand">
+              <img src="../assets/brand/logo.png" width="88" height="88" alt="" />
+              <div>
+                <p class="kicker">IT only · Room and phone</p>
+                <h1 id="count-title">Who still needs to confirm</h1>
+              </div>
+            </div>
+            <a class="home" href="it-resources.html">IT Resources</a>
+          </div>
+          <p class="lead">
+            Teachers confirm the classroom and room phone on file. A correction stays here until you save it into the directory.
+          </p>
+          <p class="note" id="teacher-link-note"></p>
+          <div class="stats" id="stats"></div>
+          <div class="filter-chips" id="view-chips">
+            <button type="button" class="filter-chip is-on" data-view="missing">Missing teachers</button>
+            <button type="button" class="filter-chip" data-view="review">Needs review</button>
+            <button type="button" class="filter-chip" data-view="confirmed">Matches directory</button>
+            <button type="button" class="filter-chip" data-view="all">All staff</button>
+          </div>
+          <div class="table-toolbar">
+            <label class="field field-inline">
+              <span>Search</span>
+              <input id="row-search" type="search" placeholder="Name, room, phone…" />
+            </label>
+          </div>
+          <div class="export-actions">
+            <button type="button" class="btn btn-primary" id="copy-email">Copy email for missing teachers</button>
+            <button type="button" class="btn" id="export-view">Download this table (.csv)</button>
+          </div>
+          <p class="note export-note">
+            The email asks teachers to use the form instead of writing you. Addresses on file are used when we have them; otherwise a suggested <code>@browardschools.com</code> address is included — verify before sending.
+          </p>
+          <p class="section-label" id="table-label">Roster</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Status</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Room on file</th>
+                  <th scope="col">Teacher room</th>
+                  <th scope="col">Phone on file</th>
+                  <th scope="col">Teacher phone</th>
+                  <th scope="col">Updated</th>
+                </tr>
+              </thead>
+              <tbody id="count-body"></tbody>
+            </table>
+          </div>
+
+          <aside id="tech-panel" class="tech-panel" hidden aria-labelledby="tech-panel-title">
+            <div class="tech-panel-head">
+              <div>
+                <p class="kicker">Update directory</p>
+                <h2 id="tech-panel-title"><span id="tech-panel-name">—</span></h2>
+                <p class="note" id="tech-panel-meta"></p>
+              </div>
+              <button type="button" class="btn btn-sm" id="tech-panel-close">Close</button>
+            </div>
+            <form id="tech-form" class="tech-form">
+              <div class="grid-2">
+                <label class="field">
+                  <span>Room to save</span>
+                  <input id="tech-room" type="text" maxlength="40" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>Phone to save</span>
+                  <input id="tech-phone" type="text" inputmode="tel" maxlength="40" autocomplete="off" placeholder="754-322-1100, Radio, or blank" />
+                </label>
+              </div>
+              <p class="note" id="tech-response"></p>
+              <div class="tech-actions">
+                <button type="submit" class="btn btn-primary" id="tech-save">Save into directory</button>
+                <button type="button" class="btn" id="tech-clear-form">Clear their response</button>
+              </div>
+            </form>
+          </aside>
+          <p class="status" id="status" role="status"></p>
+        </section>
+      </div>
+    </div>
+    <footer class="site">Fort Lauderdale High School</footer>
+  </div>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/room-phone-count.js"></script>
+</body>
+</html>

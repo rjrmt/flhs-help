@@ -149,6 +149,35 @@
       background:
         linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(224, 236, 255, 0.75));
     }
+    .due-banner {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      margin: 0 0 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 0.95rem;
+      text-decoration: none;
+      color: inherit;
+      background: linear-gradient(145deg, #fff, #e7f6ee);
+      border: 1.5px solid rgba(29, 77, 58, 0.28);
+    }
+    .due-banner strong {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+    .due-kicker {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1d4d3a;
+    }
+    .due-banner .due-sub {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-500);
+    }
     .laptop-hero h2 {
       font-family: "Outfit", system-ui, sans-serif;
       font-size: 1.2rem;
@@ -735,6 +764,12 @@
           </a>
         </div>
 
+        <a class="due-banner" href="room-phone.html">
+          <span class="due-kicker">Due today</span>
+          <strong>Confirm your room and room phone</strong>
+          <span class="due-sub">Takes a minute. Use this form instead of emailing IT.</span>
+        </a>
+
         <div class="wide-split">
           <section class="section" id="laptops" aria-labelledby="laptop-heading" data-tour="laptops">
             <p class="section-label" id="laptop-heading">Helping students</p>
@@ -850,6 +885,15 @@
               <div class="app-group" data-tour="schoolday">
                 <p class="app-cat">Your school day</p>
                 <nav class="app-grid" aria-label="Your school day">
+                  <a class="app-icon" href="room-phone.html">
+                    <span class="app-tile room" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M8 4.8h2.1l.9 2.2-1.2 1a8.6 8.6 0 0 0 4.2 4.2l1-1.2 2.2.9V14c0 .7-.5 1.3-1.2 1.4A11 11 0 0 1 6.6 6c.1-.7.7-1.2 1.4-1.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                        <path d="M15.2 5.1h4.1M17.25 3.1v4.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <span class="app-label">Room &amp; phone</span>
+                  </a>
                   <a class="app-icon" href="media.html">
                     <span class="app-tile media" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">

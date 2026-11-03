@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FLHS room and phone check — confirm your classroom number and room phone so IT can update the directory." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <title>Room and phone check | FLHS Help Hub</title>
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/laptop-needs.css" />
+</head>
+<body class="report-page">
+  <div class="page">
+    <div class="wrap">
+      <section class="board" aria-labelledby="form-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">Teachers · Due today</p>
+              <h1 id="form-title">Room and phone check</h1>
+            </div>
+          </div>
+          <a class="home" href="../index.html">Home</a>
+        </div>
+        <p class="lead lead-callout">
+          Confirm the classroom and room phone we have on file. If either one is wrong, type the correct one. Use this form instead of emailing IT.
+        </p>
+        <p class="note" id="load-note">Loading staff directory…</p>
+
+        <div id="pick-panel" class="q q-name">
+          <p class="q-title"><span class="q-num">1</span> Find your name</p>
+          <label class="field">
+            <span class="visually-hidden">Find your name</span>
+            <input id="staff-search" type="search" placeholder="Type last name or room" autocomplete="off" />
+          </label>
+          <div class="staff-list" id="staff-list"></div>
+        </div>
+
+        <div id="form-panel" hidden>
+          <div class="picked">
+            <div>
+              <strong id="picked-name"></strong>
+              <p id="picked-meta"></p>
+            </div>
+            <button class="btn" type="button" id="change-staff">Change</button>
+          </div>
+          <form id="need-form">
+            <div class="q q-cart">
+              <p class="q-title"><span class="q-num">2</span> Confirm your room number</p>
+              <p class="cart-code" id="room-code">—</p>
+              <p class="hint" id="room-hint">This is the room in the staff directory.</p>
+              <div class="choice-row">
+                <label class="choice choice-yes"><input type="radio" name="room" value="yes" required /> <span id="room-yes-label">Yes, this is my room</span></label>
+                <label class="choice choice-no"><input type="radio" name="room" value="no" /> <span id="room-no-label">No, different room</span></label>
+              </div>
+              <div id="room-mismatch" hidden>
+                <label class="field">
+                  <span>Room number on your door</span>
+                  <input id="room-correction" type="text" maxlength="40" placeholder="e.g. 17-1754" autocomplete="off" />
+                </label>
+              </div>
+            </div>
+            <div class="q q-cart">
+              <p class="q-title"><span class="q-num">3</span> Confirm your room phone</p>
+              <p class="cart-code" id="phone-code">—</p>
+              <p class="hint" id="phone-hint">This is the phone in the staff directory. Check the handset in your room.</p>
+              <div class="choice-row">
+                <label class="choice choice-yes"><input type="radio" name="phone" value="yes" required /> <span id="phone-yes-label">Yes, this is my phone</span></label>
+                <label class="choice choice-no"><input type="radio" name="phone" value="no" /> <span id="phone-no-label">No, different number</span></label>
+              </div>
+              <div id="phone-mismatch" hidden>
+                <label class="field">
+                  <span>Room phone</span>
+                  <input id="phone-correction" type="text" inputmode="tel" maxlength="40" placeholder="754-322-1100, Radio, or None" autocomplete="off" />
+                </label>
+              </div>
+            </div>
+            <div class="q q-notes">
+              <label class="field">
+                <span class="q-title"><span class="q-num">4</span> Notes <em>(optional)</em></span>
+                <textarea id="notes" maxlength="500" placeholder="Shared room, phone is in the office, extension only…"></textarea>
+              </label>
+            </div>
+            <button class="btn btn-primary" type="submit" id="submit-btn">Submit room and phone</button>
+          </form>
+        </div>
+        <p class="status" id="status" role="status"></p>
+      </section>
+    </div>
+    <footer class="site">Fort Lauderdale High School · Media Center / IT</footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/flhs-db.js"></script>
+  <script src="../js/room-phone.js"></script>
+</body>
+</html>
