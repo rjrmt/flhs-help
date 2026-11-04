@@ -57,6 +57,10 @@ Deno.serve(async (req: Request) => {
   }
 
   const action = String(payload.action || "status").trim();
+  if (action === "unlock") {
+    return jsonResponse({ ok: true });
+  }
+
   const date = String(payload.date || todayEastern()).trim() || todayEastern();
   const status = String(payload.status || "all").trim() || "all";
   const query = String(payload.query || "").trim();

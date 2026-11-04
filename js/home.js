@@ -2105,6 +2105,63 @@
     }
   }
 
+  function initAudienceTabs() {
+    const bar = document.getElementById("audience-bar");
+    if (!bar) return;
+    const tabs = [...bar.querySelectorAll("[role='tab']")];
+    const panels = tabs
+      .map((tab) => document.getElementById(tab.getAttribute("aria-controls") || ""))
+      .filter(Boolean);
+    if (!tabs.length || panels.length !== tabs.length) return;
+
+    function select(index) {
+      tabs.forEach((tab, i) => {
+        const on = i === index;
+        tab.setAttribute("aria-selected", on ? "true" : "false");
+        tab.tabIndex = on ? 0 : -1;
+        panels[i].hidden = !on;
+      });
+      const name = tabs[index].dataset.audience || "";
+      if (name) {
+        try {
+          sessionStorage.setItem("flhs-audience", name);
+        } catch {
+          /* storage can be blocked */
+        }
+      }
+    }
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => select(index));
+    });
+
+    bar.addEventListener("keydown", (event) => {
+      const current = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true");
+      if (current < 0) return;
+      let next = current;
+      if (event.key === "ArrowRight") next = (current + 1) % tabs.length;
+      else if (event.key === "ArrowLeft") next = (current - 1 + tabs.length) % tabs.length;
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      select(next);
+      tabs[next].focus();
+    });
+
+    const fromHash = (location.hash || "").replace("#", "");
+    let saved = "";
+    try {
+      saved = sessionStorage.getItem("flhs-audience") || "";
+    } catch {
+      saved = "";
+    }
+    const preferred = tabs.findIndex((tab) => tab.dataset.audience === fromHash);
+    const remembered = tabs.findIndex((tab) => tab.dataset.audience === saved);
+    const initial = preferred >= 0 ? preferred : remembered >= 0 ? remembered : 0;
+    select(initial);
+  }
+
   function start() {
     // Clear any stuck scroll lock from a previous modal session / bfcache restore.
     document.body.classList.remove("modal-open");
@@ -2112,6 +2169,7 @@
 
     initAutumnTheme();
     initJokeGhost();
+    initAudienceTabs();
     wireBellModal();
     wireEasterEggs();
     tickClock();
