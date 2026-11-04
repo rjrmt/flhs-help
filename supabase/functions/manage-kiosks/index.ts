@@ -73,6 +73,23 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    if (action === "config") {
+      const { data, error } = await admin.rpc("admin_kiosk_get_config");
+      if (error) throw error;
+      return jsonResponse({ ok: true, config: data });
+    }
+
+    if (action === "save_config") {
+      const bathroomMax = Number(payload.bathroom_max_active);
+      const subjects = Array.isArray(payload.subjects) ? payload.subjects : [];
+      const { data, error } = await admin.rpc("admin_kiosk_save_config", {
+        p_bathroom_max: bathroomMax,
+        p_subjects: subjects,
+      });
+      if (error) throw error;
+      return jsonResponse({ ok: true, config: data });
+    }
+
     if (action === "status") {
       const [statsRes, listRes, bathRes] = await Promise.all([
         admin.rpc("admin_kiosk_stats", { p_date: date }),

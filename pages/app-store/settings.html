@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="STAR settings — subjects on the kiosk and the bathroom pass limit." />
+  <meta name="theme-color" content="#9eb8dc" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>STAR settings | FLHS Help Hub</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="../../assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/app-store.css?v=125" />
+</head>
+<body>
+  <div class="page">
+    <main class="center">
+      <section class="board" id="lock-gate" aria-labelledby="gate-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">Staff only</p>
+              <h1 id="gate-title">STAR settings</h1>
+            </div>
+          </div>
+          <a class="home" href="/pages/app-store/">STAR</a>
+        </div>
+        <p class="lead">Unlock with the same staff key used for the other IT tools.</p>
+        <form id="unlock-form">
+          <label class="field">
+            <span>Staff key</span>
+            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Staff key" />
+          </label>
+          <button class="btn btn-primary" type="submit" style="margin-top:0.85rem">Unlock</button>
+          <p class="status" id="gate-status" role="status"></p>
+        </form>
+      </section>
+
+      <section class="board settings-board" id="app" hidden aria-labelledby="settings-title">
+        <div class="top">
+          <div class="brand">
+            <img src="../../assets/brand/logo.png" width="88" height="88" alt="" />
+            <div>
+              <p class="kicker">STAR · kiosk</p>
+              <h1 id="settings-title">Settings</h1>
+            </div>
+          </div>
+          <a class="home" href="/pages/app-store/">STAR</a>
+        </div>
+        <p class="lead">Everything the student kiosk reads from the database. Pick a section, change it, then save.</p>
+        <form id="settings-form" class="settings-shell">
+          <div class="settings-nav" role="tablist" aria-label="Settings sections">
+            <button type="button" role="tab" id="tab-subjects" data-section="subjects" aria-controls="pane-subjects" aria-selected="true">
+              <span>Subjects</span>
+              <small id="subjects-summary">Kiosk choices</small>
+            </button>
+            <button type="button" role="tab" id="tab-bathroom" data-section="bathroom" aria-controls="pane-bathroom" aria-selected="false">
+              <span>Bathroom</span>
+              <small id="bathroom-summary">Pass limit</small>
+            </button>
+          </div>
+          <div class="settings-main">
+            <section role="tabpanel" id="pane-subjects" data-pane="subjects" aria-labelledby="tab-subjects">
+              <h2>Subjects</h2>
+              <p class="pane-copy">These are the buttons on the scan screen, in this order. Turn a subject off to hide it. Past check-ins keep the name they used.</p>
+              <ol class="subject-list" id="subject-list"></ol>
+              <button class="subject-add" type="button" id="add-subject">Add subject</button>
+            </section>
+            <section role="tabpanel" id="pane-bathroom" data-pane="bathroom" hidden aria-labelledby="tab-bathroom">
+              <h2>Bathroom passes</h2>
+              <p class="pane-copy">How many bathroom passes can be out at the same time. The kiosk stops a new pass once this number is reached.</p>
+              <label class="field settings-number">
+                <span>Passes out at once</span>
+                <input id="bathroom-max" type="number" min="1" max="30" required inputmode="numeric" />
+              </label>
+            </section>
+            <div class="settings-save">
+              <button class="btn btn-primary" type="submit">Save settings</button>
+              <p class="status" id="settings-status" role="status"></p>
+            </div>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="../../js/supabase-config.js"></script>
+  <script src="../../js/app-store-gate.js"></script>
+  <script src="../../js/app-store-settings.js?v=125"></script>
+</body>
+</html>

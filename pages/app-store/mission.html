@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../../css/app-store.css" />
+  <link rel="stylesheet" href="../../css/app-store.css?v=127" />
 </head>
 <body>
   <div class="page">
@@ -54,48 +54,86 @@
           </div>
           <div class="stats" id="stats"></div>
           <div class="filter-chips" id="board-chips">
-            <button type="button" class="filter-chip is-on" data-board="floor">STAR floor</button>
-            <button type="button" class="filter-chip" data-board="bathroom">Bathroom</button>
+            <button type="button" class="filter-chip is-on" data-board="floor" aria-pressed="true">STAR floor</button>
+            <button type="button" class="filter-chip" data-board="bathroom" aria-pressed="false">Bathroom</button>
           </div>
-          <div class="filter-chips" id="status-chips">
-            <button type="button" class="filter-chip is-on" data-status="all">All</button>
-            <button type="button" class="filter-chip" data-status="open">Out / here now</button>
-            <button type="button" class="filter-chip" data-status="closed">Returned</button>
+          <div class="mc-filters" id="floor-filters">
+            <div class="mc-filter">
+              <span>Here</span>
+              <div class="filter-chips" id="here-chips">
+                <button type="button" class="filter-chip is-on" data-here="all" aria-pressed="true">All</button>
+                <button type="button" class="filter-chip" data-here="open" aria-pressed="false">Here now</button>
+                <button type="button" class="filter-chip" data-here="closed" aria-pressed="false">Checked out</button>
+              </div>
+            </div>
+            <div class="mc-filter">
+              <span>Bus form</span>
+              <div class="filter-chips" id="form-chips">
+                <button type="button" class="filter-chip is-on" data-form="all" aria-pressed="true">All</button>
+                <button type="button" class="filter-chip" data-form="missing" aria-pressed="false">Missing</button>
+                <button type="button" class="filter-chip" data-form="received" aria-pressed="false">On file</button>
+              </div>
+            </div>
+            <div class="mc-filter">
+              <span>Bus</span>
+              <div class="filter-chips" id="bus-chips">
+                <button type="button" class="filter-chip is-on" data-bus="all" aria-pressed="true">All</button>
+                <button type="button" class="filter-chip" data-bus="yes" aria-pressed="false">Needs bus</button>
+                <button type="button" class="filter-chip" data-bus="no" aria-pressed="false">No bus</button>
+              </div>
+            </div>
+            <label class="field mc-subject">
+              <span>Subject</span>
+              <select id="subject-filter">
+                <option value="">All subjects</option>
+              </select>
+            </label>
+          </div>
+          <div class="mc-filters" id="bath-filters" hidden>
+            <div class="mc-filter">
+              <span>Pass</span>
+              <div class="filter-chips" id="bath-chips">
+                <button type="button" class="filter-chip is-on" data-bath="all" aria-pressed="true">All</button>
+                <button type="button" class="filter-chip" data-bath="open" aria-pressed="false">Out now</button>
+                <button type="button" class="filter-chip" data-bath="closed" aria-pressed="false">Returned</button>
+              </div>
+            </div>
           </div>
           <div class="toolbar">
             <label class="field">
               <span>Date</span>
               <input id="date-filter" type="date" />
             </label>
-            <label class="field">
+            <label class="field mc-search">
               <span>Search</span>
-              <input id="row-search" type="search" placeholder="Name or student ID…" />
+              <input id="row-search" type="search" placeholder="Name, ID, subject, or teacher" />
             </label>
             <button type="button" class="btn btn-secondary" id="export-csv">Download CSV</button>
           </div>
           <p class="status" id="status" role="status"></p>
-          <div class="table-wrap" id="floor-table">
+          <div class="table-wrap mc-scroll" id="floor-table">
             <table>
               <thead>
                 <tr>
                   <th>Student</th>
-                  <th>Gr</th>
-                  <th>Subject / teacher</th>
+                  <th>Grade</th>
+                  <th>Subject</th>
                   <th>Bus</th>
                   <th>Form</th>
-                  <th>Time</th>
+                  <th>In</th>
+                  <th>Out</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody id="rows-body"></tbody>
             </table>
           </div>
-          <div class="table-wrap" id="bath-table" hidden>
+          <div class="table-wrap mc-scroll" id="bath-table" hidden>
             <table>
               <thead>
                 <tr>
                   <th>Student</th>
-                  <th>Gr</th>
+                  <th>Grade</th>
                   <th>Out</th>
                   <th>Back</th>
                   <th></th>
@@ -110,6 +148,6 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../../js/supabase-config.js"></script>
-  <script src="../../js/app-store-mission.js"></script>
+  <script src="../../js/app-store-mission.js?v=126"></script>
 </body>
 </html>

@@ -30,6 +30,7 @@
   function showApps() {
     if (gate) gate.hidden = true;
     if (app) app.hidden = false;
+    document.dispatchEvent(new CustomEvent("flhs-staff-unlocked"));
   }
 
   async function verifyKey(key) {
