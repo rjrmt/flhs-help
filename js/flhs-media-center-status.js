@@ -121,7 +121,7 @@
           label: during.label || "During class periods",
           startMin: null,
           endMin: null,
-          blurb: during.blurb || "Closed — no walk-ins during class",
+          blurb: during.blurb || "No walk-ins",
           kind: "closed",
           icon: "door",
         },
@@ -153,30 +153,29 @@
         return {
           tone: "closed",
           answer: "No",
-          kicker: "No school today",
-          title: "Media Center is closed",
-          detail: "Come back on the next school day.",
+          kicker: "No school",
+          title: "No school",
+          detail: "",
         };
       }
       if (dayType === "unknown") {
         return {
           tone: "check",
           answer: "Check",
-          kicker: "Not a school day",
-          title: "Walk-ins are for school days",
-          detail: "Try again Monday–Friday when school is open.",
+          kicker: "No school",
+          title: "No school",
+          detail: "",
         };
       }
 
       const activeRes = reservationFor(isoDate, nowMin, dayType);
       if (activeRes) {
-        const label = activeRes.label || "Class reserved";
         return {
           tone: "reserved",
           answer: "No",
-          kicker: "Not for walk-ins",
-          title: "A class is using it now",
-          detail: `${label}. Study hall still needs a teacher pass.`,
+          kicker: "Reserved",
+          title: "Class reserved",
+          detail: "",
         };
       }
 
@@ -186,9 +185,9 @@
         return {
           tone: "open",
           answer: "Yes",
-          kicker: "You can walk in",
-          title: "Yes — go now!",
-          detail: `${openNow.label} · ${formatRange(openNow.startMin, openNow.endMin)}`,
+          kicker: "Open",
+          title: "Walk in",
+          detail: openNow.label,
           activeId: openNow.id,
         };
       }
@@ -198,9 +197,9 @@
         return {
           tone: "soon",
           answer: "Wait",
-          kicker: "Not right now",
-          title: "Come back later",
-          detail: `Next open: ${next.label} · ${formatRange(next.startMin, next.endMin)}. Study hall needs a teacher pass.`,
+          kicker: "Later",
+          title: "Not yet",
+          detail: `Opens ${formatRange(next.startMin, next.endMin)}`,
           activeId: null,
         };
       }
@@ -211,9 +210,9 @@
         return {
           tone: "closed",
           answer: "No",
-          kicker: "Class time",
-          title: "No walk-ins during class",
-          detail: "Only study hall with a real teacher pass (academic work).",
+          kicker: "Class",
+          title: "Class in session",
+          detail: "",
           activeId: "class",
         };
       }
@@ -221,9 +220,9 @@
       return {
         tone: "closed",
         answer: "No",
-        kicker: "Closed right now",
-        title: "Not open for walk-ins",
-        detail: "Come before school (7:00–7:40) or at lunch. After school is closed.",
+        kicker: "After school",
+        title: "After school",
+        detail: "",
       };
     }
 

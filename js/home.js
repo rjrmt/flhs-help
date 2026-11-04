@@ -1823,18 +1823,9 @@
   }
 
   function mediaDetailLine(status) {
-    if (status.tone === "open") {
-      const bit = String(status.detail || "").split("·")[0].trim();
-      return bit || "Walk-ins welcome right now.";
-    }
-    if (status.tone === "soon") {
-      const bit = String(status.detail || "").replace(/^Next open:\s*/i, "");
-      return bit || status.title || "Opens again later today.";
-    }
-    if (status.tone === "closed" || status.tone === "reserved") {
-      return "7:00–7:40 AM · lunch · no after school";
-    }
-    return status.detail || status.title || "See the Media Center page for hours.";
+    if (status.tone === "open") return status.detail || "Walk in now";
+    if (status.tone === "soon") return status.detail || "Opens later";
+    return status.title || "Closed";
   }
 
   function mediaCalendarDayType(isoDate) {
@@ -1855,9 +1846,10 @@
     mediaBubble.dataset.tone = status.tone;
     if (mediaBubblePill) mediaBubblePill.textContent = mediaStatusPillLabel(status);
     if (mediaBubbleDetail) mediaBubbleDetail.textContent = mediaDetailLine(status);
+    const why = [status.title, status.detail].filter(Boolean).join(". ");
     mediaBubble.setAttribute(
       "aria-label",
-      `Media Center: ${mediaStatusPillLabel(status)}. ${status.title}. ${status.detail} View full hours.`
+      `Media Center: ${mediaStatusPillLabel(status)}. ${why}. View full hours.`
     );
   }
 

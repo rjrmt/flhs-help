@@ -25,7 +25,7 @@
   },
   "duringClass": {
     "label": "During class periods",
-    "blurb": "Closed — no walk-ins during class",
+    "blurb": "No walk-ins",
     "closed": true
   },
   "studyHall": {

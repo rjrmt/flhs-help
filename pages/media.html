@@ -249,6 +249,7 @@
       color: var(--ink-700);
       line-height: 1.35;
     }
+    .status-detail:empty { display: none; }
 
     .section { margin-top: 1.05rem; }
     .section-label {
@@ -315,6 +316,18 @@
         0 8px 20px rgba(21, 128, 61, 0.18);
       background: linear-gradient(135deg, #dcfce7, #fff);
       transform: scale(1.01);
+    }
+    .window-card.closed.is-live {
+      border-color: rgba(185, 28, 28, 0.55);
+      box-shadow:
+        0 0 0 3px rgba(239, 68, 68, 0.16),
+        0 8px 20px rgba(185, 28, 28, 0.12);
+      background: linear-gradient(135deg, #fef2f2, #fff);
+    }
+    .window-card.closed.is-live .window-copy strong { color: var(--ink-900); }
+    .window-card.closed.is-live .window-badge.now {
+      background: var(--closed-strong);
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.18);
     }
     .window-icon {
       width: 2.7rem;
@@ -605,7 +618,7 @@
       · Fort Lauderdale High School
     </footer>
   </div>
-  <script src="../js/flhs-media-center-status.js?v=1" defer></script>
+  <script src="../js/flhs-media-center-status.js?v=2" defer></script>
   <script src="../js/media.js?v=88" defer></script>
 </body>
 </html>
