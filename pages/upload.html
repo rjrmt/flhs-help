@@ -231,16 +231,36 @@
           This overwrites the current testing assignments for every student.
         </p>
 
-        <p class="note">
-          Use the staff upload key (saved on this computer as <strong>.flhs-upload-secret</strong>).
-          The website never stores your service-role database key.
-        </p>
-
-        <form id="upload-form">
+        <!-- Auth section (shown when not authenticated) -->
+        <div id="auth-section" class="note" style="display: none;">
+          <p style="margin-bottom: 0.75rem;"><strong>Sign in required</strong></p>
+          <p style="margin-bottom: 0.85rem;">Enter your <strong>@browardschools.com</strong> email to receive a one-time code.</p>
           <label class="field">
-            <span>Staff upload key</span>
-            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+            <span>BCPS Email</span>
+            <input id="auth-email" type="email" placeholder="yourname@browardschools.com" style="width: 100%; height: 2.5rem; padding: 0 0.85rem; border-radius: 0.75rem; border: 1.5px solid rgba(0, 35, 102, 0.28); background: #fff; font: inherit; font-weight: 600;" />
           </label>
+          <button type="button" id="send-code-btn" style="width: 100%; height: 2.65rem; margin-top: 0.55rem;">Send code</button>
+        </div>
+
+        <!-- OTP verification (shown after code is sent) -->
+        <div id="otp-section" class="note" style="display: none;">
+          <p style="margin-bottom: 0.75rem;"><strong>Check your email</strong></p>
+          <p style="margin-bottom: 0.85rem;">We sent a 6-digit code to <strong id="otp-email-display"></strong></p>
+          <label class="field">
+            <span>6-Digit Code</span>
+            <input id="otp-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" style="width: 100%; height: 2.5rem; padding: 0 0.85rem; border-radius: 0.75rem; border: 1.5px solid rgba(0, 35, 102, 0.28); background: #fff; font: inherit; font-weight: 700; font-size: 1.35rem; letter-spacing: 0.35em; text-align: center;" />
+          </label>
+          <button type="button" id="verify-code-btn" style="width: 100%; height: 2.65rem; margin-top: 0.55rem;">Verify code</button>
+          <button type="button" id="resend-code-btn" class="secondary" style="width: 100%; height: 2.45rem; margin-top: 0.45rem;">Resend code</button>
+        </div>
+
+        <!-- User info (shown when authenticated) -->
+        <div id="user-section" class="note" style="display: none; background: rgba(21, 128, 61, 0.08); border-color: #6ee7b7;">
+          <p><strong>Signed in as:</strong> <span id="user-email-display"></span></p>
+          <button type="button" id="sign-out-btn" class="secondary" style="width: 100%; height: 2.45rem; margin-top: 0.65rem;">Sign out</button>
+        </div>
+
+        <form id="upload-form" style="display: none;">
 
           <div class="drop">
             <strong>Excel (.xlsx) or CSV</strong>
@@ -269,25 +289,198 @@
     <footer>FLHS Help Hub · staff upload tool</footer>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="../js/supabase-config.js"></script>
   <script>
     (() => {
       const STUDENT_ID_LEN = 10;
-      const KEY_STORAGE = "flhs-upload-key";
       const FUNCTION_URL =
         "https://lharxnpvcprthgabklwo.supabase.co/functions/v1/replace-test-assignments";
 
+      // Auth UI elements
+      const authSection = document.getElementById("auth-section");
+      const otpSection = document.getElementById("otp-section");
+      const userSection = document.getElementById("user-section");
+      const authEmailInput = document.getElementById("auth-email");
+      const sendCodeBtn = document.getElementById("send-code-btn");
+      const otpCodeInput = document.getElementById("otp-code");
+      const otpEmailDisplay = document.getElementById("otp-email-display");
+      const verifyCodeBtn = document.getElementById("verify-code-btn");
+      const resendCodeBtn = document.getElementById("resend-code-btn");
+      const userEmailDisplay = document.getElementById("user-email-display");
+      const signOutBtn = document.getElementById("sign-out-btn");
+
+      // Upload UI elements
       const form = document.getElementById("upload-form");
-      const keyInput = document.getElementById("upload-key");
       const fileInput = document.getElementById("file-input");
       const preview = document.getElementById("preview");
       const statusEl = document.getElementById("status");
       const uploadBtn = document.getElementById("upload-btn");
       const templateBtn = document.getElementById("template-btn");
 
+      // Supabase client
+      const cfg = window.FLHS_SUPABASE || {};
+      if (!cfg.url || !cfg.anonKey) {
+        setStatus("Missing Supabase config — contact IT", "err");
+        throw new Error("Missing Supabase config");
+      }
+      const supabase = window.supabase.createClient(cfg.url, cfg.anonKey);
+
       /** @type {Array<Record<string, string|null>>} */
       let pendingRows = [];
+      let currentEmail = "";
+
+      // Check auth state on load
+      (async function checkAuth() {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            showUploadUI(session.user.email);
+          } else {
+            showAuthUI();
+          }
+        } catch (err) {
+          console.error("Auth check failed:", err);
+          showAuthUI();
+        }
+      })();
+
+      function showAuthUI() {
+        authSection.style.display = "block";
+        otpSection.style.display = "none";
+        userSection.style.display = "none";
+        form.style.display = "none";
+      }
+
+      function showOTPUI(email) {
+        authSection.style.display = "none";
+        otpSection.style.display = "block";
+        userSection.style.display = "none";
+        form.style.display = "none";
+        otpEmailDisplay.textContent = email;
+        currentEmail = email;
+        otpCodeInput.value = "";
+        otpCodeInput.focus();
+      }
+
+      function showUploadUI(email) {
+        authSection.style.display = "none";
+        otpSection.style.display = "none";
+        userSection.style.display = "block";
+        form.style.display = "block";
+        userEmailDisplay.textContent = email || "unknown";
+        currentEmail = email || "";
+      }
+
+      // Send OTP code
+      sendCodeBtn.addEventListener("click", async () => {
+        const email = authEmailInput.value.trim().toLowerCase();
+        if (!email) {
+          setStatus("Enter your BCPS email address", "err");
+          return;
+        }
+        if (!email.endsWith("@browardschools.com")) {
+          setStatus("Only @browardschools.com emails are allowed", "err");
+          return;
+        }
+
+        sendCodeBtn.disabled = true;
+        setStatus("Sending code to your email...");
+
+        try {
+          const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+              shouldCreateUser: false, // Only existing users
+            },
+          });
+
+          if (error) throw error;
+
+          showOTPUI(email);
+          setStatus("Code sent — check your inbox and spam folder", "ok");
+        } catch (err) {
+          console.error("OTP send error:", err);
+          setStatus(err.message || "Could not send code — contact IT", "err");
+        } finally {
+          sendCodeBtn.disabled = false;
+        }
+      });
+
+      // Verify OTP code
+      verifyCodeBtn.addEventListener("click", async () => {
+        const code = otpCodeInput.value.trim();
+        if (!code || code.length !== 6) {
+          setStatus("Enter the 6-digit code from your email", "err");
+          return;
+        }
+
+        verifyCodeBtn.disabled = true;
+        setStatus("Verifying code...");
+
+        try {
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: currentEmail,
+            token: code,
+            type: "email",
+          });
+
+          if (error) throw error;
+          if (!data.session) throw new Error("No session created");
+
+          showUploadUI(data.user?.email || currentEmail);
+          setStatus("Signed in — you can now upload rosters", "ok");
+        } catch (err) {
+          console.error("OTP verify error:", err);
+          setStatus(err.message || "Invalid code — try again", "err");
+          otpCodeInput.value = "";
+          otpCodeInput.focus();
+        } finally {
+          verifyCodeBtn.disabled = false;
+        }
+      });
+
+      // Resend code
+      resendCodeBtn.addEventListener("click", async () => {
+        resendCodeBtn.disabled = true;
+        setStatus("Resending code...");
+
+        try {
+          const { error } = await supabase.auth.signInWithOtp({
+            email: currentEmail,
+            options: { shouldCreateUser: false },
+          });
+
+          if (error) throw error;
+          setStatus("Code resent — check your inbox", "ok");
+        } catch (err) {
+          console.error("Resend error:", err);
+          setStatus(err.message || "Could not resend code", "err");
+        } finally {
+          resendCodeBtn.disabled = false;
+        }
+      });
+
+      // Sign out
+      signOutBtn.addEventListener("click", async () => {
+        signOutBtn.disabled = true;
+        setStatus("Signing out...");
+
+        try {
+          await supabase.auth.signOut();
+          showAuthUI();
+          setStatus("Signed out", "ok");
+          pendingRows = [];
+          preview.classList.remove("show");
+          if (fileInput) fileInput.value = "";
+        } catch (err) {
+          console.error("Sign out error:", err);
+          setStatus("Could not sign out", "err");
+        } finally {
+          signOutBtn.disabled = false;
+        }
+      });
 
       const TEMPLATE_HEADERS = [
         "Local ID",
@@ -333,13 +526,6 @@
       }
 
       templateBtn?.addEventListener("click", downloadTemplate);
-
-      try {
-        const saved = sessionStorage.getItem(KEY_STORAGE);
-        if (saved) keyInput.value = saved;
-      } catch {
-        /* ignore */
-      }
 
       function setStatus(message, tone = "") {
         statusEl.textContent = message || "";
@@ -513,19 +699,26 @@
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const key = keyInput.value.trim();
-        if (!key) {
-          setStatus("Enter the staff upload key", "err");
-          return;
-        }
+
         if (!pendingRows.length) {
           setStatus("Choose an Excel or CSV file first", "err");
           return;
         }
 
-        const cfg = window.FLHS_SUPABASE || {};
-        if (!cfg.anonKey) {
-          setStatus("Missing public Supabase config", "err");
+        // Get current session token
+        let accessToken;
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) {
+            setStatus("Session expired — sign in again", "err");
+            showAuthUI();
+            return;
+          }
+          accessToken = session.access_token;
+        } catch (err) {
+          console.error("Session check failed:", err);
+          setStatus("Could not verify session — sign in again", "err");
+          showAuthUI();
           return;
         }
 
@@ -533,32 +726,40 @@
         setStatus("Uploading and replacing the live student locator list…");
 
         try {
-          sessionStorage.setItem(KEY_STORAGE, key);
-        } catch {
-          /* ignore */
-        }
-
-        try {
           const response = await fetch(FUNCTION_URL, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              apikey: cfg.anonKey,
-              Authorization: `Bearer ${cfg.anonKey}`,
-              "x-flhs-upload-key": key,
+              "apikey": cfg.anonKey,
+              "Authorization": `Bearer ${accessToken}`,
             },
             body: JSON.stringify({ rows: pendingRows }),
           });
+
           const body = await response.json().catch(() => ({}));
+
           if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+              setStatus("Unauthorized — your session may have expired. Sign in again.", "err");
+              await supabase.auth.signOut();
+              showAuthUI();
+              return;
+            }
             throw new Error(body.error || `Upload failed (${response.status})`);
           }
+
           setStatus(
-            `Done — ${body.assignments || pendingRows.length} assignments for ${body.students || "?"} students are live.`,
+            `Done — ${body.assignments || pendingRows.length} assignments for ${body.students || "?"} students are live. Uploaded by ${body.uploaded_by || currentEmail}.`,
             "ok"
           );
+
+          // Clear form after successful upload
+          pendingRows = [];
+          preview.classList.remove("show");
+          if (fileInput) fileInput.value = "";
+
         } catch (err) {
-          console.error(err);
+          console.error("Upload error:", err);
           setStatus(err.message || "Upload failed", "err");
         } finally {
           uploadBtn.disabled = false;
