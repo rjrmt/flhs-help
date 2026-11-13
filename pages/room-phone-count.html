@@ -29,13 +29,18 @@
           </div>
           <a class="home" href="it-resources.html">IT Resources</a>
         </div>
-        <p class="lead">Unlock with the staff upload key to see who has confirmed their room and room phone.</p>
+        <p class="lead">Sign in with your @browardschools.com email to see who has confirmed their room and room phone.</p>
         <form id="unlock-form">
           <label class="field">
-            <span>Staff upload key</span>
-            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+            <span>BCPS email</span>
+            <input id="staff-email" type="email" autocomplete="username" required placeholder="name@browardschools.com" />
           </label>
-          <button class="btn btn-primary" type="submit">Unlock</button>
+          <button class="btn btn-primary" type="button" id="staff-send" style="margin-top:0.85rem">Send code</button>
+          <label class="field" id="staff-code-wrap" hidden style="margin-top:0.85rem">
+            <span>6-digit code</span>
+            <input id="staff-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" />
+          </label>
+          <button class="btn btn-primary" type="button" id="staff-verify" hidden style="margin-top:0.85rem">Sign in</button>
           <p class="status" id="gate-status" role="status"></p>
         </form>
       </section>
@@ -127,7 +132,10 @@
     </div>
     <footer class="site">Fort Lauderdale High School</footer>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/staff-session.js"></script>
+  <script src="../js/staff-gate.js"></script>
   <script src="../js/room-phone-count.js"></script>
 </body>
 </html>

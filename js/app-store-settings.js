@@ -1,6 +1,5 @@
 /* STAR kiosk settings. Saves subjects and the bathroom limit through manage-kiosks. */
 (() => {
-  const KEY_STORAGE = "flhs-upload-key";
   const FUNCTION_URL =
     "https://lharxnpvcprthgabklwo.supabase.co/functions/v1/manage-kiosks";
 
@@ -17,14 +16,6 @@
   let subjects = [];
   let loaded = false;
 
-  function savedKey() {
-    try {
-      return sessionStorage.getItem(KEY_STORAGE) || "";
-    } catch {
-      return "";
-    }
-  }
-
   function setStatus(message, tone = "") {
     if (!statusEl) return;
     statusEl.textContent = message || "";
@@ -33,15 +24,9 @@
   }
 
   async function request(action, body = {}) {
-    const cfg = window.FLHS_SUPABASE || {};
     const response = await fetch(FUNCTION_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: cfg.anonKey || "",
-        Authorization: `Bearer ${cfg.anonKey || ""}`,
-        "x-flhs-upload-key": savedKey(),
-      },
+      headers: await window.flhsStaff.headers(),
       body: JSON.stringify({ action, ...body }),
     });
     const data = await response.json().catch(() => ({}));

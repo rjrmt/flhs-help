@@ -1,8 +1,8 @@
 # Security
 
-The testing-roster upload at `/pages/upload.html` requires a signed-in `@browardschools.com` account. The shared upload key is not accepted by that API.
+The staff tools that change school data ask for a `@browardschools.com` email and send a one-time code. That covers the testing-roster upload, STAR settings, Mission Control, laptop count, room and phone responses, and coupon tools. The old shared key is not accepted.
 
-Other staff tools (STAR settings, Mission Control, laptop count, room and phone, coupons) still use the existing staff key. They are not the roster upload.
+Student pages stay open. The testing locator, homepage, media hours, and the student kiosk, bathroom pass, and tutor station do not ask anyone to sign in.
 
 ## What is protected
 
@@ -20,7 +20,7 @@ Every table in `public` and `private` has Row Level Security enabled. A table wi
 1. The upload page asks for an email. Anything that is not exactly `@browardschools.com` is stopped in the browser.
 2. A matching address gets an email one-time code from Supabase Auth.
 3. New accounts are also rejected in the database by `private.restrict_staff_signup`, after that hook is turned on (see `WALKTHROUGH.md`).
-4. `replace-test-assignments` calls `auth.getUser` on the bearer token. No user, or a non-district email, is rejected. The old `x-flhs-upload-key` header is ignored.
+4. Each staff API calls `auth.getUser` on the bearer token. No user, or a non-district email, is rejected. A shared key header is ignored.
 5. A successful or failed replace is written to `private.audit_log` with the staff email, row count, and time.
 
 The service-role key stays in the Supabase edge-function environment. It is not in the website.

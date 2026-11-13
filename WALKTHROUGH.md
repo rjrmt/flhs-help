@@ -32,7 +32,7 @@ It does not replace the existing testing-roster function and it does not truncat
 
 ## 4. Allowed domain
 
-The browser rejects any address that is not exactly `@browardschools.com`. The upload API checks the same rule on the signed-in user.
+The browser rejects any address that is not exactly `@browardschools.com`. The roster upload, STAR settings, Mission Control, laptop count, room and phone tracker, and coupon tools all check the same rule on the signed-in user. Student pages do not ask anyone to sign in.
 
 Also turn on the database hook so a non-district address cannot create an account by calling the Auth API directly:
 

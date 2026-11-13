@@ -238,15 +238,20 @@
         </div>
 
         <p class="lead">
-          Flying L Positive Behavior Coupon tools. Unlock with the staff upload key, then pick an app. The teacher list comes from the staff directory already in the database.
+          Flying L Positive Behavior Coupon tools. Sign in with your @browardschools.com email, then pick an app. The teacher list comes from the staff directory already in the database.
         </p>
 
         <form id="unlock-form">
           <label class="field">
-            <span>Staff upload key</span>
-            <input id="upload-key" type="password" autocomplete="current-password" required placeholder="Paste staff upload key" />
+            <span>BCPS email</span>
+            <input id="staff-email" type="email" autocomplete="username" required placeholder="name@browardschools.com" />
           </label>
-          <button class="btn" type="submit" id="unlock-btn">Unlock coupon tools</button>
+          <button class="btn btn-primary" type="button" id="staff-send" style="margin-top:0.85rem">Send code</button>
+          <label class="field" id="staff-code-wrap" hidden style="margin-top:0.85rem">
+            <span>6-digit code</span>
+            <input id="staff-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" />
+          </label>
+          <button class="btn btn-primary" type="button" id="staff-verify" hidden style="margin-top:0.85rem">Sign in</button>
           <p class="status" id="gate-status" role="status"></p>
         </form>
 
@@ -285,7 +290,7 @@
             </a>
           </nav>
           <p class="note">
-            Key stays on this computer for the session, same as the testing roster upload.
+            This sign-in stays on this browser until you close it.
           </p>
         </div>
       </section>
@@ -295,7 +300,10 @@
       · Fort Lauderdale High School
     </footer>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/staff-session.js"></script>
+  <script src="../js/staff-gate.js"></script>
   <script src="../js/coupons-api.js"></script>
   <script src="../js/coupons-hub.js"></script>
   <script>

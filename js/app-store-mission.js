@@ -1,13 +1,9 @@
 (() => {
-  const KEY_STORAGE = "flhs-upload-key";
   const FUNCTION_URL =
     "https://lharxnpvcprthgabklwo.supabase.co/functions/v1/manage-kiosks";
 
   const gate = document.getElementById("lock-gate");
   const app = document.getElementById("app");
-  const keyInput = document.getElementById("upload-key");
-  const unlockForm = document.getElementById("unlock-form");
-  const gateStatus = document.getElementById("gate-status");
   const statusEl = document.getElementById("status");
   const statsEl = document.getElementById("stats");
   const tbody = document.getElementById("rows-body");
@@ -31,22 +27,6 @@
   let stats = {};
   let pollTimer = 0;
   let loadedOnce = false;
-
-  function getSavedKey() {
-    try {
-      return sessionStorage.getItem(KEY_STORAGE) || "";
-    } catch {
-      return "";
-    }
-  }
-
-  function saveKey(key) {
-    try {
-      sessionStorage.setItem(KEY_STORAGE, key);
-    } catch {
-      /* ignore */
-    }
-  }
 
   function todayEastern() {
     return new Intl.DateTimeFormat("en-CA", {
@@ -86,23 +66,11 @@
   }
 
   async function request(action, body = {}) {
-    const key = String(body.uploadKey || getSavedKey() || "").trim();
-    if (!key) {
-      const err = new Error("Enter the staff upload key");
-      err.code = "NO_KEY";
-      throw err;
-    }
-    const cfg = window.FLHS_SUPABASE || {};
     const payload = { ...body, action };
     delete payload.uploadKey;
     const response = await fetch(FUNCTION_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: cfg.anonKey,
-        Authorization: `Bearer ${cfg.anonKey}`,
-        "x-flhs-upload-key": key,
-      },
+      headers: await window.flhsStaff.headers(),
       body: JSON.stringify(payload),
     });
     const data = await response.json().catch(() => ({}));
@@ -111,7 +79,6 @@
       err.status = response.status;
       throw err;
     }
-    saveKey(key);
     return data;
   }
 
@@ -387,16 +354,8 @@
     pollTimer = window.setInterval(refresh, 8000);
   }
 
-  unlockForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    gateStatus.textContent = "Unlocking…";
-    try {
-      saveKey(keyInput.value.trim());
-      await request("status", { uploadKey: keyInput.value.trim(), date: todayEastern() });
-      showApp();
-    } catch (err) {
-      gateStatus.textContent = err.status === 401 ? "Wrong key." : err.message || "Could not unlock.";
-    }
+  document.addEventListener("flhs-staff-unlocked", () => {
+    showApp();
   });
 
   document.getElementById("board-chips")?.addEventListener("click", (e) => {
@@ -475,10 +434,4 @@
       setStatus(err.message || "Update failed.", "error");
     }
   });
-
-  if (getSavedKey()) {
-    request("status", { date: todayEastern() })
-      .then(showApp)
-      .catch(() => {});
-  }
 })();
