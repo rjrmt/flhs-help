@@ -1,396 +1,102 @@
-# FLHS Help Hub Security & Content Updates — Visual Walkthrough
+# Supabase setup for the roster upload
 
-This document shows the key changes made in PR #1.
+Do this in the FLHS Ops project (`lharxnpvcprthgabklwo`) before relying on the upload page. Nothing here merges the pull request.
 
----
+## 1. Project
 
-## 1. Security: New Upload Authentication Flow
+1. Open [supabase.com/dashboard](https://supabase.com/dashboard) and the project **FLHS Ops**.
+2. Confirm the URL is `https://lharxnpvcprthgabklwo.supabase.co`.
+3. In **Project Settings → API**, copy the project URL and the **anon / publishable** key. Leave the **service_role** key in that screen. Do not paste it into the website, GitHub, or `.env` if that file is ever committed.
 
-### Before: Insecure Shared Secret
-```
-┌─────────────────────────────────────┐
-│  Upload Testing Roster              │
-│  ─────────────────────────          │
-│                                     │
-│  Staff Upload Key:                  │
-│  [_______________________]          │
-│                                     │
-│  Choose File: [Browse...]           │
-│                                     │
-│  [Replace student locator data]     │
-│                                     │
-│  ❌ Anyone with the key can upload  │
-│  ❌ No audit trail                  │
-└─────────────────────────────────────┘
-```
+## 2. Apply the database change
 
-### After: Secure Email OTP Authentication
-```
-Step 1: Sign In
-┌─────────────────────────────────────┐
-│  Upload Testing Roster              │
-│  ─────────────────────────          │
-│                                     │
-│  Sign in required                   │
-│                                     │
-│  Enter your @browardschools.com     │
-│  email to receive a one-time code.  │
-│                                     │
-│  BCPS Email:                        │
-│  [_______________________]          │
-│                                     │
-│  [Send code]                        │
-│                                     │
-│  ✅ Server-side email verification  │
-└─────────────────────────────────────┘
+In **SQL Editor**, run the file `supabase/migrations/20261112_auth_and_rls.sql` from this branch.
 
-Step 2: Verify OTP
-┌─────────────────────────────────────┐
-│  Upload Testing Roster              │
-│  ─────────────────────────          │
-│                                     │
-│  Check your email                   │
-│                                     │
-│  We sent a 6-digit code to          │
-│  rajesh.ramautar@browardschools.com │
-│                                     │
-│  6-Digit Code:                      │
-│  [_ _ _ _ _ _]                      │
-│                                     │
-│  [Verify code]                      │
-│  [Resend code]                      │
-│                                     │
-│  ✅ JWT token created after verify  │
-└─────────────────────────────────────┘
+That script:
 
-Step 3: Upload (Authenticated)
-┌─────────────────────────────────────┐
-│  Upload Testing Roster              │
-│  ─────────────────────────          │
-│                                     │
-│  ✅ Signed in as:                   │
-│  rajesh.ramautar@browardschools.com │
-│  [Sign out]                         │
-│                                     │
-│  Choose File: [Browse...]           │
-│  [Download template]                │
-│  [Replace student locator data]     │
-│                                     │
-│  ✅ Uploads logged with user email  │
-│  ✅ JWT verified server-side        │
-└─────────────────────────────────────┘
+- Turns Row Level Security on for every `public` and `private` table.
+- Adds `private.audit_log`.
+- Adds `private.restrict_staff_signup` for the Auth hook.
+- Adds `public.admin_record_audit`, executable only by `service_role`.
+
+It does not replace the existing testing-roster function and it does not truncate any table.
+
+## 3. Auth settings
+
+1. Open **Authentication → Providers → Email**.
+2. Turn **Email** on.
+3. Turn **Confirm email** on if it is not already.
+4. Leave password sign-in off if you only want the one-time code. The upload page uses **Email OTP**.
+5. Under **Authentication → URL configuration**, set **Site URL** to `https://www.flhshelp.com`. Add `http://localhost:3000` as a redirect URL so local sign-in can finish.
+6. Under **Authentication → Rate limits**, keep the default OTP limit so a public page cannot request codes in a loop.
+
+## 4. Allowed domain
+
+The browser rejects any address that is not exactly `@browardschools.com`. The upload API checks the same rule on the signed-in user.
+
+Also turn on the database hook so a non-district address cannot create an account by calling the Auth API directly:
+
+1. Open **Authentication → Hooks**.
+2. Choose **Before user created**.
+3. Select **Postgres**.
+4. Set the function to `private.restrict_staff_signup`.
+5. Save and enable the hook.
+
+The URI form, if the screen asks for one, is:
+
+```text
+pg-functions://postgres/private/restrict_staff_signup
 ```
 
----
+## 5. Environment variables
 
-## 2. Security: Technical Architecture
+On your machine:
 
-### Database Layer (RLS Policies)
-```sql
--- BEFORE: No RLS, anon key could SELECT *
-test_assignments (no RLS)
-└─ Anon key → Direct SELECT access ❌
-
--- AFTER: RLS enabled, anon blocked
-test_assignments (RLS enabled)
-├─ Anon → DENY (USING false) ✅
-├─ Authenticated BCPS staff → READ ✅
-└─ Service role → FULL ACCESS ✅
-```
-
-### Edge Function Auth Flow
-```
-1. Request arrives with:
-   Authorization: Bearer <jwt_token>
-
-2. Edge function:
-   ├─ Verify JWT signature ✅
-   ├─ Extract user.email from token
-   ├─ Check: is_authorized_staff(email)
-   │  ├─ email LIKE '%@browardschools.com' OR
-   │  └─ email IN staff_upload_allowlist
-   ├─ Call admin_replace_test_assignments() RPC
-   └─ Log to upload_audit_log
-
-3. Response:
-   {
-     "ok": true,
-     "assignments": 1234,
-     "students": 1156,
-     "uploaded_by": "rajesh.ramautar@browardschools.com"
-   }
-```
-
-### Audit Trail
-```sql
-SELECT * FROM upload_audit_log ORDER BY uploaded_at DESC LIMIT 5;
-
-┌────────────────────┬────────────────────────────────────┬───────────┬─────────┐
-│ uploaded_at        │ user_email                         │ row_count │ success │
-├────────────────────┼────────────────────────────────────┼───────────┼─────────┤
-│ 2026-11-12 14:32:18│ rajesh.ramautar@browardschools.com │ 1234      │ true    │
-│ 2026-11-08 09:15:42│ stacey.blecker@browardschools.com  │ 1189      │ true    │
-│ 2026-11-01 10:23:11│ rajesh.ramautar@browardschools.com │ 1205      │ true    │
-└────────────────────┴────────────────────────────────────┴───────────┴─────────┘
-```
-
----
-
-## 3. Content Fix: Broken Link Repair
-
-### Before: 404 Error
-```
-pages/meet-rj.html (line 714):
-<a href="https://www.flhstesting.com/pages/locator/">
-  Testing Locator
-</a>
-
-Result: 404 Not Found ❌
-```
-
-### After: Correct Link
-```
-pages/meet-rj.html (line 714):
-<a href="student-locator.html">
-  Testing Locator
-</a>
-
-Result: Opens correctly ✅
-```
-
-**Visual:**
-```
-Meet RJ Page
-├─ Hero: "RJ Ramautar | Projects & Operations Leader"
-├─ Work Section:
-│  ├─ Testing Locator (1K+ students)
-│  │  └─ [Open live ↗] → /pages/student-locator.html ✅
-│  ├─ FLHS Help (PWA hub)
-│  └─ Tardy Kiosk (scan & print)
-└─ Contact: rajesh.ramautar@browardschools.com
-```
-
----
-
-## 4. Content Update: Professional Narrative
-
-### Before
-```
-Hero:
-┌──────────────────────────────────────┐
-│  RJ Ramautar                         │
-│  Campus systems. Built, not bought.  │
-│  Technical Specialist · FLHS · BCPS  │
-└──────────────────────────────────────┘
-
-About:
-"Title says Technical Specialist. The work is 
-project delivery: infrastructure, AV, device 
-lifecycle, vendor coordination, and custom 
-software — for a high school that can't wait 
-on a purchase order."
-```
-
-### After
-```
-Hero:
-┌────────────────────────────────────────────┐
-│  RJ Ramautar                               │
-│  Projects & Operations Leader              │
-│  Project Manager, Laly Agency ·            │
-│  Technical Specialist, FLHS/BCPS           │
-└────────────────────────────────────────────┘
-
-About:
-"Project Manager at Laly Agency running 
-logistics and delivery for client brand 
-activations and events. Technical Specialist 
-at Fort Lauderdale High School leading IT 
-operations, infrastructure, and custom software 
-that can't wait on a purchase order."
-
-Timeline:
-┌──────────────────────────────────────────┐
-│  [Now] Aug 2026 — now                    │
-│  Laly Agency · Project Manager +         │
-│  BCPS / FLHS · Technical Specialist      │
-│                                          │
-│  Runs logistics and project delivery for │
-│  client brand activations and events at  │
-│  Laly Agency. Leads campus IT operations │
-│  at FLHS: infrastructure, device         │
-│  lifecycle, live-event AV, Microsoft 365 │
-│  automations, vendors, and custom tools  │
-│  for 150+ staff and thousands of         │
-│  students.                               │
-└──────────────────────────────────────────┘
-```
-
-**Key Changes:**
-- ✅ Hero reflects dual roles (Laly Agency PM + FLHS)
-- ✅ About section mentions both companies
-- ✅ Timeline shows "Aug 2026 — now" for current work
-- ✅ "Projects & Operations Leader" positioning
-- ❌ No changes to testimonials (Vanessa, Ryan, Stacey)
-- ❌ No changes to credentials (FAU, Harvard, AWS, etc.)
-- ❌ No changes to contact info (school email, LinkedIn, GitHub)
-
----
-
-## 5. Security Scan: Git History Findings
-
-### Service Role Keys: ✅ CLEAN
 ```bash
-$ git log --all -S "service_role_key" -S "SUPABASE_SERVICE"
-
-Result: Only found in edge function code as Deno.env.get()
-Never committed as plaintext ✅
+cp .env.example .env
 ```
 
-### Upload Secrets: ✅ CLEAN
+Edit `.env`:
+
 ```bash
-$ git log --all --name-only | grep -E "\.env|secret"
-
-Result: No .env files or .flhs-upload-secret committed ✅
+SUPABASE_URL=https://lharxnpvcprthgabklwo.supabase.co
+SUPABASE_ANON_KEY=the_publishable_anon_key
 ```
 
-### Student Data: ❌ IN GIT HISTORY
+Then:
+
 ```bash
-$ git show 20711eb611b3d49212376d915da237896d89d8a3:data/laptop-eligible.csv
-
-student_id,name,grade,choice
-0615090297,"ACOSTA, ESTEBAN",12,Opt-In
-0616018927,"ADAMSON, BRANDON ANDRE (BRANDON)",11,Opt-In
-0619079394,"AGUIAR, ANA CLARA ALVES",11,Opt-In
-...
-
-Status: DELETED in commit 0da4fe0f (Aug 25, 2026)
-But still accessible via git history ❌
-
-Recommendation: MAKE REPO PRIVATE immediately after merge ✅
+npm run config
 ```
 
----
+That writes `js/supabase-config.js`, which is gitignored. Refresh the local site.
 
-## 6. Migration Summary
+On Vercel, for the preview of this branch and later for production:
 
-### New Database Objects
+1. Project → **Settings → Environment Variables**.
+2. Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` for Preview and Production.
+3. Set the build command to `npm run config` so the file exists before the static files are published.
+4. Do not add `SUPABASE_SERVICE_ROLE_KEY` to Vercel. The edge function already receives it from Supabase.
 
-**Tables:**
-- `staff_upload_allowlist` — Email addresses authorized to upload rosters
-- `upload_audit_log` — Every upload logged with user, timestamp, row count
+## 6. Deploy the upload function
 
-**Functions:**
-- `is_authorized_staff(email)` — Returns true if @browardschools.com or in allowlist
-- `lookup_test_assignments(student_id)` — Public RPC for student lookup (unchanged, now SECURITY DEFINER)
-- `lookup_student(student_id)` — Public RPC for roster fallback (unchanged, now SECURITY DEFINER)
-- `admin_replace_test_assignments(rows)` — Admin RPC, now checks authenticated user authorization
+From a machine logged into the Supabase CLI:
 
-**Policies:**
-- `anon_no_direct_access_test_assignments` — Deny all anon SELECT
-- `authenticated_staff_read_test_assignments` — BCPS staff can read
-- `service_role_full_access_test_assignments` — Service role bypass RLS
-
----
-
-## 7. Rollout Checklist
-
-### Pre-Merge (RJ in Supabase Dashboard)
-- [ ] Enable Email Auth (Authentication → Providers)
-- [ ] Set Site URL to `https://www.flhstesting.com`
-- [ ] Add redirect URLs for upload page
-- [ ] Run RLS migration (`20261112_auth_and_rls.sql`)
-- [ ] Deploy updated edge function (`supabase functions deploy replace-test-assignments`)
-
-### Testing (Vercel Preview)
-- [ ] Visit `https://flhs-help-git-cursor-security-auth-link-fixes-0441-rjrmt.vercel.app`
-- [ ] Test student locator (no auth, should work as before)
-- [ ] Test upload with BCPS email (should send OTP)
-- [ ] Verify OTP and upload test CSV
-- [ ] Confirm upload_audit_log records user email
-- [ ] Try uploading with non-BCPS email (should reject)
-
-### Post-Merge
-- [ ] Make GitHub repo private (Settings → Danger Zone)
-- [ ] Monitor Supabase logs for 7 days
-- [ ] Check upload_audit_log daily
-- [ ] Confirm no student complaints about locator
-
----
-
-## 8. What Doesn't Change
-
-✅ **Student-facing flows:**
-- Student Locator still works exactly the same
-- No auth required for students
-- Same search, same results
-
-✅ **Anon key:**
-- Remains public in `/js/supabase-config.js`
-- Safe by design (RLS blocks direct access)
-- Only RPCs are accessible
-
-✅ **Service role key:**
-- Never committed to git (was already secure)
-- Stays in Supabase Edge Function secrets
-
-✅ **Meet RJ design:**
-- Same layout, colors, fonts
-- Same testimonials and credentials
-- Only copy/links changed
-
----
-
-## 9. Files Modified Summary
-
-```
-SECURITY.md                                      (NEW, 500+ lines)
-supabase/migrations/20261112_auth_and_rls.sql   (NEW, 350+ lines)
-supabase/functions/replace-test-assignments/    (MODIFIED, +100 lines)
-  └─ index.ts
-pages/upload.html                                (MODIFIED, +200 lines)
-pages/meet-rj.html                               (MODIFIED, ~20 lines)
-```
-
-**Total:** 5 files changed, 1114 insertions, 61 deletions
-
----
-
-## 10. Emergency Rollback Plan
-
-If issues arise after merge:
-
-### Option 1: Redeploy Previous Commit
 ```bash
-git revert HEAD
-git push origin main
-# Vercel auto-deploys previous version
+supabase functions deploy replace-test-assignments --project-ref lharxnpvcprthgabklwo
 ```
 
-### Option 2: Disable Auth Requirement (Edge Function)
-```
-Supabase Dashboard → Edge Functions → Secrets
-Set: STAFF_AUTH_REQUIRED = false
+Or deploy the same function from the Supabase dashboard using `supabase/functions/replace-test-assignments/index.ts`. `verify_jwt` stays on. The function still checks that the token belongs to a district user, because the anon key is also a JWT.
 
-Result: Upload page reverts to old upload key flow
-(temporary, allows time to debug auth issues)
-```
+## 7. Check it
 
-### Option 3: Rollback Migration (Last Resort)
-```sql
--- Remove RLS policies (students can still look up via RPCs)
-DROP POLICY IF EXISTS "anon_no_direct_access_test_assignments" ON test_assignments;
-ALTER TABLE test_assignments DISABLE ROW LEVEL SECURITY;
+1. Open `/pages/upload.html`.
+2. Enter a non-district email such as `person@gmail.com`. The page should refuse to send a code.
+3. Call the Auth OTP endpoint directly with that same address. With the hook enabled, the response is 403.
+4. Sign in with your own `@browardschools.com` address, enter the code from email, and upload a small roster file. The locator for one of those student IDs should show the new row, and `private.audit_log` should have your email.
+5. Call `replace-test-assignments` with no session, and again with only the old upload key. Both should be 401.
+6. Open the homepage, the testing locator, and Meet RJ. They should load without signing in. The Testing Locator tile on Meet RJ goes to `student-locator.html`.
 
--- Edge function will still require auth, but RLS won't block anything
-```
+## 8. History cleanup, later
 
----
-
-**End of Walkthrough**
-
-For full technical details, see:
-- `SECURITY.md` — Complete security documentation
-- `supabase/migrations/20261112_auth_and_rls.sql` — Migration code
-- `supabase/functions/replace-test-assignments/index.ts` — Edge function code
-- Pull Request #1 — Full discussion and review
+`data/laptop-eligible.csv` is still in git history at commit `20711eb6`. The exact rewrite steps are in `SECURITY.md`. Do not force-push until you decide to.

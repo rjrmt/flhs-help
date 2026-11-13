@@ -277,8 +277,8 @@
             <button type="button" class="secondary" id="template-btn">Download template</button>
             <button type="submit" id="upload-btn">Replace student locator data</button>
           </div>
-          <p class="status" id="status" role="status"></p>
         </form>
+        <p class="status" id="status" role="status"></p>
 
         <p class="cols">
           Expected columns:
@@ -295,8 +295,11 @@
   <script>
     (() => {
       const STUDENT_ID_LEN = 10;
-      const FUNCTION_URL =
-        "https://lharxnpvcprthgabklwo.supabase.co/functions/v1/replace-test-assignments";
+
+      function isDistrictEmail(email) {
+        const parts = String(email || "").trim().toLowerCase().split("@");
+        return parts.length === 2 && parts[0].length > 0 && parts[1] === "browardschools.com";
+      }
 
       // Auth UI elements
       const authSection = document.getElementById("auth-section");
@@ -326,6 +329,7 @@
         throw new Error("Missing Supabase config");
       }
       const supabase = window.supabase.createClient(cfg.url, cfg.anonKey);
+      const FUNCTION_URL = `${cfg.url}/functions/v1/replace-test-assignments`;
 
       /** @type {Array<Record<string, string|null>>} */
       let pendingRows = [];
@@ -334,10 +338,11 @@
       // Check auth state on load
       (async function checkAuth() {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            showUploadUI(session.user.email);
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user && isDistrictEmail(user.email)) {
+            showUploadUI(user.email);
           } else {
+            if (user) await supabase.auth.signOut();
             showAuthUI();
           }
         } catch (err) {
@@ -380,8 +385,8 @@
           setStatus("Enter your BCPS email address", "err");
           return;
         }
-        if (!email.endsWith("@browardschools.com")) {
-          setStatus("Only @browardschools.com emails are allowed", "err");
+        if (!isDistrictEmail(email)) {
+          setStatus("Only @browardschools.com emails can sign in", "err");
           return;
         }
 
@@ -391,9 +396,7 @@
         try {
           const { error } = await supabase.auth.signInWithOtp({
             email,
-            options: {
-              shouldCreateUser: false, // Only existing users
-            },
+            options: { shouldCreateUser: true },
           });
 
           if (error) throw error;
@@ -428,8 +431,14 @@
 
           if (error) throw error;
           if (!data.session) throw new Error("No session created");
+          const signedIn = data.user?.email || currentEmail;
+          if (!isDistrictEmail(signedIn)) {
+            await supabase.auth.signOut();
+            showAuthUI();
+            throw new Error("Only @browardschools.com emails can sign in");
+          }
 
-          showUploadUI(data.user?.email || currentEmail);
+          showUploadUI(signedIn);
           setStatus("Signed in — you can now upload rosters", "ok");
         } catch (err) {
           console.error("OTP verify error:", err);
@@ -447,9 +456,14 @@
         setStatus("Resending code...");
 
         try {
+          if (!isDistrictEmail(currentEmail)) {
+            setStatus("Only @browardschools.com emails can sign in", "err");
+            showAuthUI();
+            return;
+          }
           const { error } = await supabase.auth.signInWithOtp({
             email: currentEmail,
-            options: { shouldCreateUser: false },
+            options: { shouldCreateUser: true },
           });
 
           if (error) throw error;
