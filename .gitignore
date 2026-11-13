@@ -3,6 +3,11 @@ node_modules/
 .env
 .env.*
 !.env.example
+js/supabase-config.js
+data/*.csv
+!data/calendar-2026-2027.csv
+!data/bell-schedule.csv
+!data/academic-testing-2026-2027.csv
 data/homerooms.csv
 data/laptop-eligible.csv
 data/test-rooms.csv

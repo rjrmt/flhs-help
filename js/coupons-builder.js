@@ -4,8 +4,6 @@
 
   const gate = document.getElementById("lock-gate");
   const app = document.getElementById("app");
-  const keyInput = document.getElementById("upload-key");
-  const unlockForm = document.getElementById("unlock-form");
   const gateStatus = document.getElementById("gate-status");
   const statusEl = document.getElementById("status");
   const tbody = document.getElementById("roster-body");
@@ -309,8 +307,8 @@
     return filteredRoster();
   }
 
-  async function bootstrap(key) {
-    const data = await api.request("bootstrap", { uploadKey: key });
+  async function bootstrap() {
+    const data = await api.request("bootstrap");
     roster = Array.isArray(data.roster) ? data.roster : [];
     settings = print.normalizeSettings(data.settings);
     fillRoleFilter();
@@ -324,19 +322,10 @@
     );
   }
 
-  unlockForm?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const key = keyInput.value.trim();
-    if (!key) {
-      setStatus(gateStatus, "Enter the staff upload key", "err");
-      return;
-    }
-    setStatus(gateStatus, "Checking key…");
-    try {
-      await bootstrap(key);
-    } catch (err) {
-      setStatus(gateStatus, err.status === 401 ? "That key is not valid" : err.message, "err");
-    }
+  document.addEventListener("flhs-staff-unlocked", () => {
+    bootstrap().catch((err) => {
+      setStatus(gateStatus, err.message || "Could not open this tool", "err");
+    });
   });
 
   searchInput?.addEventListener("input", renderTable);
@@ -501,12 +490,4 @@
   });
 
   applyPrefs();
-  const saved = api.getSavedKey();
-  if (saved && keyInput) {
-    keyInput.value = saved;
-    bootstrap(saved).catch(() => {
-      gate.hidden = false;
-      app.hidden = true;
-    });
-  }
 })();

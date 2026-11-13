@@ -1,12 +1,9 @@
 (() => {
-  const KEY_STORAGE = "flhs-upload-key";
   const FUNCTION_URL =
     "https://lharxnpvcprthgabklwo.supabase.co/functions/v1/manage-room-phones";
 
   const gate = document.getElementById("lock-gate");
   const app = document.getElementById("app");
-  const keyInput = document.getElementById("upload-key");
-  const unlockForm = document.getElementById("unlock-form");
   const gateStatus = document.getElementById("gate-status");
   const statusEl = document.getElementById("status");
   const tbody = document.getElementById("count-body");
@@ -29,22 +26,6 @@
   let view = "missing";
   /** @type {null | { person: Record<string, unknown>, form: Record<string, unknown> | null }} */
   let selectedRow = null;
-
-  function getSavedKey() {
-    try {
-      return sessionStorage.getItem(KEY_STORAGE) || "";
-    } catch {
-      return "";
-    }
-  }
-
-  function saveKey(key) {
-    try {
-      sessionStorage.setItem(KEY_STORAGE, key);
-    } catch {
-      /* ignore */
-    }
-  }
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -302,17 +283,9 @@
   }
 
   async function apiAction(body) {
-    const key = getSavedKey();
-    if (!key) throw new Error("Unlock with the staff upload key first");
-    const cfg = window.FLHS_SUPABASE || {};
     const response = await fetch(FUNCTION_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: cfg.anonKey,
-        Authorization: `Bearer ${cfg.anonKey}`,
-        "x-flhs-upload-key": key,
-      },
+      headers: await window.flhsStaff.headers(),
       body: JSON.stringify(body),
     });
     const data = await response.json().catch(() => ({}));
@@ -431,19 +404,10 @@
     app.hidden = false;
   }
 
-  unlockForm?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const key = String(keyInput?.value || "").trim();
-    if (!key) return;
-    saveKey(key);
-    setStatus(gateStatus, "Checking…");
-    try {
-      await apiAction({ action: "status" });
-      showApp();
-      setStatus(gateStatus, "");
-    } catch (err) {
-      setStatus(gateStatus, err.message || "That key did not unlock the list.", "err");
-    }
+  document.addEventListener("flhs-staff-unlocked", () => {
+    apiAction({ action: "status" }).then(showApp).catch((err) => {
+      setStatus(gateStatus, err.message || "Could not open the list.", "err");
+    });
   });
 
   document.getElementById("view-chips")?.addEventListener("click", (event) => {
@@ -507,12 +471,4 @@
       setStatus(statusEl, err.message || "Could not clear", "err");
     }
   });
-
-  const saved = getSavedKey();
-  if (saved && keyInput) keyInput.value = saved;
-  if (saved) {
-    apiAction({ action: "status" })
-      .then(showApp)
-      .catch(() => setStatus(gateStatus, ""));
-  }
 })();

@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "npx --yes serve .",
+    "config": "node scripts/write-supabase-config.js",
     "convert:homerooms": "python3 scripts/convert_homerooms.py",
     "convert:laptops": "python3 scripts/convert_laptop_checkout.py",
     "upload:students": "python3 scripts/upload_students.py --api"
