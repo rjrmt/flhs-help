@@ -751,6 +751,7 @@
     .bubbles {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      align-items: stretch;
       gap: 0.75rem;
       margin-bottom: 0.75rem;
     }
@@ -807,11 +808,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       text-align: center;
       gap: 0;
-      padding: 0.85rem 0.75rem 0.8rem;
-      min-height: 0;
+      width: 100%;
+      height: 100%;
+      align-self: stretch;
+      padding: 0.85rem 0.75rem 0.75rem;
+      min-height: 9.5rem;
     }
 
     #media-bubble .bubble-eyebrow {
@@ -824,9 +828,13 @@
     }
 
     .media-bubble-status {
-      margin: 0 0 0.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.35rem;
+      margin: 0;
       font-family: "Outfit", system-ui, sans-serif;
-      font-size: clamp(1.65rem, 5.5vw, 1.95rem);
+      font-size: 1.85rem;
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1;
@@ -834,14 +842,109 @@
     }
 
     #media-bubble .bubble-detail {
-      margin-bottom: 0.45rem;
-      max-width: 14rem;
-      font-size: 0.76rem;
-      line-height: 1.38;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.35rem;
+      margin: 0.15rem 0 0.55rem;
+      max-width: 100%;
+      font-size: 0.74rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    #media-bubble.bubble-link:hover,
+    #bell-bubble:hover {
+      transform: none;
+    }
+
+    #media-bubble .bubble-open-hint {
+      margin-top: auto;
+    }
+
+    .bubble-facts {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.28rem;
+      width: 100%;
+      margin: 0 0 0.45rem;
+    }
+
+    .bubble-facts:empty {
+      display: none;
+      margin: 0;
+    }
+
+    .fact-note {
+      font-size: 0.66rem;
+      font-weight: 650;
+      line-height: 1.25;
+      opacity: 0.9;
+    }
+
+    .fact-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.04rem;
+      padding: 0.32rem 0.4rem;
+      border-radius: 0.65rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .fact-label {
+      font-size: 0.66rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .fact-time {
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.25;
+    }
+
+    #media-bubble .fact-label,
+    #media-bubble .fact-time {
+      color: #fff;
+    }
+
+    #media-bubble .fact-row.is-off {
+      opacity: 0.72;
+    }
+
+    #media-bubble .fact-row.is-active {
+      background: rgba(255, 255, 255, 0.94);
+      border-color: transparent;
+      opacity: 1;
+    }
+
+    #media-bubble[data-tone="open"] .fact-row.is-active .fact-label,
+    #media-bubble[data-tone="open"] .fact-row.is-active .fact-time {
+      color: #14532d;
+    }
+
+    #media-bubble[data-tone="soon"] .fact-row.is-active .fact-label,
+    #media-bubble[data-tone="soon"] .fact-row.is-active .fact-time {
+      color: #9a3412;
+    }
+
+    #media-bubble[data-tone="closed"] .fact-row.is-active .fact-label,
+    #media-bubble[data-tone="closed"] .fact-row.is-active .fact-time,
+    #media-bubble[data-tone="reserved"] .fact-row.is-active .fact-label,
+    #media-bubble[data-tone="reserved"] .fact-row.is-active .fact-time {
+      color: #7f1d1d;
+    }
+
+    #media-bubble[data-tone="check"] .fact-row.is-active .fact-label,
+    #media-bubble[data-tone="check"] .fact-row.is-active .fact-time {
+      color: #0c4a6e;
     }
 
     #media-bubble[data-tone="open"] {
@@ -941,133 +1044,193 @@
       color: #fff;
     }
 
-    #spotlight-bubble.bubble-spotlight {
+    #bell-bubble.bubble-bell {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 0.85rem 0.75rem 0.78rem;
-      min-height: 0;
-      transition:
-        background 0.45s ease,
-        border-color 0.45s ease,
-        box-shadow 0.45s ease;
-    }
-
-    #spotlight-bubble .spotlight-body {
+      justify-content: flex-start;
       width: 100%;
-      transition: opacity 0.32s ease;
+      height: 100%;
+      align-self: stretch;
+      min-height: 9.5rem;
+      padding: 0.85rem 0.75rem 0.75rem;
+      text-align: center;
+      font: inherit;
+      color: #f8fafc;
+      cursor: pointer;
+      appearance: none;
+      background: linear-gradient(165deg, #7dd3fc 0%, #2563eb 46%, #1e3a8a 100%);
+      border-color: rgba(37, 99, 235, 0.45);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.32),
+        0 10px 24px rgba(30, 58, 138, 0.28);
     }
 
-    #spotlight-bubble.is-fading .spotlight-body {
-      opacity: 0;
+    #bell-bubble:focus-visible {
+      outline: 3px solid rgba(255, 255, 255, 0.85);
+      outline-offset: 3px;
     }
 
-    #spotlight-bubble .bubble-eyebrow {
-      margin-bottom: 0.3rem;
+    #bell-bubble .bubble-eyebrow {
+      margin-bottom: 0.35rem;
       font-family: "Outfit", system-ui, sans-serif;
       font-size: 0.76rem;
       font-weight: 800;
       letter-spacing: 0.1em;
+      color: #fff;
       opacity: 1;
     }
 
-    #spotlight-bubble .bubble-title {
+    #bell-bubble .bell-count {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.28rem;
+      min-height: 2.35rem;
+      margin: 0;
+      width: 100%;
       font-family: "Outfit", system-ui, sans-serif;
-      font-size: 1rem;
       font-weight: 800;
-      margin-bottom: 0.25rem;
-      line-height: 1.22;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: #fff;
+    }
+
+    #bell-bubble .bell-count span:first-child {
+      font-size: 1.85rem;
+    }
+
+    #bell-bubble .bell-count-unit {
+      font-size: 0.92rem;
+      letter-spacing: -0.02em;
+      opacity: 0.92;
+    }
+
+    #bell-bubble .bell-next {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.35rem;
+      margin: 0.15rem 0 0.55rem;
+      width: 100%;
+      font-size: 0.74rem;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.94);
+    }
+
+    #bell-bubble .bell-current {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.08rem;
+      width: 100%;
+      margin: 0 0 0.45rem;
+      padding: 0.4rem 0.48rem;
+      border-radius: 0.7rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    #bell-bubble .bell-current-kicker {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.86;
+    }
+
+    #bell-bubble .bell-current-title {
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
       letter-spacing: -0.02em;
     }
 
-    #spotlight-bubble .bubble-detail {
-      font-size: 0.74rem;
-      line-height: 1.38;
-      max-width: 14rem;
-      margin: 0 auto 0.4rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    #bell-bubble .bell-current-times {
+      font-size: 0.72rem;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
     }
 
-    #spotlight-bubble .bubble-open-hint {
-      margin-top: 0.15rem;
-      font-size: 0.68rem;
-    }
-
-    #spotlight-bubble[data-spotlight-tone="teal"] {
-      background: linear-gradient(165deg, #2dd4bf 0%, #0d9488 48%, #115e59 100%);
-      border-color: rgba(13, 148, 136, 0.45);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px rgba(13, 148, 136, 0.28);
-    }
-    #spotlight-bubble[data-spotlight-tone="amber"] {
-      background: linear-gradient(165deg, #fbbf24 0%, #d97706 48%, #b45309 100%);
-      border-color: rgba(217, 119, 6, 0.45);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 10px 24px rgba(217, 119, 6, 0.26);
-    }
-    #spotlight-bubble[data-spotlight-tone="violet"] {
-      background: linear-gradient(165deg, #a78bfa 0%, #7c3aed 48%, #5b21b6 100%);
-      border-color: rgba(124, 58, 237, 0.45);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 24px rgba(91, 33, 182, 0.28);
-    }
-    #spotlight-bubble[data-spotlight-tone="rose"] {
-      background: linear-gradient(165deg, #fb7185 0%, #e11d48 48%, #be123c 100%);
-      border-color: rgba(225, 29, 72, 0.42);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 24px rgba(190, 18, 60, 0.26);
-    }
-    #spotlight-bubble[data-spotlight-tone="indigo"] {
-      background: linear-gradient(165deg, #818cf8 0%, #4f46e5 48%, #3730a3 100%);
-      border-color: rgba(79, 70, 229, 0.45);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 24px rgba(55, 48, 163, 0.28);
-    }
-    #spotlight-bubble[data-spotlight-tone="emerald"] {
-      background: linear-gradient(165deg, #6ee7b7 0%, #059669 48%, #047857 100%);
-      border-color: rgba(5, 150, 105, 0.45);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px rgba(4, 120, 87, 0.26);
-    }
-    #spotlight-bubble[data-spotlight-tone="gold"] {
-      background: linear-gradient(165deg, #fde047 0%, #ca8a04 48%, #a16207 100%);
-      border-color: rgba(202, 138, 4, 0.45);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 24px rgba(161, 98, 7, 0.26);
-    }
-    #spotlight-bubble[data-spotlight-tone="cyan"] {
-      background: linear-gradient(165deg, #67e8f9 0%, #0891b2 48%, #0e7490 100%);
-      border-color: rgba(8, 145, 178, 0.45);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 24px rgba(14, 116, 144, 0.26);
-    }
-
-    #spotlight-bubble[data-spotlight-tone] .bubble-eyebrow,
-    #spotlight-bubble[data-spotlight-tone] .bubble-title,
-    #spotlight-bubble[data-spotlight-tone] .bubble-detail {
-      color: #fffbeb;
-    }
-    #spotlight-bubble[data-spotlight-tone="gold"] .bubble-eyebrow,
-    #spotlight-bubble[data-spotlight-tone="gold"] .bubble-title,
-    #spotlight-bubble[data-spotlight-tone="gold"] .bubble-detail {
-      color: #422006;
-    }
-    #spotlight-bubble[data-spotlight-tone="amber"] .bubble-eyebrow,
-    #spotlight-bubble[data-spotlight-tone="amber"] .bubble-title,
-    #spotlight-bubble[data-spotlight-tone="amber"] .bubble-detail {
-      color: #fff7ed;
-    }
-    #spotlight-bubble[data-spotlight-tone] .bubble-eyebrow { opacity: 1; }
-    #spotlight-bubble[data-spotlight-tone] .bubble-detail { opacity: 0.94; }
-    #spotlight-bubble[data-spotlight-tone]::before {
-      background: radial-gradient(ellipse 85% 65% at 50% 0%, rgba(255, 255, 255, 0.28), transparent 62%);
-    }
-    #spotlight-bubble[data-spotlight-tone] .bubble-open-hint {
+    #bell-bubble .bubble-open-hint {
+      margin-top: auto;
+      align-self: center;
       background: rgba(255, 255, 255, 0.2);
       border-color: rgba(255, 255, 255, 0.34);
       color: #fff;
     }
-    #spotlight-bubble[data-spotlight-tone="gold"] .bubble-open-hint {
-      background: rgba(66, 32, 6, 0.12);
-      border-color: rgba(66, 32, 6, 0.22);
-      color: #422006;
+
+    #bell-bubble .lunch-phase,
+    #bell-bubble .lunch-phase-main,
+    #bell-bubble .lunch-group-body {
+      align-items: center;
+      text-align: center;
+    }
+
+    #bell-bubble .lunch-phase-main {
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.02rem;
+    }
+
+    #bell-bubble .lunch-phase-times,
+    #bell-bubble .lunch-phase-buildings {
+      white-space: normal;
+      text-align: center;
+    }
+
+    #bell-bubble .lunch-groups,
+    #bell-bubble .bubble-facts {
+      width: 100%;
+      gap: 0.28rem;
+      margin-bottom: 0.4rem;
+    }
+
+    #bell-bubble .fact-label,
+    #bell-bubble .fact-time,
+    #bell-bubble .fact-note {
+      color: #fff;
+    }
+
+    #bell-bubble .fact-row.is-active {
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    #bell-bubble .fact-row.is-active .fact-label,
+    #bell-bubble .fact-row.is-active .fact-time,
+    #bell-bubble .fact-row.is-active .fact-note {
+      color: #1e3a8a;
+    }
+
+    #bell-bubble .lunch-group {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    #bell-bubble .lunch-phase-label,
+    #bell-bubble .lunch-phase-times,
+    #bell-bubble .lunch-phase-buildings {
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    #bell-bubble .lunch-phase.is-active {
+      background: rgba(255, 255, 255, 0.92);
+      border-color: transparent;
+    }
+
+    #bell-bubble .lunch-phase.is-lunch.is-active .lunch-phase-label,
+    #bell-bubble .lunch-phase.is-lunch.is-active .lunch-phase-times,
+    #bell-bubble .lunch-phase.is-class.is-active .lunch-phase-label,
+    #bell-bubble .lunch-phase.is-class.is-active .lunch-phase-times,
+    #bell-bubble .lunch-phase.is-active .lunch-phase-buildings {
+      color: #1e3a8a;
+    }
+
+    #bell-bubble.is-lunch .bell-count span:first-child {
+      font-size: 1.7rem;
     }
 
     .bubble::before {
@@ -1827,6 +1990,7 @@
       font-size: 0.78rem;
       font-weight: 800;
       letter-spacing: 0.14em;
+      text-align: center;
       text-transform: uppercase;
       color: var(--navy);
     }
@@ -2973,6 +3137,7 @@
               <p class="bubble-eyebrow">Media Center</p>
               <p class="media-bubble-status" id="media-bubble-pill">…</p>
               <p class="bubble-detail" id="media-bubble-detail">Checking walk-in hours…</p>
+              <div class="bubble-facts" id="media-bubble-facts"></div>
               <span class="bubble-open-hint" aria-hidden="true">
                 <span class="bubble-open-label">Full hours</span>
                 <svg viewBox="0 0 24 24" fill="none">
@@ -2981,50 +3146,28 @@
               </span>
             </a>
 
-            <a
-              id="spotlight-bubble"
-              class="bubble bubble--compact bubble-link bubble-spotlight"
-              href="pages/resources.html"
-              data-spotlight-tone="indigo"
-              aria-live="polite"
-              aria-label="Campus spotlight"
+            <button
+              id="bell-bubble"
+              class="bubble bubble-bell"
+              type="button"
+              aria-haspopup="dialog"
+              aria-controls="bell-schedule-modal"
+              aria-expanded="false"
+              aria-label="Bell schedule. Loading."
             >
-              <div class="spotlight-body" id="spotlight-body">
-                <p class="bubble-eyebrow" id="spotlight-eyebrow">Spotlight</p>
-                <p class="bubble-title" id="spotlight-title">Loading…</p>
-                <p class="bubble-detail" id="spotlight-detail">Announcements and reminders rotate here.</p>
-              </div>
-              <span class="bubble-open-hint" id="spotlight-hint" aria-hidden="true">
-                <span class="bubble-open-label" id="spotlight-link-label">Learn more</span>
+              <p class="bubble-eyebrow" id="bell-eyebrow">Bell</p>
+              <p class="bell-count" id="bell-count">
+                <span id="bell-count-num">--</span><span class="bell-count-unit" id="bell-count-unit">min</span>
+              </p>
+              <p class="bell-next" id="bell-next">Loading schedule…</p>
+              <div class="bell-detail" id="bell-detail"></div>
+              <span class="bubble-open-hint" aria-hidden="true">
+                <span class="bubble-open-label">Full schedule</span>
                 <svg viewBox="0 0 24 24" fill="none">
                   <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </span>
-            </a>
-          </div>
-
-          <div
-            id="status-line"
-            class="status-pill"
-            role="button"
-            tabindex="0"
-            aria-haspopup="dialog"
-            aria-controls="bell-schedule-modal"
-            aria-expanded="false"
-            title="View full bell schedule"
-          >
-            <div class="status-left">
-              <svg class="status-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6.5 9.5a5.5 5.5 0 0 1 11 0c0 4.2 1.5 5.5 1.5 5.5H5s1.5-1.3 1.5-5.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                <path d="M10 18.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-              </svg>
-              <span class="status-text" role="status">Loading schedule…</span>
-            </div>
-            <span class="status-affordance" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
+            </button>
           </div>
 
           <div class="tool-groups">
@@ -3287,7 +3430,7 @@
   </div>
 
   <script src="js/flhs-media-center-status.js?v=2" defer></script>
-  <script src="js/home.js?v=100" defer></script>
+  <script src="js/home.js?v=103" defer></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

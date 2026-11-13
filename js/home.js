@@ -10,14 +10,13 @@
   const mediaBubble = document.getElementById("media-bubble");
   const mediaBubblePill = document.getElementById("media-bubble-pill");
   const mediaBubbleDetail = document.getElementById("media-bubble-detail");
-  const spotlightBubble = document.getElementById("spotlight-bubble");
-  const spotlightBody = document.getElementById("spotlight-body");
-  const spotlightEyebrow = document.getElementById("spotlight-eyebrow");
-  const spotlightTitle = document.getElementById("spotlight-title");
-  const spotlightDetail = document.getElementById("spotlight-detail");
-  const spotlightLinkLabel = document.getElementById("spotlight-link-label");
-  const spotlightHint = document.getElementById("spotlight-hint");
-  const statusLine = document.getElementById("status-line");
+  const mediaBubbleFacts = document.getElementById("media-bubble-facts");
+  const bellBubble = document.getElementById("bell-bubble");
+  const bellEyebrow = document.getElementById("bell-eyebrow");
+  const bellCountNum = document.getElementById("bell-count-num");
+  const bellCountUnit = document.getElementById("bell-count-unit");
+  const bellNext = document.getElementById("bell-next");
+  const bellDetail = document.getElementById("bell-detail");
   const bellModal = document.getElementById("bell-schedule-modal");
   const bellModalBody = document.getElementById("bell-modal-body");
   const bellModalPanel = bellModal?.querySelector(".modal-panel") || null;
@@ -43,12 +42,6 @@
   let mediaCfg = null;
   /** @type {ReturnType<typeof window.flhsMediaCenterStatus.createEngine> | null} */
   let mediaStatusEngine = null;
-  /** @type {Array<{ eyebrow?: string, title: string, detail?: string, href?: string, linkLabel?: string, tone?: string }>} */
-  let spotlightSlides = [];
-
-  const SPOTLIGHT_TONE_CYCLE = ["teal", "amber", "violet", "rose", "indigo", "emerald", "cyan", "gold"];
-  let spotlightIndex = 0;
-  let spotlightTimer = 0;
   let lastMediaRefreshMin = -1;
 
   /** Temporary greeting override from easter eggs (clears on timeout). */
@@ -191,12 +184,28 @@
    * @param {string} dayType
    * @param {number} now
    */
-  function withUntilNext(line, dayType, now) {
-    const nextStart = nextPeriodStartAfter(dayType, now);
-    if (nextStart == null) return line;
-    const mins = nextStart - now;
-    if (mins <= 0) return line;
-    return `${line} (${mins} min until next)`;
+  function nextChange(dayType, now) {
+    const start = nextPeriodStartAfter(dayType, now);
+    if (start == null || start <= now) return null;
+    const rows = (bellByDayType.get(dayType) || []).filter(
+      (row) => row.endMin > row.startMin && row.startMin === start
+    );
+    const preferred = rows.find((row) => !row.lunchTrack) || rows[0];
+    return {
+      mins: start - now,
+      label: preferred?.label || "Next",
+      at: formatMinutes(start),
+    };
+  }
+
+  function periodStatus(eyebrow, title, times, dayType, now) {
+    return {
+      kind: "period",
+      eyebrow,
+      title,
+      times,
+      next: nextChange(dayType, now),
+    };
   }
 
   function parseCsvTable(text) {
@@ -546,7 +555,6 @@
     if (!rows || !rows.length) return null;
 
     const now = easternMinutesNow();
-    const prefix = exam ? "Exam · " : "";
 
     // Instant markers (e.g. Buses Depart) use start === end; exclude from windows.
     const timedRows = rows.filter((r) => r.endMin > r.startMin);
@@ -558,15 +566,23 @@
 
     if (now < firstStarts) {
       const first = timedRows.find((r) => r.startMin === firstStarts);
-      return withUntilNext(
-        `${prefix}Before school · ${first?.label || "First bell"} at ${formatMinutes(firstStarts)}`,
+      return periodStatus(
+        exam ? "Exam · before school" : "Before school",
+        first?.label || "First bell",
+        `starts ${formatMinutes(firstStarts)}`,
         dayType,
         now
       );
     }
 
     if (now >= lastEnds) {
-      return `${prefix}School day ended · ${formatMinutes(lastEnds)}`;
+      return periodStatus(
+        exam ? "Exam" : "Done",
+        "Day ended",
+        formatMinutes(lastEnds),
+        dayType,
+        now
+      );
     }
 
     // Prefer non-lunch-track single rows (blocks 1–4, grab & go, etc.).
@@ -575,15 +591,12 @@
     );
     if (activeSimple.length === 1) {
       const r = activeSimple[0];
-      if (r.endMin === r.startMin) {
-        return withUntilNext(
-          `${prefix}${r.label} · ${formatMinutes(r.startMin)}`,
-          dayType,
-          now
-        );
-      }
-      return withUntilNext(
-        `${prefix}${r.label} · ends ${formatMinutes(r.endMin)}`,
+      return periodStatus(
+        exam ? "Exam · now" : "Now",
+        r.label,
+        r.endMin === r.startMin
+          ? formatMinutes(r.startMin)
+          : `ends ${formatMinutes(r.endMin)}`,
         dayType,
         now
       );
@@ -598,13 +611,10 @@
         const midPeriod = dayType === "blue" ? "Period 7" : "Period 3";
         const trackA = lunchRows.filter((r) => r.lunchTrack === "A");
         const trackB = lunchRows.filter((r) => r.lunchTrack === "B");
-        const nextStart = nextPeriodStartAfter(dayType, now);
-        const untilNextMin =
-          nextStart != null && nextStart > now ? nextStart - now : null;
         return {
           kind: "lunch-groups",
           prefix: exam ? "Exam" : "",
-          untilNextMin,
+          next: nextChange(dayType, now),
           groups: [
             lunchTrackGroup("A", trackA, now, midPeriod),
             lunchTrackGroup("B", trackB, now, midPeriod),
@@ -627,8 +637,10 @@
         const next =
           timedRows.find((r) => r.block === blockB && !r.lunchTrack) ||
           timedRows.find((r) => r.block === blockB);
-        return withUntilNext(
-          `${prefix}Passing · ${next?.label || "Next"} at ${formatMinutes(startB)}`,
+        return periodStatus(
+          exam ? "Exam · passing" : "Passing",
+          next?.label || "Next",
+          `at ${formatMinutes(startB)}`,
           dayType,
           now
         );
@@ -638,16 +650,19 @@
     // Fallback: first row that covers now (any track).
     const any = timedRows.find((r) => now >= r.startMin && now < r.endMin);
     if (any) {
-      return withUntilNext(
-        `${prefix}${any.label} · ends ${formatMinutes(any.endMin)}`,
+      return periodStatus(
+        exam ? "Exam · now" : "Now",
+        any.label,
+        `ends ${formatMinutes(any.endMin)}`,
         dayType,
         now
       );
     }
 
-    if (dayType === "erd") return `${prefix}Early release schedule`;
-    if (dayType === "psd") return `${prefix}Professional study schedule`;
-    return `${prefix}Regular schedule · ${dayType === "blue" ? "Periods 5–8" : "Periods 1–4"}`;
+    const examBit = exam ? "Exam · " : "";
+    if (dayType === "erd") return `${examBit}Early release schedule`;
+    if (dayType === "psd") return `${examBit}Professional study schedule`;
+    return `${examBit}Regular schedule · ${dayType === "blue" ? "Periods 5–8" : "Periods 1–4"}`;
   }
 
   /** @returns {string | { kind: "lunch-groups", prefix: string, groups: LunchGroupStatus[] }} */
@@ -694,25 +709,18 @@
 
   /** @param {LunchGroupStatus} group */
   function lunchGroupMarkup(group) {
-    const hasActive = Boolean(group.activePhase);
-    const activeClass = hasActive
-      ? `is-live is-${group.activePhase}`
-      : "is-idle";
-
-    const lunchBit = group.lunch
-      ? lunchPhaseMarkup(group.lunch, group.buildings)
+    const shown =
+      (group.activePhase === "class" ? group.classPhase : group.lunch) ||
+      group.lunch ||
+      group.classPhase;
+    if (!shown) return "";
+    const buildings = group.buildings
+      ? `<span class="fact-note">${escapeHtml(group.buildings)}</span>`
       : "";
-    const classBit = group.classPhase
-      ? lunchPhaseMarkup(group.classPhase)
-      : "";
-
-    const body =
-      group.order === "class-first"
-        ? `${classBit}${lunchBit}`
-        : `${lunchBit}${classBit}`;
-
-    return `<div class="lunch-group ${activeClass}">
-      <div class="lunch-group-body">${body}</div>
+    return `<div class="fact-row${shown.active ? " is-active" : ""}">
+      <span class="fact-label">Lunch ${escapeHtml(group.track)}</span>
+      <span class="fact-time">${escapeHtml(shown.label)} · ${escapeHtml(shown.times)}</span>
+      ${buildings}
     </div>`;
   }
 
@@ -1258,74 +1266,78 @@
     });
   }
 
+  function paintBellCountdown(next, fallbackTitle) {
+    if (next && next.mins > 0) {
+      if (bellCountNum) bellCountNum.textContent = String(next.mins);
+      if (bellCountUnit) bellCountUnit.hidden = false;
+      if (bellNext) bellNext.textContent = `until ${next.label} · ${next.at}`;
+      return `${next.mins} minutes until ${next.label}`;
+    }
+    if (bellCountNum) bellCountNum.textContent = fallbackTitle || "Now";
+    if (bellCountUnit) bellCountUnit.hidden = true;
+    return "";
+  }
+
   /**
-   * @param {string | { kind: "lunch-groups", prefix: string, untilNextMin?: number|null, groups: LunchGroupStatus[] }} text
+   * @param {string | { kind: string, prefix?: string, title?: string, times?: string, eyebrow?: string, next?: { mins: number, label: string, at: string } | null, groups?: LunchGroupStatus[] }} text
    */
   function renderStatus(text) {
-    if (!statusLine) return;
-    const label = statusLine.querySelector(".status-text");
+    if (!bellBubble) return;
     const isLunchGroups =
       text &&
       typeof text === "object" &&
       text.kind === "lunch-groups" &&
       Array.isArray(text.groups);
+    const isPeriod = text && typeof text === "object" && text.kind === "period";
 
     let spoken = "";
 
-    if (label) {
-      if (isLunchGroups) {
-        const untilBit =
-          typeof text.untilNextMin === "number" && text.untilNextMin > 0
-            ? `<span class="status-remaining">(${text.untilNextMin} min until next)</span>`
-            : "";
-        const prefixBit =
-          text.prefix || untilBit
-            ? `<p class="lunch-groups-prefix">${
-                text.prefix ? escapeHtml(text.prefix) : ""
-              }${text.prefix && untilBit ? " " : ""}${untilBit}</p>`
-            : "";
-        label.innerHTML = `<div class="lunch-groups">${prefixBit}${text.groups
+    if (isLunchGroups) {
+      if (bellEyebrow) bellEyebrow.textContent = text.prefix ? `${text.prefix} · Lunch` : "Lunch";
+      const until = paintBellCountdown(text.next, "Lunch");
+      if (!text.next && bellNext) bellNext.textContent = "Both lunch groups";
+      if (bellDetail) {
+        bellDetail.innerHTML = `<div class="lunch-groups">${text.groups
           .map(lunchGroupMarkup)
           .join("")}</div>`;
-        spoken = text.groups
-          .map((g) => {
-            const lunchPart = g.lunch
-              ? `${g.lunch.label} ${g.lunch.times}`
-              : "";
-            const classPart = g.classPhase
-              ? `${g.classPhase.label} ${g.classPhase.times}`
-              : "";
-            const ordered =
-              g.order === "class-first"
-                ? [classPart, lunchPart]
-                : [lunchPart, classPart];
-            return `Lunch ${g.track}: ${ordered.filter(Boolean).join(", ")}${
-              g.buildings ? `; ${g.buildings}` : ""
-            }`;
-          })
-          .join(". ");
-        if (typeof text.untilNextMin === "number" && text.untilNextMin > 0) {
-          spoken += `. ${text.untilNextMin} minutes until next period`;
-        }
-      } else {
-        const line = typeof text === "string" ? text : "No bell schedule";
-        const match = line.match(/^(.*)\s+(\((\d+) min until next\))$/);
-        if (match) {
-          label.innerHTML = `${escapeHtml(match[1])} <span class="status-remaining">${escapeHtml(match[2])}</span>`;
-          spoken = `${match[1]}. ${match[3]} minutes until next period`;
-        } else {
-          label.textContent = line || "No bell schedule";
-          spoken = line || "No bell schedule";
-        }
       }
+      spoken = text.groups
+        .map((g) => {
+          const lunchPart = g.lunch ? `${g.lunch.label} ${g.lunch.times}` : "";
+          const classPart = g.classPhase ? `${g.classPhase.label} ${g.classPhase.times}` : "";
+          const ordered =
+            g.order === "class-first" ? [classPart, lunchPart] : [lunchPart, classPart];
+          return `Lunch ${g.track}: ${ordered.filter(Boolean).join(", ")}${
+            g.buildings ? `; ${g.buildings}` : ""
+          }`;
+        })
+        .join(". ");
+      if (until) spoken += `. ${until}`;
+    } else if (isPeriod) {
+      if (bellEyebrow) bellEyebrow.textContent = text.eyebrow || "Now";
+      const until = paintBellCountdown(text.next, text.title || "Now");
+      if (!text.next && bellNext) bellNext.textContent = text.times || "";
+      if (bellDetail) {
+        bellDetail.innerHTML =
+          text.next && text.title
+            ? `<p class="bell-current"><span class="bell-current-title">${escapeHtml(
+                text.title
+              )}</span><span class="bell-current-times">${escapeHtml(text.times || "")}</span></p>`
+            : "";
+      }
+      spoken = [text.eyebrow, text.title, text.times, until].filter(Boolean).join(". ");
+    } else {
+      const line = typeof text === "string" ? text : "No bell schedule";
+      if (bellEyebrow) bellEyebrow.textContent = "Bell";
+      if (bellCountNum) bellCountNum.textContent = "Today";
+      if (bellCountUnit) bellCountUnit.hidden = true;
+      if (bellNext) bellNext.textContent = line;
+      if (bellDetail) bellDetail.innerHTML = "";
+      spoken = line;
     }
 
-    statusLine.setAttribute(
-      "aria-label",
-      `${spoken}. Open full bell schedule`
-    );
-    statusLine.classList.toggle("is-lunch-split", Boolean(isLunchGroups));
-    statusLine.classList.remove("is-multiline");
+    bellBubble.classList.toggle("is-lunch", Boolean(isLunchGroups));
+    bellBubble.setAttribute("aria-label", `${spoken}. Open full bell schedule`);
   }
 
   function periodShort(label) {
@@ -1721,7 +1733,7 @@
     renderBellModalBody();
     bellModal.classList.add("is-open");
     bellModal.setAttribute("aria-hidden", "false");
-    statusLine?.setAttribute("aria-expanded", "true");
+    bellBubble?.setAttribute("aria-expanded", "true");
     document.body.classList.add("modal-open");
 
     // Defer focus until after paint so the dialog is visible to AT.
@@ -1736,7 +1748,7 @@
     bellModalOpen = false;
     bellModal.classList.remove("is-open");
     bellModal.setAttribute("aria-hidden", "true");
-    statusLine?.setAttribute("aria-expanded", "false");
+    bellBubble?.setAttribute("aria-expanded", "false");
     document.body.classList.remove("modal-open");
 
     const returnTo = bellModalReturnFocus;
@@ -1744,7 +1756,7 @@
     if (returnTo instanceof HTMLElement) {
       returnTo.focus();
     } else {
-      statusLine?.focus();
+      bellBubble?.focus();
     }
   }
 
@@ -1782,7 +1794,7 @@
   }
 
   function wireBellModal() {
-    if (!statusLine || !bellModal) return;
+    if (!bellBubble || !bellModal) return;
 
     const tryOpenBell = () => {
       if (isBellOffDuty()) {
@@ -1792,13 +1804,7 @@
       openBellModal();
     };
 
-    statusLine.addEventListener("click", () => tryOpenBell());
-    statusLine.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        tryOpenBell();
-      }
-    });
+    bellBubble.addEventListener("click", () => tryOpenBell());
 
     bellModal.querySelectorAll("[data-bell-close]").forEach((el) => {
       el.addEventListener("click", () => closeBellModal());
@@ -1823,9 +1829,40 @@
   }
 
   function mediaDetailLine(status) {
-    if (status.tone === "open") return status.detail || "Walk in now";
+    if (status.tone === "open") return status.detail ? `Walk in · ${status.detail}` : "Walk in now";
     if (status.tone === "soon") return status.detail || "Opens later";
+    if (status.tone === "reserved") return "A class has the room";
     return status.title || "Closed";
+  }
+
+  function mediaWindowRows(dayType) {
+    if (!mediaStatusEngine?.buildWindows) return [];
+    const windows = mediaStatusEngine.buildWindows(dayType) || [];
+    return windows.filter((row) => {
+      const id = String(row.id || "");
+      return id === "before" || id.startsWith("lunch-") || id === "after";
+    });
+  }
+
+  function mediaFocusRow(dayType, nowMin) {
+    const rows = mediaWindowRows(dayType).filter(
+      (row) => row.kind === "walkin" && row.startMin != null && row.endMin != null
+    );
+    const current = rows.find((row) => nowMin >= row.startMin && nowMin < row.endMin);
+    if (current) return { row: current, active: true };
+    const upcoming = rows.find((row) => row.startMin > nowMin);
+    if (upcoming) return { row: upcoming, active: false };
+    return null;
+  }
+
+  function mediaFactMarkup(focus) {
+    if (!focus) return "";
+    const time = mediaStatusEngine.formatRange(focus.row.startMin, focus.row.endMin);
+    const label = focus.active ? focus.row.label : `Next · ${focus.row.label}`;
+    return `<div class="fact-row${focus.active ? " is-active" : ""}">
+      <span class="fact-label">${escapeHtml(label)}</span>
+      <span class="fact-time">${escapeHtml(time)}</span>
+    </div>`;
   }
 
   function mediaCalendarDayType(isoDate) {
@@ -1844,133 +1881,27 @@
     const dayType = mediaCalendarDayType(parts.isoDate);
     const status = mediaStatusEngine.computeStatus(dayType, nowMin, parts.isoDate);
     mediaBubble.dataset.tone = status.tone;
+    const focus = mediaFocusRow(dayType, nowMin);
     if (mediaBubblePill) mediaBubblePill.textContent = mediaStatusPillLabel(status);
-    if (mediaBubbleDetail) mediaBubbleDetail.textContent = mediaDetailLine(status);
+    if (mediaBubbleDetail) {
+      if (status.tone === "open" && focus) {
+        mediaBubbleDetail.textContent = `${focus.row.label} · ${mediaStatusEngine.formatRange(
+          focus.row.startMin,
+          focus.row.endMin
+        )}`;
+      } else {
+        mediaBubbleDetail.textContent = mediaDetailLine(status);
+      }
+    }
+    if (mediaBubbleFacts) {
+      const showNext = status.tone !== "open" && focus && !focus.active;
+      mediaBubbleFacts.innerHTML = showNext ? mediaFactMarkup(focus) : "";
+    }
     const why = [status.title, status.detail].filter(Boolean).join(". ");
     mediaBubble.setAttribute(
       "aria-label",
       `Media Center: ${mediaStatusPillLabel(status)}. ${why}. View full hours.`
     );
-  }
-
-  function spotlightToneForSlide(slide, index) {
-    const explicit = String(slide.tone || "").trim().toLowerCase();
-    if (explicit && SPOTLIGHT_TONE_CYCLE.includes(explicit)) return explicit;
-    const eyebrow = String(slide.eyebrow || "").toLowerCase();
-    if (eyebrow.includes("laptop")) return "teal";
-    if (eyebrow.includes("teacher")) return "amber";
-    if (eyebrow.includes("testing today")) return "rose";
-    if (eyebrow.includes("testing")) return "violet";
-    if (eyebrow.includes("calendar")) return "gold";
-    if (eyebrow.includes("flhs")) return "indigo";
-    return SPOTLIGHT_TONE_CYCLE[index % SPOTLIGHT_TONE_CYCLE.length];
-  }
-
-  function applySpotlightTone(slide, index) {
-    if (!spotlightBubble) return;
-    spotlightBubble.setAttribute("data-spotlight-tone", spotlightToneForSlide(slide, index));
-  }
-
-  function buildSpotlightSlides() {
-    /** @type {typeof spotlightSlides} */
-    const slides = [];
-    if (Array.isArray(mediaCfg?.homeAnnouncements)) {
-      for (const item of mediaCfg.homeAnnouncements) {
-        if (!item?.title) continue;
-        slides.push({
-          eyebrow: item.eyebrow || "Announcement",
-          title: item.title,
-          detail: item.detail || "",
-          href: item.href || "",
-          linkLabel: item.linkLabel || "Learn more",
-          tone: item.tone || "",
-        });
-      }
-    }
-
-    const parts = easternParts();
-    const tests = testingByDate.get(parts.isoDate) || [];
-    for (const row of tests) {
-      slides.push({
-        eyebrow: "Testing today",
-        title: row.title,
-        detail: row.details || row.category || "See FLHS Testing for your room.",
-        href: "pages/student-locator.html",
-        linkLabel: "Find test room",
-        tone: "rose",
-      });
-    }
-
-    if (currentDayInfo?.exam && currentDayInfo.notes) {
-      slides.unshift({
-        eyebrow: "Today on calendar",
-        title: currentDayInfo.status || currentDayInfo.notes,
-        detail: currentDayInfo.notes,
-        href: "pages/calendar.html",
-        linkLabel: "Open calendar",
-        tone: "gold",
-      });
-    }
-
-    if (!slides.length) {
-      slides.push({
-        eyebrow: "FLHS Help",
-        title: "Quick links below",
-        detail: "Tickets, testing, calendar, and Media Center hours — all on this page.",
-        href: "pages/resources.html",
-        linkLabel: "Student resources",
-        tone: "indigo",
-      });
-    }
-    return slides;
-  }
-
-  function renderSpotlightSlide(index, animate = false) {
-    if (!spotlightBubble || !spotlightSlides.length) return;
-    const slideIndex = index % spotlightSlides.length;
-    const slide = spotlightSlides[slideIndex];
-    const apply = () => {
-      applySpotlightTone(slide, slideIndex);
-      if (spotlightEyebrow) spotlightEyebrow.textContent = slide.eyebrow || "Spotlight";
-      if (spotlightTitle) spotlightTitle.textContent = slide.title;
-      if (spotlightDetail) spotlightDetail.textContent = slide.detail || "";
-      const href = slide.href || "pages/resources.html";
-      spotlightBubble.setAttribute("href", href);
-      if (spotlightLinkLabel) spotlightLinkLabel.textContent = slide.linkLabel || "Learn more";
-      if (spotlightHint) spotlightHint.hidden = false;
-      spotlightBubble.setAttribute(
-        "aria-label",
-        `${slide.eyebrow || "Spotlight"}: ${slide.title}. ${slide.detail || ""}`
-      );
-      spotlightBubble.classList.remove("is-fading");
-    };
-    if (animate && spotlightBody) {
-      applySpotlightTone(slide, slideIndex);
-      spotlightBubble.classList.add("is-fading");
-      window.setTimeout(apply, 280);
-    } else {
-      apply();
-    }
-  }
-
-  function rebuildSpotlightSlides() {
-    spotlightSlides = buildSpotlightSlides();
-    spotlightIndex = 0;
-    renderSpotlightSlide(0, false);
-  }
-
-  function advanceSpotlight() {
-    if (spotlightSlides.length < 2) return;
-    spotlightIndex = (spotlightIndex + 1) % spotlightSlides.length;
-    renderSpotlightSlide(spotlightIndex, true);
-  }
-
-  function startSpotlightRotation() {
-    if (spotlightTimer) clearInterval(spotlightTimer);
-    spotlightTimer = 0;
-    const sec = Number(mediaCfg?.homeSpotlightSeconds) || 8;
-    if (spotlightSlides.length < 2) return;
-    spotlightTimer = window.setInterval(advanceSpotlight, Math.max(5, sec) * 1000);
   }
 
   function refreshDay() {
@@ -2001,8 +1932,6 @@
       renderDayBubble(todayInfo);
     }
     refreshBellStatus();
-    rebuildSpotlightSlides();
-    startSpotlightRotation();
     refreshMediaBubble();
   }
 
@@ -2188,7 +2117,6 @@
     window.addEventListener("beforeunload", () => {
       clearInterval(clockTimer);
       clearInterval(dayTimer);
-      if (spotlightTimer) clearInterval(spotlightTimer);
     });
   }
 
