@@ -1,14 +1,12 @@
 # Security
 
-The testing-roster upload at `/pages/upload.html` requires a signed-in `@browardschools.com` account. The shared upload key is not accepted by that API.
-
-Other staff tools (STAR settings, Mission Control, laptop count, room and phone, coupons) still use the existing staff key. They are not the roster upload.
+Staff tools use the staff upload key. That includes the testing-roster upload, STAR settings, Mission Control, laptop count, the room and phone tracker, and the coupon tools. A Broward Schools email is not required.
 
 ## What is protected
 
 | Data | Where it lives | Who can reach it |
 | --- | --- | --- |
-| Testing assignments, student roster, staff directory, kiosk rows | `private` schema | No anon policies. The browser uses one-student RPCs. Roster replace runs only inside the edge function after a district session. |
+| Testing assignments, student roster, staff directory, kiosk rows | `private` schema | No anon policies. The browser uses one-student RPCs. Roster replace runs only inside the edge function after the staff key is accepted. |
 | Audit trail | `private.audit_log` | No anon or authenticated grants. The edge function writes it with the service role. |
 | Laptop checkout kiosk | `public.laptop_checkins` | RLS is on. The public kiosk still inserts and reads rows so checkout works. This is not the student roster. |
 | School calendar, bell schedule, media hours | `data/*.csv` and `data/media-center.json` that are tracked | Public pages. These files are not student records. |
@@ -17,11 +15,9 @@ Every table in `public` and `private` has Row Level Security enabled. A table wi
 
 ## How upload auth works
 
-1. The upload page asks for an email. Anything that is not exactly `@browardschools.com` is stopped in the browser.
-2. A matching address gets an email one-time code from Supabase Auth.
-3. New accounts are also rejected in the database by `private.restrict_staff_signup`, after that hook is turned on (see `WALKTHROUGH.md`).
-4. `replace-test-assignments` calls `auth.getUser` on the bearer token. No user, or a non-district email, is rejected. The old `x-flhs-upload-key` header is ignored.
-5. A successful or failed replace is written to `private.audit_log` with the staff email, row count, and time.
+1. The upload page asks for the staff upload key.
+2. `replace-test-assignments` accepts that key in the `x-flhs-upload-key` header. A missing or wrong key is rejected.
+3. The service-role client inside the function replaces the roster. The browser never receives that key.
 
 The service-role key stays in the Supabase edge-function environment. It is not in the website.
 
