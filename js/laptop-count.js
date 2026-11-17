@@ -1,9 +1,12 @@
 (() => {
+  const KEY_STORAGE = "flhs-upload-key";
   const FUNCTION_URL =
     "https://lharxnpvcprthgabklwo.supabase.co/functions/v1/manage-laptop-needs";
 
   const gate = document.getElementById("lock-gate");
   const app = document.getElementById("app");
+  const keyInput = document.getElementById("upload-key");
+  const unlockForm = document.getElementById("unlock-form");
   const gateStatus = document.getElementById("gate-status");
   const statusEl = document.getElementById("status");
   const tbody = document.getElementById("count-body");
@@ -76,6 +79,22 @@
     { key: "expected", label: "Expected" },
     { key: "kind", label: "Kind" },
   ];
+
+  function getSavedKey() {
+    try {
+      return sessionStorage.getItem(KEY_STORAGE) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  function saveKey(key) {
+    try {
+      sessionStorage.setItem(KEY_STORAGE, key);
+    } catch {
+      /* ignore */
+    }
+  }
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -809,9 +828,17 @@ Fort Lauderdale HS · Media Center / IT`;
   }
 
   async function apiAction(body) {
+    const key = getSavedKey();
+    if (!key) throw new Error("Unlock with the staff upload key first");
+    const cfg = window.FLHS_SUPABASE || {};
     const response = await fetch(FUNCTION_URL, {
       method: "POST",
-      headers: await window.flhsStaff.headers(),
+      headers: {
+        "Content-Type": "application/json",
+        apikey: cfg.anonKey,
+        Authorization: `Bearer ${cfg.anonKey}`,
+        "x-flhs-upload-key": key,
+      },
       body: JSON.stringify(body),
     });
     const data = await response.json().catch(() => ({}));
@@ -1107,24 +1134,36 @@ Fort Lauderdale HS · Media Center / IT`;
     renderInventory();
   }
 
-  async function load() {
+  async function load(key) {
+    saveKey(key);
     gate.hidden = true;
     app.hidden = false;
     setStatus(statusEl, "Loading…");
-    await apiAction({ action: "status" });
-    setStatus(
-      statusEl,
-      `${inventory.length} carts on file · ${forms.length} form${forms.length === 1 ? "" : "s"} submitted`,
-      "ok"
-    );
+    try {
+      await apiAction({ action: "status" });
+      setStatus(
+        statusEl,
+        `${inventory.length} carts on file · ${forms.length} form${forms.length === 1 ? "" : "s"} submitted`,
+        "ok"
+      );
+    } catch (err) {
+      throw err;
+    }
   }
 
-  document.addEventListener("flhs-staff-unlocked", () => {
-    load().catch((err) => {
-      gate.hidden = false;
-      app.hidden = true;
-      setStatus(gateStatus, err.message || "Could not open the list.", "err");
-    });
+  unlockForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const key = keyInput.value.trim();
+    if (!key) {
+      setStatus(gateStatus, "Enter the staff upload key", "err");
+      return;
+    }
+    setStatus(gateStatus, "Checking key…");
+    try {
+      await load(key);
+    } catch (err) {
+      setStatus(gateStatus, err.status === 401 ? "That key is not valid" : err.message, "err");
+    }
   });
 
   search?.addEventListener("input", () => {
@@ -1225,4 +1264,13 @@ Fort Lauderdale HS · Media Center / IT`;
     const row = joinedRows().find((item) => Number(item.person.id) === id);
     if (row) openTechEditor(row);
   });
+
+  const saved = getSavedKey();
+  if (saved && keyInput) {
+    keyInput.value = saved;
+    load(saved).catch(() => {
+      gate.hidden = false;
+      app.hidden = true;
+    });
+  }
 })();

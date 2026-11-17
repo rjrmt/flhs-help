@@ -1,11 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { districtEmailFromRequest } from "../_shared/staff-session.ts";
+import { isUploadAuthorized } from "../_shared/upload-auth.ts";
 
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-flhs-upload-key",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -66,8 +66,10 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
-  const session = await districtEmailFromRequest(req);
-  if ("error" in session) return jsonResponse({ error: session.error }, session.status);
+  const provided = req.headers.get("x-flhs-upload-key") || "";
+  if (!isUploadAuthorized(provided)) {
+    return jsonResponse({ error: "Unauthorized" }, 401);
+  }
 
   let payload: {
     action?: string;

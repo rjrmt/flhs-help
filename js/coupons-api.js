@@ -1,14 +1,47 @@
-/* Admin client for Flying L coupon tools. Requires a signed-in BCPS email. */
+/* Admin client for Flying L coupon tools. Uses the same staff upload key
+   as the testing-roster upload page (sessionStorage flhs-upload-key). */
 (() => {
+  const KEY_STORAGE = "flhs-upload-key";
   const FUNCTION_URL =
     "https://lharxnpvcprthgabklwo.supabase.co/functions/v1/manage-coupons";
 
+  function getSavedKey() {
+    try {
+      return sessionStorage.getItem(KEY_STORAGE) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  function saveKey(key) {
+    try {
+      sessionStorage.setItem(KEY_STORAGE, key);
+    } catch {
+      /* ignore */
+    }
+  }
+
   async function request(action, body = {}) {
+    const key = String(body.uploadKey || getSavedKey() || "").trim();
+    if (!key) {
+      const err = new Error("Enter the staff upload key");
+      err.code = "NO_KEY";
+      throw err;
+    }
+    const cfg = window.FLHS_SUPABASE || {};
+    if (!cfg.anonKey) throw new Error("Missing public Supabase config");
+
     const payload = { ...body, action };
     delete payload.uploadKey;
+
     const response = await fetch(FUNCTION_URL, {
       method: "POST",
-      headers: await window.flhsStaff.headers(),
+      headers: {
+        "Content-Type": "application/json",
+        apikey: cfg.anonKey,
+        Authorization: `Bearer ${cfg.anonKey}`,
+        "x-flhs-upload-key": key,
+      },
       body: JSON.stringify(payload),
     });
     const data = await response.json().catch(() => ({}));
@@ -17,6 +50,7 @@
       err.status = response.status;
       throw err;
     }
+    saveKey(key);
     return data;
   }
 
@@ -119,6 +153,9 @@
   }
 
   window.FLHSCouponsApi = {
+    KEY_STORAGE,
+    getSavedKey,
+    saveKey,
     request,
     parseRosterText,
   };
