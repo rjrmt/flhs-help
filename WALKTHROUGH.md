@@ -21,34 +21,11 @@ That script:
 
 It does not replace the existing testing-roster function and it does not truncate any table.
 
-## 3. Auth settings
+## 3. Staff key
 
-1. Open **Authentication → Providers → Email**.
-2. Turn **Email** on.
-3. Turn **Confirm email** on if it is not already.
-4. Leave password sign-in off if you only want the one-time code. The upload page uses **Email OTP**.
-5. Under **Authentication → URL configuration**, set **Site URL** to `https://www.flhshelp.com`. Add `http://localhost:3000` as a redirect URL so local sign-in can finish.
-6. Under **Authentication → Rate limits**, keep the default OTP limit so a public page cannot request codes in a loop.
+Internal apps ask for the staff upload key. They do not send a Broward Schools email or a one-time code. The accepted key is checked inside each edge function.
 
-## 4. Allowed domain
-
-The browser rejects any address that is not exactly `@browardschools.com`. The upload API checks the same rule on the signed-in user.
-
-Also turn on the database hook so a non-district address cannot create an account by calling the Auth API directly:
-
-1. Open **Authentication → Hooks**.
-2. Choose **Before user created**.
-3. Select **Postgres**.
-4. Set the function to `private.restrict_staff_signup`.
-5. Save and enable the hook.
-
-The URI form, if the screen asks for one, is:
-
-```text
-pg-functions://postgres/private/restrict_staff_signup
-```
-
-## 5. Environment variables
+## 4. Environment variables
 
 On your machine:
 
@@ -78,7 +55,7 @@ On Vercel, for the preview of this branch and later for production:
 3. Set the build command to `npm run config` so the file exists before the static files are published.
 4. Do not add `SUPABASE_SERVICE_ROLE_KEY` to Vercel. The edge function already receives it from Supabase.
 
-## 6. Deploy the upload function
+## 5. Deploy the upload function
 
 From a machine logged into the Supabase CLI:
 
@@ -86,17 +63,17 @@ From a machine logged into the Supabase CLI:
 supabase functions deploy replace-test-assignments --project-ref lharxnpvcprthgabklwo
 ```
 
-Or deploy the same function from the Supabase dashboard using `supabase/functions/replace-test-assignments/index.ts`. `verify_jwt` stays on. The function still checks that the token belongs to a district user, because the anon key is also a JWT.
+Or deploy the same function from the Supabase dashboard using `supabase/functions/replace-test-assignments/index.ts`. `verify_jwt` stays on. The function checks the staff upload key itself.
 
-## 7. Check it
+Also deploy `manage-kiosks`, `manage-coupons`, `manage-laptop-needs`, and `manage-room-phones` from this same tree so those tools accept the key.
 
-1. Open `/pages/upload.html`.
-2. Enter a non-district email such as `person@gmail.com`. The page should refuse to send a code.
-3. Call the Auth OTP endpoint directly with that same address. With the hook enabled, the response is 403.
-4. Sign in with your own `@browardschools.com` address, enter the code from email, and upload a small roster file. The locator for one of those student IDs should show the new row, and `private.audit_log` should have your email.
-5. Call `replace-test-assignments` with no session, and again with only the old upload key. Both should be 401.
-6. Open the homepage, the testing locator, and Meet RJ. They should load without signing in. The Testing Locator tile on Meet RJ goes to `student-locator.html`.
+## 6. Check it
 
-## 8. History cleanup, later
+1. Open `/pages/upload.html`. The page should ask for the staff upload key, not an email.
+2. Call `replace-test-assignments` with no key. It should be 401.
+3. Open Mission Control, the coupon tools, the laptop count, and the room-and-phone tracker. Each should ask for the same key.
+4. Open the homepage, the testing locator, and Meet RJ. They should load without the key. The Testing Locator tile on Meet RJ goes to `student-locator.html`.
+
+## 7. History cleanup, later
 
 `data/laptop-eligible.csv` is still in git history at commit `20711eb6`. The exact rewrite steps are in `SECURITY.md`. Do not force-push until you decide to.
